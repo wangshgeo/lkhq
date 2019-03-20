@@ -1,0 +1,7 @@
+*.pyc
+*.tsp
+*.o
+k-opt.out
+*.dSYM
+output/*
+saves/*
