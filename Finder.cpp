@@ -7,9 +7,8 @@ bool Finder::find_best()
     primitives::point_id_t i {start};
     do
     {
-        std::cout << i << std::endl;
         m_swap_end = m_tour.prev(i);
-        start_search(i, m_tour.prev(i));
+        start_search(i, m_swap_end);
         m_swap_end = m_tour.next(i);
         start_search(i, i);
         i = m_tour.next(i);
@@ -20,6 +19,10 @@ bool Finder::find_best()
 void Finder::start_search(const primitives::point_id_t swap_start
     , const primitives::point_id_t removed_edge)
 {
+    if (m_first_improvement and m_best_improvement > 0)
+    {
+        return;
+    }
     const auto remove {m_tour.length(removed_edge)};
     m_starts.push_back(swap_start);
     m_removes.push_back(removed_edge);
@@ -53,6 +56,10 @@ void Finder::start_search(const primitives::point_id_t swap_start
 void Finder::search_both_sides(const primitives::length_t removed
     , const primitives::length_t added)
 {
+    if (m_first_improvement and m_best_improvement > 0)
+    {
+        return;
+    }
     // each point p in m_removes represents the edge (p, next(p)).
     // here, m_starts.size() == m_ends.size(), and m_removes.size() == m_ends.size()
     const auto prev {m_tour.prev(m_ends.back())};
@@ -86,6 +93,10 @@ void Finder::search_neighbors(const primitives::point_id_t new_start
     , const primitives::length_t removed
     , const primitives::length_t added)
 {
+    if (m_first_improvement and m_best_improvement > 0)
+    {
+        return;
+    }
     const auto remove {m_tour.length(new_remove)};
     // first check if can close.
     const auto closing_length {m_tour.length(new_start, m_swap_end)};
@@ -202,6 +213,7 @@ bool Finder::feasible() const
         edge_index[edges[i].first] = i;
         edge_index[edges[i].second] = i;
         new_edges[m_starts[i]] = m_ends[i];
+        new_edges[m_ends[i]] = m_starts[i];
     }
 
     // traversal
@@ -238,7 +250,11 @@ bool Finder::feasible() const
         }
         else
         {
-            index = (index + 1) % edges.size();
+            ++index;
+            if (index == edges.size())
+            {
+                index = 0;
+            }
             current = edges[index].first;
         }
         ++visited;

@@ -10,8 +10,8 @@
 class Finder
 {
 public:
-    Finder(const point_quadtree::Node& root, Tour& tour, size_t kmax = 2)
-        : m_root(root), m_tour(tour), m_kmax(kmax) {}
+    Finder(const point_quadtree::Node& root, Tour& tour)
+        : m_root(root), m_tour(tour) {}
 
     // returns true if an improving swap was found.
     bool find_best();
@@ -23,7 +23,8 @@ public:
 private:
     const point_quadtree::Node& m_root;
     Tour& m_tour;
-    size_t m_kmax {0};
+    size_t m_kmax {4};
+    bool m_first_improvement {true};
 
     std::vector<primitives::point_id_t> m_starts; // start of new edge.
     std::vector<primitives::point_id_t> m_ends; // end of new edge.
