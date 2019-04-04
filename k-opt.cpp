@@ -107,6 +107,7 @@ int main(int argc, const char** argv)
     {
         fileio::write_ordered_points(tour.order(), "saves/test.tour");
     }
+    std::cout << "Entries in length map: " << length_map.entries() << std::endl;
 
     return 0;
 }
