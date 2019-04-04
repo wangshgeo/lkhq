@@ -11,16 +11,13 @@ Using a quad tree has the following advantages:
 2. O(n * (log(n) ^ (k - 1))) work complexity. Keep in mind k for each move is decided during search.
 
 The efficacy of LK can be attributed to the fact that k-opt moves contain at least
-one addition and one deletion of edges that occur at a common point.
-LK looks directly for this feature instead of trying expensive k-opt combinations
-in the typical naive manner.
+one addition and one deletion of edges that occur at a common point, with net cost improvement.
+LK looks directly for this feature instead of expensively trying all k-opt combinations.
 
-This repo implements "forward swaps", which are a subset of typical acceptable LK/LKH moves.
-Removed edges must occur in traversal order. Candidates for removal are limited to edges coming
-"after" (in terms of traversal order) the most recently removed edge.
-
-This repo also implements k-opt swaps that can produce an arbitrary number of cycles.
+Coming soon: This repo also implements k-opt swaps that can produce an arbitrary number of cycles.
 In the case of multiple cycles, they are rejoined one at a time via a 2-opt move.
+LKH also allows for multiple cycles to be formed and rejoined, but does not allow for
+new joining edges to be replaced, as in the present one-at-a-time 2-opt join.
 
 Compilation:
 1. Make sure "CXX" in "makefile" is set to the desired compiler.

@@ -32,12 +32,14 @@ int main(int argc, const char** argv)
 
     Finder finder(root, tour);
 
+    int iteration {1};
     while (finder.find_best())
     {
-        //std::cout << "iteration" << std::endl;
-        //std::cout << finder.starts().size() << std::endl;
         tour.swap(finder.best_starts(), finder.best_ends(), finder.best_removes());
-        std::cout << tour.length() << std::endl;
+        std::cout << "iteration " << iteration
+            << " current tour length: " << tour.length()
+            << std::endl;
+        ++iteration;
     }
     if (constants::write_best)
     {
