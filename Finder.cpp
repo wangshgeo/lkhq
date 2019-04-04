@@ -102,6 +102,19 @@ void Finder::search_neighbors(const primitives::point_id_t new_start
     const auto closing_length {m_tour.length(new_start, m_swap_end)};
     const auto total_closing_add {closing_length + added};
     const auto total_remove {removed + remove};
+    if (m_save_lateral_moves and total_remove == total_closing_add)
+    {
+        m_starts.push_back(new_start);
+        m_ends.push_back(m_swap_end);
+        m_removes.push_back(new_remove);
+        if (feasible())
+        {
+            m_lateral_moves.push_back({m_starts, m_ends, m_removes});
+        }
+        m_starts.pop_back();
+        m_ends.pop_back();
+        m_removes.pop_back();
+    }
     const bool improving {total_remove > total_closing_add};
     if (improving)
     {
@@ -115,16 +128,16 @@ void Finder::search_neighbors(const primitives::point_id_t new_start
                 // std::cout << "found feasible" << std::endl;
                 check_best(total_remove - total_closing_add);
             }
-            /*
-            else
+            else if (m_save_nonsequential)
             {
-                // std::cout << "nonsequential" << std::endl;
+                m_nonsequential_moves.push_back({m_starts, m_ends, m_removes});
+                /*
                 if (test_nonfeasible(root, tour, starts, ends, m_removes))
                 {
                     return true;
                 }
+                */
             }
-            */
             m_starts.pop_back();
             m_ends.pop_back();
             m_removes.pop_back();

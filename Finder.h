@@ -20,11 +20,27 @@ public:
     const std::vector<primitives::point_id_t>& best_ends() const { return m_best_ends; }
     const std::vector<primitives::point_id_t>& best_removes() const { return m_best_removes; }
 
+    struct Move
+    {
+        std::vector<primitives::point_id_t> starts;
+        std::vector<primitives::point_id_t> ends;
+        std::vector<primitives::point_id_t> removes;
+    };
+    const std::vector<Move>& lateral_moves() const { return m_lateral_moves; }
+    void save_lateral_moves() { m_save_lateral_moves = true; }
+    const std::vector<Move>& nonsequential_moves() const { return m_nonsequential_moves; }
+    void save_nonsequential_moves() { m_save_nonsequential = true; }
+
 private:
     const point_quadtree::Node& m_root;
     Tour& m_tour;
     size_t m_kmax {4};
     bool m_first_improvement {true};
+    bool m_save_lateral_moves {false};
+    bool m_save_nonsequential {false};
+
+    std::vector<Move> m_lateral_moves;
+    std::vector<Move> m_nonsequential_moves;
 
     std::vector<primitives::point_id_t> m_starts; // start of new edge.
     std::vector<primitives::point_id_t> m_ends; // end of new edge.
@@ -54,6 +70,7 @@ private:
         m_removes.clear();
         m_swap_end = constants::invalid_point;
         m_best_improvement = 0;
+        m_lateral_moves.clear();
     }
 
     void check_best(primitives::length_t improvement)
