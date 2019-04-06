@@ -34,7 +34,7 @@ public:
 private:
     const point_quadtree::Node& m_root;
     Tour& m_tour;
-    size_t m_kmax {4};
+    size_t m_kmax {5};
     bool m_first_improvement {true};
     bool m_save_lateral_moves {false};
     bool m_save_nonsequential {false};
@@ -71,6 +71,7 @@ private:
         m_swap_end = constants::invalid_point;
         m_best_improvement = 0;
         m_lateral_moves.clear();
+        m_nonsequential_moves.clear();
     }
 
     void check_best(primitives::length_t improvement)

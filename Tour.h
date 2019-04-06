@@ -59,7 +59,7 @@ public:
     Box search_box_prev(primitives::point_id_t i) const;
     Box search_box(primitives::point_id_t i, primitives::length_t radius) const;
 
-    void validate() const;
+    void validate(bool suppress_success = false) const;
     bool async_update() const { return m_async_update; }
     void async_update(bool val) { m_async_update = val; }
 

@@ -14,7 +14,6 @@ Tour::Tour(const point_quadtree::Domain* domain
     update_next();
 }
 
-
 void Tour::update_multicycle()
 {
     std::fill(std::begin(m_cycle_id), std::end(m_cycle_id), constants::invalid_cycle);
@@ -315,7 +314,7 @@ void Tour::vacate_adjacent_slot(primitives::point_id_t point, primitives::point_
     }
 }
 
-void Tour::validate() const
+void Tour::validate(bool suppress_success) const
 {
     constexpr primitives::point_id_t start {0};
     primitives::point_id_t current {start};
@@ -335,6 +334,9 @@ void Tour::validate() const
         std::cout << __func__ << ": error: invalid tour." << std::endl;
         std::abort();
     }
-    std::cout << __func__ << ": success: tour valid." << std::endl;
+    if (not suppress_success)
+    {
+        std::cout << __func__ << ": success: tour valid." << std::endl;
+    }
 }
 

@@ -170,7 +170,7 @@ void Finder::search_neighbors(const primitives::point_id_t new_start
 
         // check if worth considering.
         const auto add {m_tour.length(new_start, p)};
-        if (margin <= add)
+        if (margin < add)
         {
             continue;
         }

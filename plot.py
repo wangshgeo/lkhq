@@ -48,8 +48,10 @@ def read_and_plot_tour(tour_file_path, color):
     plt.plot([c[0], n[0]], [c[1], n[1]], color)
     plt.axis("equal")
 
+print("plotting tours.")
 colors = ["b", "r:"]
 for i in range(2, len(sys.argv)):
     read_and_plot_tour(sys.argv[i], colors[i % len(colors)])
 
+print("showing plot.")
 plt.show()

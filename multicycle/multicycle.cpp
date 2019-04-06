@@ -246,4 +246,94 @@ std::array<std::vector<primitives::point_id_t>, 3> find_swap(Tour& tour
     return {};
 }
 
+void optimize(const point_quadtree::Node& root, Tour& tour)
+{
+    const auto start_length {tour.length()};
+    bool improved {false};
+    do
+    {
+        improved = false;
+
+        // std::cout << "start multi search" << std::endl;
+        const auto feasible_swap {multicycle::find_swap(tour, root)};
+        const auto& starts {feasible_swap[0]};
+        const auto& ends {feasible_swap[1]};
+        const auto& removed_edges {feasible_swap[2]};
+
+        /*
+        int i {0};
+        for (auto p : tour.order())
+        {
+            std::cout << i << ": " << p << std::endl;
+            ++i;
+        }
+        std::cout << std::endl;
+        for (size_t i {0}; i < starts.size(); ++i)
+        {
+            std::cout << starts[i] << ", " << ends[i]
+                << ", " << removed_edges[i] << std::endl;
+        }
+        */
+
+        // std::cout << "start multi swap" << std::endl;
+        if (starts.size() > 0)
+        {
+            auto test_tour {tour};
+            test_tour.multicycle_swap(starts, ends, removed_edges);
+            while (test_tour.split())
+            {
+                // std::cout << "tour is split" << std::endl;
+                simple_merge::merge_once(root, test_tour);
+            }
+            if (test_tour.length() < tour.length())
+            {
+                tour = test_tour;
+            }
+        }
+
+        if (not multicycle::break_detection::single_cycle(tour))
+        {
+            std::cout << "not a single cycle" << std::endl;
+            std::abort();
+        }
+
+        // std::cout << "finished iteration" << std::endl;
+    } while (improved);
+    if (tour.length() < start_length)
+    {
+        std::cout << "updated best length: " << tour.length() << std::endl;
+    }
+    // tour.validate();
+}
+
+bool test_nonfeasible(const point_quadtree::Node& root
+    , Tour& tour
+    , const std::vector<primitives::point_id_t>& starts
+    , const std::vector<primitives::point_id_t>& ends
+    , const std::vector<primitives::point_id_t>& removed_edges)
+{
+    auto test_tour {tour};
+    test_tour.multicycle_swap(starts, ends, removed_edges);
+    while (test_tour.split())
+    {
+        // std::cout << "tour is split" << std::endl;
+        simple_merge::merge_once(root, test_tour);
+    }
+    return test_tour.length() < tour.length();
+}
+
+void merge(const point_quadtree::Node& root, Tour& tour)
+{
+    while (tour.split())
+    {
+        simple_merge::merge_once(root, tour);
+    }
+    if (not multicycle::break_detection::single_cycle(tour))
+    {
+        std::cout << "not a single cycle" << std::endl;
+        std::abort();
+    }
+    //tour.validate();
+}
+
 } // namespace multicycle

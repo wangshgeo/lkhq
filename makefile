@@ -7,7 +7,8 @@ CXX_FLAGS += -I./ # include paths.
 
 SRCS = k-opt.cpp Tour.cpp \
 	Finder.cpp \
-	LengthMap.cpp point_quadtree/Node.cpp
+	LengthMap.cpp point_quadtree/Node.cpp \
+    multicycle/multicycle.cpp
 
 %.o: %.cpp; $(CXX) $(CXX_FLAGS) -o $@ -c $<
 

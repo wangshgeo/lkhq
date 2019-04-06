@@ -2,24 +2,30 @@
 #include "LengthMap.h"
 #include "Tour.h"
 #include "fileio.h"
+#include "multicycle/multicycle.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
 
 #include <iostream>
 #include <map>
 
-void hill_climb(const point_quadtree::Node& root, Tour& tour)
+// true if improvement found.
+bool hill_climb(const point_quadtree::Node& root, Tour& tour, bool suppress_output = false)
 {
     Finder finder(root, tour);
     int iteration {1};
     while (finder.find_best())
     {
         tour.swap(finder.best_starts(), finder.best_ends(), finder.best_removes());
-        std::cout << "iteration " << iteration
-            << " current tour length: " << tour.length()
-            << std::endl;
+        if (not suppress_output)
+        {
+            std::cout << "iteration " << iteration
+                << " current tour length: " << tour.length()
+                << std::endl;
+        }
         ++iteration;
     }
+    return iteration > 1;
 }
 
 void try_lateral(const point_quadtree::Node& root, Tour& tour)
@@ -54,28 +60,50 @@ void try_lateral(const point_quadtree::Node& root, Tour& tour)
     }
 }
 
-void try_nonsequential(const point_quadtree::Node& root, Tour& tour)
+// true if improvement found.
+bool try_nonsequential(const point_quadtree::Node& root, Tour& tour)
 {
-    // const auto old_length = tour.length();
+    const auto old_length = tour.length();
     Finder finder(root, tour);
     finder.save_nonsequential_moves();
     if (finder.find_best())
     {
         std::cout << "attempted nonsequential move when improvement exists!" << std::endl;
-        return;
+        return false;
     }
     std::cout << "Attempting "
         << finder.nonsequential_moves().size()
         << " nonsequential moves." << std::endl;
     std::map<int, int> k;
+    int iteration {1};
+    bool improved {false};
     for (const auto& move : finder.nonsequential_moves())
     {
+        std::cout << "Attempting nonsequential move " << iteration
+            << " (" << move.removes.size() << " edges replaced)"
+            << std::endl;
         ++k[move.removes.size()];
+        auto new_tour = tour;
+        new_tour.multicycle_swap(move.starts, move.ends, move.removes);
+        multicycle::merge(root, new_tour);
+        hill_climb(root, new_tour, true);
+        const auto new_length = new_tour.length();
+        if (new_length < old_length)
+        {
+            std::cout << "found nonsequential improvement; new length: "
+                << new_length
+                << std::endl;
+            tour = new_tour;
+            improved = true;
+            break;
+        }
+        ++iteration;
     }
     for (const auto& pair : k)
     {
         std::cout << pair.first << "-moves: " << pair.second << std::endl;
     }
+    return improved;
 }
 
 int main(int argc, const char** argv)
@@ -101,13 +129,18 @@ int main(int argc, const char** argv)
     // Quad tree.
     const auto root {point_quadtree::make_quadtree(x, y, domain)};
 
-    hill_climb(root, tour);
-    try_nonsequential(root, tour);
+    bool improved {false};
+    do
+    {
+        improved = false;
+        improved |= hill_climb(root, tour);
+        improved |= try_nonsequential(root, tour);
+        std::cout << "Entries in length map: " << length_map.entries() << std::endl;
+    } while (improved);
     if (constants::write_best)
     {
         fileio::write_ordered_points(tour.order(), "saves/test.tour");
     }
-    std::cout << "Entries in length map: " << length_map.entries() << std::endl;
-
+    std::cout << "final length: " << tour.length() << std::endl;
     return 0;
 }
