@@ -1,6 +1,7 @@
 #include "Finder.h"
 #include "LengthMap.h"
 #include "Tour.h"
+#include "shuffler.h"
 #include "fileio.h"
 #include "multicycle/multicycle.h"
 #include "point_quadtree/Domain.h"
@@ -106,6 +107,46 @@ bool try_nonsequential(const point_quadtree::Node& root, Tour& tour)
     return improved;
 }
 
+void shuffle(const point_quadtree::Node& root, Tour& tour)
+{
+    auto old_length = tour.length();
+    //const size_t shuffle_length {static_cast<size_t>(std::sqrt(tour.size()))};
+    //const size_t shuffle_length {static_cast<size_t>(std::log(tour.size()))};
+    //const size_t shuffle_length {30};
+    const size_t shuffle_length {10};
+    size_t iteration {1};
+    while (true)
+    {
+        for (size_t i {0}; i < tour.size(); ++i)
+        {
+            const auto shuffled = shuffler::shuffle(tour.order(), i, shuffle_length);
+            Tour new_tour(tour.domain(), shuffled, tour.length_map());
+            hill_climb(root, new_tour, true);
+            const auto new_length {new_tour.length()};
+            std::cout << "iteration " << iteration
+                << ", length " << new_length
+                << " (best: " << old_length << ")"
+                << std::endl;
+            if (new_length < old_length)
+            {
+                old_length = new_length;
+                tour = new_tour;
+                std::cout << "new length: " << new_length << std::endl;
+                if (constants::write_best)
+                {
+                    fileio::write_ordered_points(tour.order(), "saves/test.tour");
+                }
+                if (constants::quit_after_improvement)
+                {
+                    std::cout << "quitting after first improvement." << std::endl;
+                    return;
+                }
+            }
+            ++iteration;
+        }
+    }
+}
+
 int main(int argc, const char** argv)
 {
     if (argc < 2)
@@ -129,6 +170,10 @@ int main(int argc, const char** argv)
     // Quad tree.
     const auto root {point_quadtree::make_quadtree(x, y, domain)};
 
+    hill_climb(root, tour);
+    shuffle(root, tour);
+
+    /*
     bool improved {false};
     do
     {
@@ -142,5 +187,7 @@ int main(int argc, const char** argv)
         fileio::write_ordered_points(tour.order(), "saves/test.tour");
     }
     std::cout << "final length: " << tour.length() << std::endl;
+    */
+
     return 0;
 }

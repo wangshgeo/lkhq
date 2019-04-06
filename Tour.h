@@ -54,6 +54,8 @@ public:
     }
 
     const LengthMap& length_map() const { return *m_length_map; }
+    LengthMap* length_map() { return m_length_map; }
+    const point_quadtree::Domain* domain() const { return m_domain; }
 
     Box search_box_next(primitives::point_id_t i) const;
     Box search_box_prev(primitives::point_id_t i) const;

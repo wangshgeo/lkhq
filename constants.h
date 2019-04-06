@@ -18,4 +18,6 @@ constexpr bool print_local_optima {true};
 constexpr bool print_iterations {true};
 constexpr bool verify {true};
 
+constexpr bool quit_after_improvement {false};
+
 } // namespace constants

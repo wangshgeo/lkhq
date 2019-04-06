@@ -34,7 +34,7 @@ public:
 private:
     const point_quadtree::Node& m_root;
     Tour& m_tour;
-    size_t m_kmax {5};
+    size_t m_kmax {2};
     bool m_first_improvement {true};
     bool m_save_lateral_moves {false};
     bool m_save_nonsequential {false};
