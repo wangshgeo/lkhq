@@ -10,10 +10,13 @@
 #include <iostream>
 #include <map>
 
+constexpr size_t default_kmax {4};
+
 // true if improvement found.
-bool hill_climb(const point_quadtree::Node& root, Tour& tour, bool suppress_output = false)
+bool hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, bool suppress_output = false)
 {
     Finder finder(root, tour);
+    finder.set_kmax(kmax);
     int iteration {1};
     while (finder.find_best())
     {
@@ -87,7 +90,7 @@ bool try_nonsequential(const point_quadtree::Node& root, Tour& tour)
         auto new_tour = tour;
         new_tour.multicycle_swap(move.starts, move.ends, move.removes);
         multicycle::merge(root, new_tour);
-        hill_climb(root, new_tour, true);
+        hill_climb(root, new_tour, default_kmax, true);
         const auto new_length = new_tour.length();
         if (new_length < old_length)
         {
@@ -121,7 +124,7 @@ void shuffle(const point_quadtree::Node& root, Tour& tour)
         {
             const auto shuffled = shuffler::shuffle(tour.order(), i, shuffle_length);
             Tour new_tour(tour.domain(), shuffled, tour.length_map());
-            hill_climb(root, new_tour, true);
+            hill_climb(root, new_tour, default_kmax, true);
             const auto new_length {new_tour.length()};
             std::cout << "iteration " << iteration
                 << ", length " << new_length
@@ -147,6 +150,35 @@ void shuffle(const point_quadtree::Node& root, Tour& tour)
     }
 }
 
+// true if improvement found.
+bool bottom_up_iteration(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, bool suppress_output = false)
+{
+    Finder finder(root, tour);
+    finder.set_kmax(kmax);
+    int iteration {1};
+    size_t i {0};
+    const auto length_set = finder.compute_length_set();
+    std::cout << "min, max lengths: " << *std::cbegin(length_set)
+        << ", " << *std::prev(std::cend(length_set)) << std::endl;
+    for (auto length : length_set)
+    {
+        std::cout << i << " searching length " << i << ": " << length << std::endl;
+        if (finder.find_best(length))
+        {
+            tour.swap(finder.best_starts(), finder.best_ends(), finder.best_removes());
+            if (not suppress_output)
+            {
+                std::cout << "iteration " << iteration
+                    << " current tour length: " << tour.length()
+                    << std::endl;
+            }
+            return true;
+        }
+        ++i;
+    }
+    return false;
+}
+
 int main(int argc, const char** argv)
 {
     if (argc < 2)
@@ -170,8 +202,9 @@ int main(int argc, const char** argv)
     // Quad tree.
     const auto root {point_quadtree::make_quadtree(x, y, domain)};
 
-    hill_climb(root, tour);
-    shuffle(root, tour);
+    hill_climb(root, tour, 5);
+    //while(bottom_up_iteration(root, tour, 10));
+    // shuffle(root, tour);
 
     /*
     bool improved {false};
@@ -182,12 +215,12 @@ int main(int argc, const char** argv)
         improved |= try_nonsequential(root, tour);
         std::cout << "Entries in length map: " << length_map.entries() << std::endl;
     } while (improved);
+    */
+
     if (constants::write_best)
     {
         fileio::write_ordered_points(tour.order(), "saves/test.tour");
     }
     std::cout << "final length: " << tour.length() << std::endl;
-    */
-
     return 0;
 }

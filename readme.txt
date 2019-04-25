@@ -18,6 +18,8 @@ Coming soon: This repo also implements k-opt swaps that can produce an arbitrary
 In the case of multiple cycles, they are rejoined one at a time via a 2-opt move.
 LKH also allows for multiple cycles to be formed and rejoined, but does not allow for
 new joining edges to be replaced, as in the present one-at-a-time 2-opt join.
+However, the implementation of non-sequential moves is complex and expensive,
+    and finding good joining moves is more difficult.
 
 Compilation:
 1. Make sure "CXX" in "makefile" is set to the desired compiler.

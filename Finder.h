@@ -6,6 +6,7 @@
 #include "primitives.h"
 
 #include <vector>
+#include <set>
 
 class Finder
 {
@@ -15,6 +16,7 @@ public:
 
     // returns true if an improving swap was found.
     bool find_best();
+    bool find_best(primitives::length_t);
 
     const std::vector<primitives::point_id_t>& best_starts() const { return m_best_starts; }
     const std::vector<primitives::point_id_t>& best_ends() const { return m_best_ends; }
@@ -31,10 +33,14 @@ public:
     const std::vector<Move>& nonsequential_moves() const { return m_nonsequential_moves; }
     void save_nonsequential_moves() { m_save_nonsequential = true; }
 
+    std::set<primitives::length_t> compute_length_set();
+
+    void set_kmax(size_t k) { m_kmax = k; }
+
 private:
     const point_quadtree::Node& m_root;
     Tour& m_tour;
-    size_t m_kmax {2};
+    size_t m_kmax {4};
     bool m_first_improvement {true};
     bool m_save_lateral_moves {false};
     bool m_save_nonsequential {false};
@@ -83,6 +89,11 @@ private:
             m_best_removes = m_removes;
             m_best_improvement = improvement;
         }
+    }
+
+    bool gainful(primitives::length_t new_length, primitives::length_t removed_length) const
+    {
+        return new_length <= removed_length;
     }
 };
 

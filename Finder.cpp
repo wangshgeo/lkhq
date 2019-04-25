@@ -16,6 +16,28 @@ bool Finder::find_best()
     return m_best_improvement > 0;
 }
 
+bool Finder::find_best(primitives::length_t length)
+{
+    reset_search();
+    constexpr primitives::point_id_t start {0};
+    primitives::point_id_t i {start};
+    do
+    {
+        m_swap_end = m_tour.prev(i);
+        if (m_tour.length(m_swap_end) == length)
+        {
+            start_search(i, m_swap_end);
+        }
+        if (m_tour.length(i) == length)
+        {
+            m_swap_end = m_tour.next(i);
+            start_search(i, i);
+        }
+        i = m_tour.next(i);
+    } while (i != start);
+    return m_best_improvement > 0;
+}
+
 void Finder::start_search(const primitives::point_id_t swap_start
     , const primitives::point_id_t removed_edge)
 {
@@ -41,7 +63,7 @@ void Finder::start_search(const primitives::point_id_t swap_start
             continue;
         }
         const auto add {m_tour.length(swap_start, p)};
-        if (add > remove)
+        if (not gainful(add, remove))
         {
             continue;
         }
@@ -170,7 +192,7 @@ void Finder::search_neighbors(const primitives::point_id_t new_start
 
         // check if worth considering.
         const auto add {m_tour.length(new_start, p)};
-        if (margin < add)
+        if (not gainful(add, margin))
         {
             continue;
         }
@@ -274,3 +296,17 @@ bool Finder::feasible() const
     } while (current != start and visited < max_visited);
     return current == start and visited == max_visited;
 }
+
+std::set<primitives::length_t> Finder::compute_length_set()
+{
+    std::set<primitives::length_t> length_set;
+    constexpr primitives::point_id_t start {0};
+    primitives::point_id_t i {start};
+    do
+    {
+        length_set.insert(m_tour.length(i));
+        i = m_tour.next(i);
+    } while (i != start);
+    return length_set;
+}
+
