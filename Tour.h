@@ -35,7 +35,7 @@ public:
     primitives::point_id_t next(primitives::point_id_t i) const { return m_next[i]; }
     primitives::point_id_t prev(primitives::point_id_t i) const;
     std::vector<primitives::point_id_t> order() const;
-    primitives::point_id_t size() const { return m_next.size(); }
+    size_t size() const { return m_next.size(); }
     primitives::cycle_id_t cycle_id(primitives::point_id_t i) const { return m_cycle_id[i]; }
     bool split() const { return m_cycle_end > 1; }
     primitives::length_t max_outgroup_length() const { return m_max_outgroup_length; }

@@ -5,6 +5,7 @@
 #include "point_quadtree/Node.h"
 #include "primitives.h"
 
+#include <algorithm> // fill
 #include <vector>
 #include <set>
 
@@ -12,11 +13,12 @@ class Finder
 {
 public:
     Finder(const point_quadtree::Node& root, Tour& tour)
-        : m_root(root), m_tour(tour) {}
+        : m_root(root), m_tour(tour), m_searchable(tour.size(), true) {}
 
     // returns true if an improving swap was found.
     bool find_best();
     bool find_best(primitives::length_t);
+    bool find_best(primitives::point_id_t start, size_t size);
 
     const std::vector<primitives::point_id_t>& best_starts() const { return m_best_starts; }
     const std::vector<primitives::point_id_t>& best_ends() const { return m_best_ends; }
@@ -44,6 +46,8 @@ private:
     bool m_first_improvement {true};
     bool m_save_lateral_moves {false};
     bool m_save_nonsequential {false};
+    bool m_restricted {false};
+    std::vector<bool> m_searchable;
 
     std::vector<Move> m_lateral_moves;
     std::vector<Move> m_nonsequential_moves;
@@ -95,5 +99,6 @@ private:
     {
         return new_length <= removed_length;
     }
+
 };
 

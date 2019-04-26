@@ -16,6 +16,34 @@ bool Finder::find_best()
     return m_best_improvement > 0;
 }
 
+bool Finder::find_best(primitives::point_id_t start, size_t size)
+{
+    reset_search();
+    m_restricted = true;
+    const auto begin = std::begin(m_searchable);
+    std::fill(begin, std::end(m_searchable), false);
+    const size_t end_index {start + size};
+    std::fill(begin + start, begin + std::min(end_index, m_tour.size()), true);
+    if (end_index > m_tour.size())
+    {
+        std::fill(begin, begin + end_index - m_tour.size(), true);
+    }
+    primitives::point_id_t i {start};
+    do
+    {
+        if (m_searchable[i])
+        {
+            m_swap_end = m_tour.prev(i);
+            start_search(i, m_swap_end);
+            m_swap_end = m_tour.next(i);
+            start_search(i, i);
+        }
+        i = m_tour.next(i);
+    } while (i != start);
+    m_restricted = false;
+    return m_best_improvement > 0;
+}
+
 bool Finder::find_best(primitives::length_t length)
 {
     reset_search();
@@ -56,6 +84,10 @@ void Finder::start_search(const primitives::point_id_t swap_start
     m_root.get_points(swap_start, search_box, points);
     for (auto p : points)
     {
+        if (m_restricted and not m_searchable[p])
+        {
+            continue;
+        }
         if (p == swap_start
             or p == m_tour.prev(swap_start)
             or p == m_tour.next(swap_start))
@@ -75,6 +107,7 @@ void Finder::start_search(const primitives::point_id_t swap_start
     m_removes.pop_back();
 }
 
+// TODO: rename delete_edge
 void Finder::search_both_sides(const primitives::length_t removed
     , const primitives::length_t added)
 {
@@ -94,7 +127,10 @@ void Finder::search_both_sides(const primitives::length_t removed
     if (has_prev_edge)
     {
         const auto new_start {prev};
-        search_neighbors(new_start, new_remove, removed, added);
+        if (not m_restricted or m_searchable[new_start])
+        {
+            search_neighbors(new_start, new_remove, removed, added);
+        }
     }
     new_remove = m_ends.back();
     const auto has_next_edge
@@ -106,10 +142,14 @@ void Finder::search_both_sides(const primitives::length_t removed
     {
         const auto next {m_tour.next(m_ends.back())};
         const auto new_start {next};
-        search_neighbors(new_start, new_remove, removed, added);
+        if (not m_restricted or m_searchable[new_start])
+        {
+            search_neighbors(new_start, new_remove, removed, added);
+        }
     }
 }
 
+// TODO: rename add_edge
 void Finder::search_neighbors(const primitives::point_id_t new_start
     , const primitives::point_id_t new_remove
     , const primitives::length_t removed
@@ -180,6 +220,10 @@ void Finder::search_neighbors(const primitives::point_id_t new_start
     m_root.get_points(new_start, search_box, points);
     for (auto p : points)
     {
+        if (m_restricted and not m_searchable[p])
+        {
+            continue;
+        }
         // check easy exclusion cases.
         const bool closing {p == m_swap_end}; // closing should already have been checked.
         const bool neighboring {p == m_tour.next(new_start) or p == m_tour.prev(new_start)};

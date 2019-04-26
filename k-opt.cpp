@@ -179,6 +179,27 @@ bool bottom_up_iteration(const point_quadtree::Node& root, Tour& tour, size_t km
     return false;
 }
 
+// true if improvement found.
+bool segmented_hill_climb_iteration(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, size_t segment_size = 50, bool suppress_output = false)
+{
+    std::cout << "segmented hill climb" << std::endl;
+    Finder finder(root, tour);
+    finder.set_kmax(kmax);
+    for (primitives::point_id_t i {0}; i < tour.size(); ++i)
+    {
+        if (finder.find_best(i, segment_size))
+        {
+            tour.swap(finder.best_starts(), finder.best_ends(), finder.best_removes());
+            if (not suppress_output)
+            {
+                std::cout << "new tour length: " << tour.length() << std::endl;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 int main(int argc, const char** argv)
 {
     if (argc < 2)
@@ -202,7 +223,9 @@ int main(int argc, const char** argv)
     // Quad tree.
     const auto root {point_quadtree::make_quadtree(x, y, domain)};
 
-    hill_climb(root, tour, 5);
+    hill_climb(root, tour, 4);
+
+    //segmented_hill_climb_iteration(root, tour, 8, 30);
     //while(bottom_up_iteration(root, tour, 10));
     // shuffle(root, tour);
 
