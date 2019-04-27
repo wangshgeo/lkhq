@@ -2,6 +2,7 @@
 
 #include "LengthMap.h"
 #include "constants.h"
+#include "point_quadtree/Node.h"
 #include "point_quadtree/Box.h"
 #include "point_quadtree/Domain.h"
 #include "multicycle/simple_merge/Swap.h"
@@ -17,6 +18,7 @@ class Tour
 {
     using Adjacents = std::array<primitives::point_id_t, 2>;
 public:
+    Tour() = default;
     Tour(const point_quadtree::Domain* domain
         , const std::vector<primitives::point_id_t>& initial_tour
         , LengthMap*);
@@ -31,6 +33,7 @@ public:
         , const std::vector<primitives::point_id_t>& ends
         , const std::vector<primitives::point_id_t>& removed_edges);
     void update_multicycle();
+    size_t min_cycle_size() const { return m_min_cycle_size; }
 
     primitives::point_id_t next(primitives::point_id_t i) const { return m_next[i]; }
     primitives::point_id_t prev(primitives::point_id_t i) const;
@@ -38,6 +41,7 @@ public:
     size_t size() const { return m_next.size(); }
     primitives::cycle_id_t cycle_id(primitives::point_id_t i) const { return m_cycle_id[i]; }
     bool split() const { return m_cycle_end > 1; }
+    primitives::cycle_id_t cycles() const { return m_cycle_end; }
     primitives::length_t max_outgroup_length() const { return m_max_outgroup_length; }
 
     primitives::point_id_t sequence(primitives::point_id_t i, primitives::point_id_t start) const;
@@ -62,8 +66,30 @@ public:
     Box search_box(primitives::point_id_t i, primitives::length_t radius) const;
 
     void validate(bool suppress_success = false) const;
-    bool async_update() const { return m_async_update; }
-    void async_update(bool val) { m_async_update = val; }
+
+    void print_first_cycle() const
+    {
+        constexpr primitives::point_id_t start {0};
+        primitives::point_id_t current {start};
+        std::vector<bool> visited(size(), false);
+        size_t counter {0};
+        do
+        {
+            //std::cout << current << std::endl;
+            current = m_next[current];
+            visited[current] = true;
+            ++counter;
+        } while (current != start);
+        std::cout << __func__ << ": first cycle size: " << counter << std::endl;
+        //std::cout << "outgroup:" << std::endl;
+        for (size_t i {0}; i < size(); ++i)
+        {
+            if (not visited[i])
+            {
+                //std::cout << i << std::endl;
+            }
+        }
+    }
 
 private:
     const point_quadtree::Domain* m_domain {nullptr};
@@ -74,11 +100,12 @@ private:
     std::vector<primitives::cycle_id_t> m_cycle_id;
     primitives::cycle_id_t m_cycle_end {1}; // one-past-the-last cycle id.
     primitives::length_t m_max_outgroup_length {0};
-    bool m_async_update {false};
+    size_t m_min_cycle_size {0};
 
     void reset_adjacencies(const std::vector<primitives::point_id_t>& initial_tour);
     void update_next(const primitives::point_id_t start = 0);
-    void update_next(const primitives::point_id_t start
+    // returns size of cycle.
+    size_t update_next(const primitives::point_id_t start
         , const primitives::cycle_id_t cycle_id);
 
     primitives::point_id_t get_other(primitives::point_id_t point, primitives::point_id_t adjacent) const;
@@ -86,6 +113,6 @@ private:
     void fill_adjacent(primitives::point_id_t point, primitives::point_id_t new_adjacent);
     void break_adjacency(primitives::point_id_t i);
     void break_adjacency(primitives::point_id_t point1, primitives::point_id_t point2);
-    void vacate_adjacent_slot(primitives::point_id_t point, primitives::point_id_t adjacent, int slot);
+    void vacate_adjacent_slot(primitives::point_id_t point, primitives::point_id_t adjacent);
 };
 

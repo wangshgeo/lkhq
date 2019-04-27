@@ -17,25 +17,28 @@ Tour::Tour(const point_quadtree::Domain* domain
 void Tour::update_multicycle()
 {
     std::fill(std::begin(m_cycle_id), std::end(m_cycle_id), constants::invalid_cycle);
-    primitives::cycle_id_t current_cycle_id {0};
-    primitives::point_id_t start {0};
-    while (start != constants::invalid_point)
+    constexpr primitives::point_id_t first_group_start {0};
+    primitives::point_id_t cycle_start {first_group_start};
+    m_cycle_end = 0;
+    m_min_cycle_size = std::numeric_limits<size_t>::max();
+    while (cycle_start != constants::invalid_point)
     {
-        update_next(start, current_cycle_id);
-        start = constants::invalid_point;
+        auto cycle_size = update_next(cycle_start, m_cycle_end);
+        m_min_cycle_size = std::min(cycle_size, m_min_cycle_size);
+        //std::cout << "cycle size: " << cycle_size << std::endl;
+        cycle_start = constants::invalid_point;
         for (primitives::point_id_t i {0}; i < size(); ++i)
         {
             if (m_cycle_id[i] == constants::invalid_cycle)
             {
-                start = i;
+                cycle_start = i;
                 break;
             }
         }
-        ++current_cycle_id;
+        ++m_cycle_end;
     }
-    m_cycle_end = current_cycle_id;
-    constexpr primitives::point_id_t ingroup_point {0};
-    const auto ingroup_id {m_cycle_id[ingroup_point]};
+    // TODO: merge this with previous traversal.
+    const auto ingroup_id {m_cycle_id[first_group_start]};
     m_max_outgroup_length = 0;
     for (primitives::point_id_t i {0}; i < size(); ++i)
     {
@@ -46,11 +49,34 @@ void Tour::update_multicycle()
     }
 }
 
+template <typename T>
+void print_short_vec(const std::vector<T>& vec)
+{
+    for(auto v : vec)
+    {
+        std::cout << "\t" << v;
+    }
+    std::cout << std::endl;
+}
+
 void Tour::multicycle_swap(
     const std::vector<primitives::point_id_t>& starts
     , const std::vector<primitives::point_id_t>& ends
     , const std::vector<primitives::point_id_t>& removed_edges)
 {
+    /*
+    for (auto o : order())
+    {
+        std::cout << o << std::endl;
+    }
+    std::cout << "starts:";
+    print_short_vec(starts);
+    std::cout << "ends:";
+    print_short_vec(ends);
+    std::cout << "removes:";
+    print_short_vec(removed_edges);
+    std::cout << __func__ << std::endl;
+    */
     for (auto p : removed_edges)
     {
         break_adjacency(p);
@@ -221,7 +247,7 @@ void Tour::nonbreaking_forward_swap(const std::vector<primitives::point_id_t>& s
     update_next();
 }
 
-void Tour::update_next(const primitives::point_id_t start
+size_t Tour::update_next(const primitives::point_id_t start
     , const primitives::cycle_id_t cycle_id)
 {
     primitives::point_id_t current {start};
@@ -240,6 +266,7 @@ void Tour::update_next(const primitives::point_id_t start
             std::abort();
         }
     } while (current != start); // tour cycle condition.
+    return sequence;
 }
 
 void Tour::update_next(const primitives::point_id_t start)
@@ -300,17 +327,19 @@ void Tour::break_adjacency(primitives::point_id_t i)
 
 void Tour::break_adjacency(primitives::point_id_t point1, primitives::point_id_t point2)
 {
-    vacate_adjacent_slot(point1, point2, 0);
-    vacate_adjacent_slot(point1, point2, 1);
-    vacate_adjacent_slot(point2, point1, 0);
-    vacate_adjacent_slot(point2, point1, 1);
+    vacate_adjacent_slot(point1, point2);
+    vacate_adjacent_slot(point2, point1);
 }
 
-void Tour::vacate_adjacent_slot(primitives::point_id_t point, primitives::point_id_t adjacent, int slot)
+void Tour::vacate_adjacent_slot(primitives::point_id_t point, primitives::point_id_t adjacent)
 {
-    if (m_adjacents[point][slot] == adjacent)
+    if (m_adjacents[point][0] == adjacent)
     {
-        m_adjacents[point][slot] = constants::invalid_point;
+        m_adjacents[point][0] = constants::invalid_point;
+    }
+    else if (m_adjacents[point][1] == adjacent)
+    {
+        m_adjacents[point][1] = constants::invalid_point;
     }
 }
 

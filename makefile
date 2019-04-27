@@ -7,6 +7,9 @@ CXX_FLAGS += -I./ # include paths.
 
 SRCS = k-opt.cpp Tour.cpp \
 	Finder.cpp \
+	LateralFinder.cpp \
+	FeasibleFinder.cpp \
+	NonsequentialFinder.cpp \
 	LengthMap.cpp point_quadtree/Node.cpp \
     multicycle/multicycle.cpp
 

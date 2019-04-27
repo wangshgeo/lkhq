@@ -1,11 +1,14 @@
 #include "Finder.h"
 #include "LengthMap.h"
+#include "LateralFinder.h"
+#include "FeasibleFinder.h"
+#include "NonsequentialFinder.h"
 #include "Tour.h"
-#include "shuffler.h"
 #include "fileio.h"
 #include "multicycle/multicycle.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
+#include "shuffler.h"
 
 #include <iostream>
 #include <map>
@@ -13,14 +16,37 @@
 constexpr size_t default_kmax {4};
 
 // true if improvement found.
-bool hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, bool suppress_output = false)
+template <typename FinderType = Finder>
+bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4)
 {
-    Finder finder(root, tour);
+    FinderType finder(root, tour);
     finder.set_kmax(kmax);
     int iteration {1};
     while (finder.find_best())
     {
         tour.swap(finder.best_starts(), finder.best_ends(), finder.best_removes());
+        ++iteration;
+    }
+    std::cout << __func__
+        << ": tour length: " << tour.length()
+        << " after " << iteration << " iterations."
+        << std::endl;
+    return iteration > 1;
+}
+
+// true if improvement found.
+template <typename FinderType = Finder>
+bool hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, bool suppress_output = false)
+{
+    FinderType finder(root, tour);
+    finder.set_kmax(kmax);
+    int iteration {1};
+    while (finder.find_best())
+    {
+        if (not finder.nonsequential_improvement())
+        {
+            tour.swap(finder.best_starts(), finder.best_ends(), finder.best_removes());
+        }
         if (not suppress_output)
         {
             std::cout << "iteration " << iteration
@@ -29,6 +55,10 @@ bool hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, b
         }
         ++iteration;
     }
+    std::cout << __func__
+        << ": tour length: " << tour.length()
+        << " after " << iteration << " iterations."
+        << std::endl;
     return iteration > 1;
 }
 
@@ -223,7 +253,21 @@ int main(int argc, const char** argv)
     // Quad tree.
     const auto root {point_quadtree::make_quadtree(x, y, domain)};
 
-    hill_climb(root, tour, 4);
+    //hill_climb(root, tour, 5);
+    for (size_t k {2}; k < 6; ++k)
+    {
+        initial_hill_climb<FeasibleFinder>(root, tour, k);
+    }
+    for (size_t k {3}; k < 6; ++k)
+    {
+        hill_climb<NonsequentialFinder>(root, tour, k);
+    }
+
+    /*
+    LateralFinder finder(root, tour);
+    finder.set_kmax(5);
+    finder.find_best();
+    */
 
     //segmented_hill_climb_iteration(root, tour, 8, 30);
     //while(bottom_up_iteration(root, tour, 10));
