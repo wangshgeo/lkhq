@@ -12,13 +12,10 @@ class Merger
 public:
     bool improved_tour() const { return m_improved_tour; }
     const Tour& best_tour() const { return m_best_tour; }
-    void reset()
-    {
-        m_improved_tour = false;
-    }
     void merge_once(const point_quadtree::Node& root
         , Tour& tour
-        , primitives::length_t margin)
+        , primitives::length_t margin
+        , bool negative_margin = false)
     {
         constexpr primitives::point_id_t start {0};
         const auto first_cycle = tour.cycle_id(start);
@@ -29,8 +26,19 @@ public:
                 continue;
             }
             auto max_radius = tour.length(i)
-                + tour.max_outgroup_length()
-                + (margin + 1) / 2;
+                + tour.max_outgroup_length();
+            if (negative_margin)
+            {
+                if (margin / 2 >= max_radius)
+                {
+                    continue;
+                }
+                max_radius -= margin / 2;
+            }
+            else
+            {
+                max_radius += (margin + 1) / 2;
+            }
             std::vector<primitives::point_id_t> points;
             root.get_points(i, tour.search_box(i, max_radius), points);
             for (auto p : points)
@@ -46,9 +54,22 @@ public:
                 auto removed_length = tour.length(i) + tour.length(p);
                 // TODO: factorize logic for both 2-opt possibilities.
                 auto new_length = tour.length(i, p) + tour.length(tour.next(i), tour.next(p));
-                if (new_length < removed_length + margin)
+                auto effective_removed_length {removed_length};
+                if (negative_margin)
                 {
-                    auto new_margin = removed_length + margin - new_length;
+                    if (effective_removed_length <= margin)
+                    {
+                        continue;
+                    }
+                    effective_removed_length -= margin;
+                }
+                else
+                {
+                    effective_removed_length += margin;
+                }
+                if (new_length < effective_removed_length)
+                {
+                    auto new_margin = effective_removed_length - new_length;
                     auto new_tour = tour;
                     new_tour.multicycle_swap({i, tour.next(i)}, {p, tour.next(p)}, {i, p});
                     if (new_tour.min_cycle_size() < 2)
@@ -68,9 +89,9 @@ public:
                     }
                 }
                 new_length = tour.length(i, tour.next(p)) + tour.length(tour.next(i), p);
-                if (new_length < removed_length + margin)
+                if (new_length < effective_removed_length)
                 {
-                    auto new_margin = removed_length + margin - new_length;
+                    auto new_margin = effective_removed_length - new_length;
                     auto new_tour = tour;
                     new_tour.multicycle_swap({i, tour.next(i)}, {tour.next(p), p}, {i, p});
                     if (new_tour.min_cycle_size() < 2)

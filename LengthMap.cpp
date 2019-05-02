@@ -15,6 +15,9 @@ primitives::length_t LengthMap::compute_length(
 
 primitives::length_t LengthMap::length(primitives::point_id_t a, primitives::point_id_t b)
 {
+    // TODO: preliminary tests show this is faster, at least for lrb744710.
+    return compute_length(a, b);
+
     auto min {std::min(a, b)};
     auto& lengths {m_lengths[min]};
     auto max {std::max(a, b)};

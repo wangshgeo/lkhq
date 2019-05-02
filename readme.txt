@@ -35,7 +35,7 @@ Style notes:
 
 TODO:
 1. Check if output directory exists before writing out paths to file (currently silently fails).
-2. Length table reset (to remove storage of distance calculations no longer used).
-3. Storage of point sets (these only change upon segment length changes).
-
-
+2. Refactor Finder base class.
+3. If possible, memoize searched paths.
+4. Leaf node occupancy metrics to help pick right max tree depth (or, allow for dynamic depth placement).
+5. Since points within search radii for each point doesn't change much, store these neighboring points for each point instead of recomputing.

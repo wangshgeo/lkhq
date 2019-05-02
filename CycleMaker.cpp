@@ -1,6 +1,6 @@
-#include "FeasibleFinder.h"
+#include "CycleMaker.h"
 
-bool FeasibleFinder::find_best()
+bool CycleMaker::find_best()
 {
     reset_search();
     constexpr primitives::point_id_t start {0};
@@ -24,13 +24,12 @@ bool FeasibleFinder::find_best()
     return false;
 }
 
-void FeasibleFinder::start_search(const primitives::point_id_t swap_start
+void CycleMaker::start_search(const primitives::point_id_t swap_start
     , const primitives::point_id_t removed_edge)
 {
     const auto remove {m_tour.length(removed_edge)};
     m_starts.push_back(swap_start);
     m_removes.push_back(removed_edge);
-    // TODO: consider storing this neighborhood.
     std::vector<primitives::point_id_t> points;
     const auto search_box
     {
@@ -51,7 +50,7 @@ void FeasibleFinder::start_search(const primitives::point_id_t swap_start
             continue;
         }
         m_ends.push_back(p);
-        search_both_sides(remove, add);
+        delete_edge(remove, add);
         if (found_improvement())
         {
             return;
@@ -62,8 +61,7 @@ void FeasibleFinder::start_search(const primitives::point_id_t swap_start
     m_removes.pop_back();
 }
 
-// TODO: rename delete_edge
-void FeasibleFinder::search_both_sides(const primitives::length_t removed
+void CycleMaker::delete_edge(const primitives::length_t removed
     , const primitives::length_t added)
 {
     // each point p in m_removes represents the edge (p, next(p)).
@@ -78,7 +76,7 @@ void FeasibleFinder::search_both_sides(const primitives::length_t removed
     if (has_prev_edge)
     {
         const auto new_start {prev};
-        search_neighbors(new_start, new_remove, removed, added);
+        add_edge(new_start, new_remove, removed, added);
         if (found_improvement())
         {
             return;
@@ -94,7 +92,7 @@ void FeasibleFinder::search_both_sides(const primitives::length_t removed
     {
         const auto next {m_tour.next(m_ends.back())};
         const auto new_start {next};
-        search_neighbors(new_start, new_remove, removed, added);
+        add_edge(new_start, new_remove, removed, added);
         if (found_improvement())
         {
             return;
@@ -102,8 +100,7 @@ void FeasibleFinder::search_both_sides(const primitives::length_t removed
     }
 }
 
-// TODO: rename add_edge
-void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
+void CycleMaker::add_edge(const primitives::point_id_t new_start
     , const primitives::point_id_t new_remove
     , const primitives::length_t removed
     , const primitives::length_t added)
@@ -114,7 +111,6 @@ void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
     const auto total_closing_add {closing_length + added};
     const auto total_remove {removed + remove};
     const bool improving {total_remove > total_closing_add};
-    ++m_comparisons;
     if (improving)
     {
         if (new_start != m_tour.prev(m_swap_end) and new_start != m_tour.next(m_swap_end))
@@ -122,31 +118,14 @@ void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
             m_starts.push_back(new_start);
             m_ends.push_back(m_swap_end);
             m_removes.push_back(new_remove);
-            const auto improvement {total_remove - total_closing_add};
-            if (feasible())
+            auto test_tour = m_tour;
+            test_tour.multicycle_swap(m_starts, m_ends, m_removes);
+            if (test_tour.min_cycle_size() > 1)
             {
-                check_best(improvement);
+                std::cout << "nonsequential improved!" << std::endl;
+                m_nonsequential_improvement = true;
+                m_tour = test_tour;
                 return;
-            }
-            else if (false) // TODO: non-sequential moves are a bit inefficient currently.
-            {
-                auto test_tour = m_tour;
-                test_tour.multicycle_swap(m_starts, m_ends, m_removes);
-                if (test_tour.cycles() == 1)
-                {
-                    for (auto o : m_tour.order())
-                    {
-                        std::cout << o << std::endl;
-                    }
-                    std::cout << __func__ << ": error: non-feasible swap is actually feasible" << std::endl;
-                    print_move();
-                    feasible();
-                    std::abort();
-                }
-                else
-                {
-                    //std::cout << "legit non-feasible" << std::endl;
-                }
             }
             m_starts.pop_back();
             m_ends.pop_back();
@@ -169,7 +148,6 @@ void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
     {
         // check easy exclusion cases.
         const bool closing {p == m_swap_end}; // closing should already have been checked.
-
         const bool neighboring {p == m_tour.next(new_start) or p == m_tour.prev(new_start)};
         const bool self {p == new_start};
         const bool backtrack {p == m_starts.back()};
@@ -203,7 +181,7 @@ void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
         m_starts.push_back(new_start);
         m_ends.push_back(p);
         m_removes.push_back(new_remove);
-        search_both_sides(removed + remove, added + add);
+        delete_edge(removed + remove, added + add);
         if (found_improvement())
         {
             return;
@@ -212,98 +190,5 @@ void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
         m_ends.pop_back();
         m_removes.pop_back();
     }
-}
-
-// returns true if current swap does not break tour into multiple cycles.
-// new edge i: (starts[i], ends[i])
-// for p in m_removes: (p, next(p))
-// TODO: misses certain subclass of feasible moves.
-bool FeasibleFinder::feasible() const
-{
-    // create and sort edges
-    std::vector<BrokenEdge> deleted_edges;
-    for (auto p : m_removes)
-    {
-        const auto sequence {m_tour.sequence(p, m_removes[0])};
-        const auto first {p};
-        const auto second {m_tour.next(p)};
-        deleted_edges.push_back({first, second, sequence});
-    }
-    std::sort(std::begin(deleted_edges), std::end(deleted_edges)
-        , [](const auto& lhs, const auto& rhs) { return lhs.sequence < rhs.sequence; });
-
-    // maps to identify which removed edges points belong to and
-    //  membership of new edges.
-    std::unordered_map<primitives::point_id_t, size_t> deleted_edge_index;
-    std::unordered_map<primitives::point_id_t, std::vector<primitives::point_id_t>> new_edges;
-    for (size_t i {0}; i < deleted_edges.size(); ++i)
-    {
-        deleted_edge_index[deleted_edges[i].first] = i;
-        deleted_edge_index[deleted_edges[i].second] = i;
-        new_edges[m_starts[i]].push_back(m_ends[i]);
-        new_edges[m_ends[i]].push_back(m_starts[i]);
-    }
-
-    // traversal
-    const auto start {deleted_edges[0].first};
-    auto current {start};
-    size_t visited {0};
-    size_t max_visited {m_starts.size() + m_ends.size()};
-    std::unordered_map<primitives::point_id_t, bool> visit_flag;
-    visit_flag[current] = true;
-    do
-    {
-        if (deleted_edge_index.find(current) == std::cend(deleted_edge_index))
-        {
-            std::cout << "point not recognized" << std::endl;
-            std::abort();
-        }
-        // go to next in new edge.
-        auto next = new_edges[current].back();
-        if (new_edges[next].size() > 2)
-        {
-            std::cout << __func__ << ": error: too many adjacent points" << std::endl;
-            std::abort();
-        }
-        if (visit_flag[next])
-        {
-            next = new_edges[current].front();
-        }
-        current = next;
-        visit_flag[current] = true;
-        ++visited;
-        if (current == start)
-        {
-            ++visited;
-            break;
-        }
-        // find adjacent new edge start point.
-        auto index {deleted_edge_index[current]};
-        const auto& edge {deleted_edges[index]};
-        if (edge.first == current)
-        {
-            if (index == 0)
-            {
-                index = deleted_edges.size() - 1;
-            }
-            else
-            {
-                --index;
-            }
-            current = deleted_edges[index].second;
-        }
-        else
-        {
-            ++index;
-            if (index == deleted_edges.size())
-            {
-                index = 0;
-            }
-            current = deleted_edges[index].first;
-        }
-        visit_flag[current] = true;
-        ++visited;
-    } while (current != start and visited < max_visited);
-    return current == start and visited == max_visited;
 }
 

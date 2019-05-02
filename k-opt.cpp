@@ -1,7 +1,10 @@
 #include "Finder.h"
+#include "NanoTimer.h"
 #include "LengthMap.h"
+#include "CycleMaker.h"
 #include "LateralFinder.h"
 #include "FeasibleFinder.h"
+#include "SimpleNonsequentialFinder.h"
 #include "NonsequentialFinder.h"
 #include "Tour.h"
 #include "fileio.h"
@@ -15,6 +18,23 @@
 
 constexpr size_t default_kmax {4};
 
+// only valid for 2-opt.
+void print_gmoves(NanoTimer& timer, size_t n)
+{
+    auto dt = timer.stop() / 1e9;
+    auto moves = (n - 1) * (n - 2) / 2 - 1; // 2-opt
+    auto speed = moves / dt;
+    std::cout << speed / 1e9 << " Gmoves / s" << std::endl;
+}
+
+// only valid for 2-opt.
+void print_work_ratio(double comparisons, double n)
+{
+    auto moves = (n - 1) * (n - 2) / 2 - 1; // 2-opt
+    std::cout << "work ratio: " << comparisons / moves << std::endl;
+}
+
+
 // true if improvement found.
 template <typename FinderType = Finder>
 bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4)
@@ -22,11 +42,45 @@ bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kma
     FinderType finder(root, tour);
     finder.set_kmax(kmax);
     int iteration {1};
+    NanoTimer timer;
+    timer.start();
     while (finder.find_best())
     {
+        if (kmax == 2)
+        {
+            print_gmoves(timer, tour.size());
+            print_work_ratio(finder.comparisons(), tour.size());
+        }
+
+        const auto entry_ratio = tour.length_map()->entry_ratio();
+        constexpr double max_entry_ratio {20};
+        if (entry_ratio > max_entry_ratio)
+        {
+            std::cout << "Clearing length map (max: "
+                << max_entry_ratio << ")" << std::endl;
+            tour.length_map()->clear();
+        }
+        if (constants::print_improvements)
+        {
+            std::cout << "improvement: " << finder.best_improvement()
+                << " (length entry ratio: " << entry_ratio << ")" << std::endl;
+        }
         tour.swap(finder.best_starts(), finder.best_ends(), finder.best_removes());
         ++iteration;
+        if (constants::write_best and (iteration % constants::save_period) == 0)
+        {
+            std::cout << "current length: " << tour.length() << std::endl;
+            fileio::write_ordered_points(tour.order(), "saves/test.tour");
+        }
+
+        timer.start();
     }
+    if (iteration == 1 and kmax == 2)
+    {
+        print_gmoves(timer, tour.size());
+        print_work_ratio(finder.comparisons(), tour.size());
+    }
+
     std::cout << __func__
         << ": tour length: " << tour.length()
         << " after " << iteration << " iterations."
@@ -59,6 +113,13 @@ bool hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, b
         << ": tour length: " << tour.length()
         << " after " << iteration << " iterations."
         << std::endl;
+    std::cout << __func__
+        << ": cycles: " << tour.cycles()
+        << std::endl;
+    if (constants::write_best)
+    {
+        fileio::write_ordered_points(tour.order(), "saves/test.tour");
+    }
     return iteration > 1;
 }
 
@@ -251,17 +312,44 @@ int main(int argc, const char** argv)
     std::cout << "Initial tour length: " << tour.length() << std::endl;
 
     // Quad tree.
+    NanoTimer timer;
+    timer.start();
     const auto root {point_quadtree::make_quadtree(x, y, domain)};
+    std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds." << std::endl;
 
     //hill_climb(root, tour, 5);
-    for (size_t k {2}; k < 6; ++k)
+    for (size_t k {2}; k <= 5; ++k)
     {
         initial_hill_climb<FeasibleFinder>(root, tour, k);
     }
-    for (size_t k {3}; k < 6; ++k)
+    /*
+    for (size_t k {2}; k <= 7; ++k)
     {
-        hill_climb<NonsequentialFinder>(root, tour, k);
+        hill_climb<CycleMaker>(root, tour, k);
     }
+
+    primitives::length_t current_cost {0};
+    while(true)
+    {
+        std::cout << "current length: " << tour.length() << std::endl;
+        SimpleNonsequentialFinder finder(root, tour);
+        std::cout << "current cost: " << current_cost << std::endl;
+        finder.find_best(current_cost);
+        if (finder.nonsequential_improvement())
+        {
+            std::cout << "current length: " << tour.length() << std::endl;
+            current_cost = 0;
+        }
+        else
+        {
+            current_cost = finder.next_cost();
+            if (current_cost == std::numeric_limits<decltype(current_cost)>::max())
+            {
+                break;
+            }
+        }
+    }
+    */
 
     /*
     LateralFinder finder(root, tour);

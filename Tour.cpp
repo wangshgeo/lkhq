@@ -159,6 +159,12 @@ primitives::point_id_t Tour::prev(primitives::point_id_t i) const
     }
     else
     {
+        print_first_cycle();
+        std::cout << "next, i, adjacents: "<< next
+            << ", " << i
+            << ", " << m_adjacents[i][0]
+            << ", " << m_adjacents[i][1]
+            << std::endl;
         std::cout << __func__ << ": error: could not determine previous point." << std::endl;
         std::abort();
     }
@@ -186,21 +192,34 @@ primitives::length_t Tour::length(primitives::point_id_t i) const
 
 std::vector<primitives::point_id_t> Tour::order() const
 {
-    constexpr primitives::point_id_t start {0};
+    primitives::point_id_t start {0};
     primitives::point_id_t current {start};
     std::vector<primitives::point_id_t> ordered_points;
     primitives::point_id_t count {0};
-    do
+    std::vector<bool> visited(size(), false);
+    while (count < size())
     {
-        ordered_points.push_back(current);
-        current = m_next[current];
-        if (count > m_next.size())
+        do
         {
-            std::cout << __func__ << ": error: too many traversals." << std::endl;
-            std::abort();
+            ordered_points.push_back(current);
+            visited[current] = true;
+            current = m_next[current];
+            if (count > m_next.size())
+            {
+                std::cout << __func__ << ": error: too many traversals." << std::endl;
+                std::abort();
+            }
+            ++count;
+        } while (current != start);
+        for (primitives::point_id_t i {0}; i < size(); ++i)
+        {
+            if (not visited[i])
+            {
+                current = start = i;
+                break;
+            }
         }
-        ++count;
-    } while (current != start);
+    }
     return ordered_points;
 }
 

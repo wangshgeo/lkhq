@@ -1,5 +1,10 @@
 #pragma once
 
+// Differs from NonsequentialFinder by:
+// 1. Only doing 2-opt breaking swaps, followed by 2-opt joining swaps.
+// 2. Allowing for specific-cost perturbations.
+
+
 #include "BrokenEdge.h"
 #include "Merger.h"
 #include "Tour.h"
@@ -10,31 +15,31 @@
 #include <vector>
 #include <set>
 
-class FeasibleFinder
+class SimpleNonsequentialFinder
 {
 public:
-    FeasibleFinder(const point_quadtree::Node& root, Tour& tour)
+    SimpleNonsequentialFinder(const point_quadtree::Node& root, Tour& tour)
         : m_root(root), m_tour(tour) {}
 
     // returns true if an improving swap was found.
-    bool find_best();
-    bool find_best(primitives::length_t);
-    bool find_best(primitives::point_id_t start, size_t size);
+    bool find_best(primitives::length_t cost);
 
     const std::vector<primitives::point_id_t>& best_starts() const { return m_best_starts; }
     const std::vector<primitives::point_id_t>& best_ends() const { return m_best_ends; }
     const std::vector<primitives::point_id_t>& best_removes() const { return m_best_removes; }
-    primitives::length_t best_improvement() const { return m_best_improvement; }
 
     void set_kmax(size_t k) { m_kmax = k; }
 
-    size_t comparisons() const { return m_comparisons; }
+    bool nonsequential_improvement() const { return m_nonsequential_improvement; }
+    primitives::length_t next_cost() const { return m_next_cost; }
 
 private:
     const point_quadtree::Node& m_root;
     Tour& m_tour;
-    size_t m_kmax {4};
-    size_t m_comparisons {0};
+    size_t m_kmax {2};
+    bool m_nonsequential_improvement {false};
+    primitives::length_t m_cost {0};
+    primitives::length_t m_next_cost {0};
 
     std::vector<primitives::point_id_t> m_starts; // start of new edge.
     std::vector<primitives::point_id_t> m_ends; // end of new edge.
@@ -48,14 +53,12 @@ private:
 
     void start_search(const primitives::point_id_t swap_start
         , const primitives::point_id_t removed_edge);
-    void search_both_sides(const primitives::length_t removed
+    void delete_edge(const primitives::length_t removed
         , const primitives::length_t added);
-    void search_neighbors(const primitives::point_id_t new_start
+    void add_edge(const primitives::point_id_t new_start
         , const primitives::point_id_t new_remove
         , const primitives::length_t removed
         , const primitives::length_t added);
-
-    bool feasible() const;
 
     void reset_search()
     {
@@ -64,7 +67,7 @@ private:
         m_removes.clear();
         m_swap_end = constants::invalid_point;
         m_best_improvement = 0;
-        m_comparisons = 0;
+        m_nonsequential_improvement = false;
     }
 
     void check_best(primitives::length_t improvement)
@@ -85,7 +88,7 @@ private:
 
     bool found_improvement() const
     {
-        return m_best_improvement > 0;
+        return m_nonsequential_improvement or m_best_improvement > 0;
     }
 
     template <typename T>
@@ -106,5 +109,7 @@ private:
         std::cout << "removes:";
         print_short_vec(m_removes);
     }
+
+    bool feasible() const;
 };
 

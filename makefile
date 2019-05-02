@@ -10,6 +10,8 @@ SRCS = k-opt.cpp Tour.cpp \
 	LateralFinder.cpp \
 	FeasibleFinder.cpp \
 	NonsequentialFinder.cpp \
+	CycleMaker.cpp \
+	SimpleNonsequentialFinder.cpp \
 	LengthMap.cpp point_quadtree/Node.cpp \
     multicycle/multicycle.cpp
 

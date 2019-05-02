@@ -31,6 +31,19 @@ public:
         return sum;
     }
 
+    double entry_ratio() const
+    {
+        return static_cast<double>(entries()) / m_x.size();
+    }
+
+    void clear()
+    {
+        for (auto& lengths : m_lengths)
+        {
+            lengths.clear();
+        }
+    }
+
 private:
     const std::vector<primitives::space_t>& m_x;
     const std::vector<primitives::space_t>& m_y;
