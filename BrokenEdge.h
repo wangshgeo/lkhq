@@ -2,6 +2,7 @@
 
 #include <constants.h>
 #include <primitives.h>
+#include <iostream>
 
 struct BrokenEdge
 {
@@ -11,3 +12,10 @@ struct BrokenEdge
     primitives::point_id_t sequence {0}; // relative order of this edge to other edges.
 };
 
+inline std::ostream& operator<<(std::ostream& o, const BrokenEdge& edge)
+{
+    return o << "sequence, first, second: "
+        << edge.sequence
+        << "\t" << edge.first
+        << "\t" << edge.second;
+}

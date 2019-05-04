@@ -39,3 +39,4 @@ TODO:
 3. If possible, memoize searched paths.
 4. Leaf node occupancy metrics to help pick right max tree depth (or, allow for dynamic depth placement).
 5. Since points within search radii for each point doesn't change much, store these neighboring points for each point instead of recomputing.
+6. Account for difference between closing lengths in stopping criterion; e.g. might continue if the closing length gets shorter.

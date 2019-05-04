@@ -51,6 +51,7 @@ bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kma
             print_gmoves(timer, tour.size());
             print_work_ratio(finder.comparisons(), tour.size());
         }
+        std::cout << "average points (kmax = " << kmax << "): " << finder.average_points() << std::endl;
 
         const auto entry_ratio = tour.length_map()->entry_ratio();
         constexpr double max_entry_ratio {20};
@@ -75,10 +76,14 @@ bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kma
 
         timer.start();
     }
-    if (iteration == 1 and kmax == 2)
+    if (iteration == 1)
     {
-        print_gmoves(timer, tour.size());
-        print_work_ratio(finder.comparisons(), tour.size());
+        if (kmax == 2)
+        {
+            print_gmoves(timer, tour.size());
+            print_work_ratio(finder.comparisons(), tour.size());
+        }
+        std::cout << "average points (kmax = " << kmax << "): " << finder.average_points() << std::endl;
     }
 
     std::cout << __func__
@@ -318,7 +323,7 @@ int main(int argc, const char** argv)
     std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds." << std::endl;
 
     //hill_climb(root, tour, 5);
-    for (size_t k {2}; k <= 5; ++k)
+    for (size_t k {2}; k <= 4; ++k)
     {
         initial_hill_climb<FeasibleFinder>(root, tour, k);
     }

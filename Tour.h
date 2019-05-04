@@ -91,6 +91,16 @@ public:
         }
     }
 
+    void print() const
+    {
+        constexpr primitives::point_id_t start {0};
+        primitives::point_id_t current {start};
+        do
+        {
+            std::cout << current << std::endl;
+            current = m_next[current];
+        } while (current != start);
+    }
 private:
     const point_quadtree::Domain* m_domain {nullptr};
     LengthMap* m_length_map {nullptr};

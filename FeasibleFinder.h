@@ -7,8 +7,10 @@
 #include "primitives.h"
 
 #include <algorithm> // fill
-#include <vector>
 #include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 class FeasibleFinder
 {
@@ -30,6 +32,8 @@ public:
 
     size_t comparisons() const { return m_comparisons; }
 
+    double average_points() const { return static_cast<double>(m_point_sum) / m_point_neighborhoods; }
+
 private:
     const point_quadtree::Node& m_root;
     Tour& m_tour;
@@ -45,6 +49,8 @@ private:
     std::vector<primitives::point_id_t> m_best_ends; // end of new edge.
     std::vector<primitives::point_id_t> m_best_removes; // start points of edges to remove.
     primitives::length_t m_best_improvement {0};
+    size_t m_point_sum {0};
+    size_t m_point_neighborhoods {0};
 
     void start_search(const primitives::point_id_t swap_start
         , const primitives::point_id_t removed_edge);
