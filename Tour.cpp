@@ -14,6 +14,14 @@ Tour::Tour(const point_quadtree::Domain* domain
     update_next();
 }
 
+void Tour::double_bridge_perturbation()
+{
+    std::array<primitives::point_id_t, 4> old_starts{0};
+    std::array<primitives::point_id_t, 4> starts{0};
+    std::array<primitives::point_id_t, 4> ends{0};
+    swap(starts, ends, old_starts);
+}
+
 void Tour::update_multicycle()
 {
     std::fill(std::begin(m_cycle_id), std::end(m_cycle_id), constants::invalid_cycle);
@@ -86,21 +94,6 @@ void Tour::multicycle_swap(
         create_adjacency(starts[i], ends[i]);
     }
     update_multicycle();
-}
-
-void Tour::swap(const std::vector<primitives::point_id_t>& starts
-    , const std::vector<primitives::point_id_t>& ends
-    , const std::vector<primitives::point_id_t>& removed_edges)
-{
-    for (auto p : removed_edges)
-    {
-        break_adjacency(p);
-    }
-    for (size_t i {0}; i < starts.size(); ++i)
-    {
-        create_adjacency(starts[i], ends[i]);
-    }
-    update_next();
 }
 
 primitives::point_id_t Tour::sequence(primitives::point_id_t i, primitives::point_id_t start) const

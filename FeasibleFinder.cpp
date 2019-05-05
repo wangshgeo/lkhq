@@ -132,7 +132,7 @@ void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
                 check_best(improvement);
                 return;
             }
-            else // if (false) // TODO: non-sequential moves are a bit inefficient currently.
+            else if (false) // TODO: non-sequential moves are a bit inefficient currently.
             {
                 auto test_tour = m_tour;
                 test_tour.multicycle_swap(m_starts, m_ends, m_removes);

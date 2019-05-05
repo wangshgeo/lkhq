@@ -23,11 +23,12 @@ public:
         , const std::vector<primitives::point_id_t>& initial_tour
         , LengthMap*);
 
+    void double_bridge_perturbation();
+
     void nonbreaking_forward_swap(const std::vector<primitives::point_id_t>& swap, bool cyclic_first);
     void breaking_forward_swap(const std::vector<primitives::point_id_t>& swap);
-    void swap(const std::vector<primitives::point_id_t>& starts
-        , const std::vector<primitives::point_id_t>& ends
-        , const std::vector<primitives::point_id_t>& removed_edges);
+    template <typename PointContainer = std::vector<primitives::point_id_t>>
+    void swap(const PointContainer& starts, const PointContainer& ends, const PointContainer& removed_edges);
     void multicycle_swap(
         const std::vector<primitives::point_id_t>& starts
         , const std::vector<primitives::point_id_t>& ends
@@ -125,4 +126,18 @@ private:
     void break_adjacency(primitives::point_id_t point1, primitives::point_id_t point2);
     void vacate_adjacent_slot(primitives::point_id_t point, primitives::point_id_t adjacent);
 };
+
+template <typename PointContainer>
+void Tour::swap(const PointContainer& starts, const PointContainer& ends, const PointContainer& removed_edges)
+{
+    for (auto p : removed_edges)
+    {
+        break_adjacency(p);
+    }
+    for (size_t i {0}; i < starts.size(); ++i)
+    {
+        create_adjacency(starts[i], ends[i]);
+    }
+    update_next();
+}
 

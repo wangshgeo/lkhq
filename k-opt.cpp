@@ -128,6 +128,21 @@ bool hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, b
     return iteration > 1;
 }
 
+void double_bridge_explorer(
+    const point_quadtree::Node& root
+    , Tour& tour
+    , size_t kmax = 4
+    , size_t max_local_optima = 1000)
+{
+    std::cout << __func__ << std::endl;
+    std::map<primitives::length_t, size_t> frequency;
+    while(max_local_optima != 0)
+    {
+        hill_climb(root, tour, kmax);
+        --max_local_optima;
+    }
+}
+
 void try_lateral(const point_quadtree::Node& root, Tour& tour)
 {
     const auto old_length = tour.length();
@@ -323,7 +338,7 @@ int main(int argc, const char** argv)
     std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds." << std::endl;
 
     //hill_climb(root, tour, 5);
-    for (size_t k {2}; k <= 4; ++k)
+    for (size_t k {2}; k <= 5; ++k)
     {
         initial_hill_climb<FeasibleFinder>(root, tour, k);
     }
@@ -376,6 +391,8 @@ int main(int argc, const char** argv)
         std::cout << "Entries in length map: " << length_map.entries() << std::endl;
     } while (improved);
     */
+
+    //double_bridge_explorer(root, tour);
 
     if (constants::write_best)
     {
