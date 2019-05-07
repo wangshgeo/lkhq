@@ -16,10 +16,19 @@ Tour::Tour(const point_quadtree::Domain* domain
 
 void Tour::double_bridge_perturbation()
 {
-    std::array<primitives::point_id_t, 4> old_starts{0};
-    std::array<primitives::point_id_t, 4> starts{0};
-    std::array<primitives::point_id_t, 4> ends{0};
-    swap(starts, ends, old_starts);
+    constexpr size_t segments_to_replace {4};
+    std::array<primitives::point_id_t, segments_to_replace> old_starts {{constants::invalid_point}};
+    std::sample(std::cbegin(m_next), std::cend(m_next), std::begin(old_starts)
+        , segments_to_replace
+        , std::mt19937(std::random_device{}())); // TODO: ensure this is uniformly random.
+    std::array<primitives::point_id_t, segments_to_replace> ends
+    {{
+        next(old_starts[2])
+        , next(old_starts[3])
+        , next(old_starts[0])
+        , next(old_starts[1])
+    }};
+    swap(old_starts, ends, old_starts);
 }
 
 void Tour::update_multicycle()

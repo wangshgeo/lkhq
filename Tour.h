@@ -12,6 +12,7 @@
 #include <array>
 #include <cstdlib> // abort
 #include <iostream>
+#include <random> // sample
 #include <vector>
 
 class Tour

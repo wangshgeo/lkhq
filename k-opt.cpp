@@ -37,7 +37,7 @@ void print_work_ratio(double comparisons, double n)
 
 // true if improvement found.
 template <typename FinderType = Finder>
-bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4)
+bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, bool suppress_output = false)
 {
     FinderType finder(root, tour);
     finder.set_kmax(kmax);
@@ -51,24 +51,27 @@ bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kma
             print_gmoves(timer, tour.size());
             print_work_ratio(finder.comparisons(), tour.size());
         }
-        std::cout << "average points (kmax = " << kmax << "): " << finder.average_points() << std::endl;
+        if (not suppress_output)
+        {
+            std::cout << "average points (kmax = " << kmax << "): " << finder.average_points() << std::endl;
+        }
 
         const auto entry_ratio = tour.length_map()->entry_ratio();
         constexpr double max_entry_ratio {20};
-        if (entry_ratio > max_entry_ratio)
+        if (entry_ratio > max_entry_ratio and not suppress_output)
         {
             std::cout << "Clearing length map (max: "
                 << max_entry_ratio << ")" << std::endl;
             tour.length_map()->clear();
         }
-        if (constants::print_improvements)
+        if (constants::print_improvements and not suppress_output)
         {
             std::cout << "improvement: " << finder.best_improvement()
                 << " (length entry ratio: " << entry_ratio << ")" << std::endl;
         }
         tour.swap(finder.best_starts(), finder.best_ends(), finder.best_removes());
         ++iteration;
-        if (constants::write_best and (iteration % constants::save_period) == 0)
+        if (constants::write_best and (iteration % constants::save_period) == 0 and not suppress_output)
         {
             std::cout << "current length: " << tour.length() << std::endl;
             fileio::write_ordered_points(tour.order(), "saves/test.tour");
@@ -76,7 +79,7 @@ bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kma
 
         timer.start();
     }
-    if (iteration == 1)
+    if (iteration == 1 and not suppress_output)
     {
         if (kmax == 2)
         {
@@ -86,10 +89,13 @@ bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kma
         std::cout << "average points (kmax = " << kmax << "): " << finder.average_points() << std::endl;
     }
 
-    std::cout << __func__
-        << ": tour length: " << tour.length()
-        << " after " << iteration << " iterations."
-        << std::endl;
+    if (not suppress_output)
+    {
+        std::cout << __func__
+            << ": tour length: " << tour.length()
+            << " after " << iteration << " iterations."
+            << std::endl;
+    }
     return iteration > 1;
 }
 
@@ -138,8 +144,18 @@ void double_bridge_explorer(
     std::map<primitives::length_t, size_t> frequency;
     while(max_local_optima != 0)
     {
-        hill_climb(root, tour, kmax);
+        tour.double_bridge_perturbation();
+        initial_hill_climb<FeasibleFinder>(root, tour, kmax, true);
+        auto length {tour.length()};
         --max_local_optima;
+        std::cout << "local optimum length: " << length
+            << " (remaining optima: " << max_local_optima << ")"
+            << std::endl;
+        ++frequency[length];
+    }
+    for (const auto& p : frequency)
+    {
+        std::cout << "length, frequency: " << p.first << ", " << p.second << std::endl;
     }
 }
 
@@ -337,11 +353,15 @@ int main(int argc, const char** argv)
     const auto root {point_quadtree::make_quadtree(x, y, domain)};
     std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds." << std::endl;
 
+    /*
     //hill_climb(root, tour, 5);
     for (size_t k {2}; k <= 5; ++k)
     {
         initial_hill_climb<FeasibleFinder>(root, tour, k);
     }
+    */
+    double_bridge_explorer(root, tour, 3);
+
     /*
     for (size_t k {2}; k <= 7; ++k)
     {
@@ -391,8 +411,6 @@ int main(int argc, const char** argv)
         std::cout << "Entries in length map: " << length_map.entries() << std::endl;
     } while (improved);
     */
-
-    //double_bridge_explorer(root, tour);
 
     if (constants::write_best)
     {
