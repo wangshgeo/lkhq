@@ -157,6 +157,7 @@ void double_bridge_explorer(
     {
         std::cout << "length, frequency: " << p.first << ", " << p.second << std::endl;
     }
+    std::cout << "best length found: " << std::begin(frequency)->first << std::endl;
 }
 
 void try_lateral(const point_quadtree::Node& root, Tour& tour)
@@ -412,10 +413,12 @@ int main(int argc, const char** argv)
     } while (improved);
     */
 
+    /*
     if (constants::write_best)
     {
         fileio::write_ordered_points(tour.order(), "saves/test.tour");
     }
     std::cout << "final length: " << tour.length() << std::endl;
+    */
     return 0;
 }

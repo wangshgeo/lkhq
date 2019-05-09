@@ -21,6 +21,11 @@ void Tour::double_bridge_perturbation()
     std::sample(std::cbegin(m_next), std::cend(m_next), std::begin(old_starts)
         , segments_to_replace
         , std::mt19937(std::random_device{}())); // TODO: ensure this is uniformly random.
+    std::sort(std::begin(old_starts), std::end(old_starts)
+        , [&m_sequence = m_sequence](primitives::point_id_t lhs, primitives::point_id_t rhs)
+            {
+                return m_sequence[lhs] < m_sequence[rhs];
+            });
     std::array<primitives::point_id_t, segments_to_replace> ends
     {{
         next(old_starts[2])
@@ -28,6 +33,23 @@ void Tour::double_bridge_perturbation()
         , next(old_starts[0])
         , next(old_starts[1])
     }};
+    /*
+    std::cout << "tour start:" << std::endl;
+    print();
+    std::cout << "tour end." << std::endl;
+    std::cout << "old starts:";
+    for (auto s : old_starts)
+    {
+        std::cout << " " << s;
+    }
+    std::cout << std::endl;
+    std::cout << "ends:";
+    for (auto s : ends)
+    {
+        std::cout << " " << s;
+    }
+    std::cout << std::endl;
+    */
     swap(old_starts, ends, old_starts);
 }
 
