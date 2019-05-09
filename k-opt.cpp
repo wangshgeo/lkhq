@@ -137,16 +137,26 @@ bool hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, b
 void double_bridge_explorer(
     const point_quadtree::Node& root
     , Tour& tour
-    , size_t kmax = 4
+    , size_t kmax = 3
     , size_t max_local_optima = 1000)
 {
     std::cout << __func__ << std::endl;
     std::map<primitives::length_t, size_t> frequency;
+    auto best_length = tour.length();
+    std::cout << "initial best tour length: " << best_length << std::endl;
     while(max_local_optima != 0)
     {
-        tour.double_bridge_perturbation();
-        initial_hill_climb<FeasibleFinder>(root, tour, kmax, true);
-        auto length {tour.length()};
+        auto test_tour = tour;
+        test_tour.double_bridge_perturbation();
+        initial_hill_climb<FeasibleFinder>(root, test_tour, kmax, true);
+        auto length {test_tour.length()};
+        if (length <= best_length)
+        {
+            std::cout << "new best length: " << length
+                << " (vs. " << best_length << ")" << std::endl;
+            tour = test_tour;
+            best_length = length;
+        }
         --max_local_optima;
         std::cout << "local optimum length: " << length
             << " (remaining optima: " << max_local_optima << ")"
