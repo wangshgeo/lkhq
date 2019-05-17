@@ -138,19 +138,20 @@ void double_bridge_explorer(
     const point_quadtree::Node& root
     , Tour& tour
     , size_t kmax = 3
-    , size_t max_local_optima = 1000)
+    , size_t allowable_cost = 0)
 {
     std::cout << __func__ << std::endl;
     std::map<primitives::length_t, size_t> frequency;
     auto best_length = tour.length();
     std::cout << "initial best tour length: " << best_length << std::endl;
+    size_t max_local_optima {tour.size()};
     while(max_local_optima != 0)
     {
         auto test_tour = tour;
         test_tour.double_bridge_perturbation();
         initial_hill_climb<FeasibleFinder>(root, test_tour, kmax, true);
         auto length {test_tour.length()};
-        if (length <= best_length)
+        if (length <= best_length + allowable_cost)
         {
             std::cout << "new best length: " << length
                 << " (vs. " << best_length << ")" << std::endl;
@@ -371,7 +372,12 @@ int main(int argc, const char** argv)
         initial_hill_climb<FeasibleFinder>(root, tour, k);
     }
     */
-    double_bridge_explorer(root, tour, 3);
+
+    for (size_t k {2}; k <= 3; ++k)
+    {
+        initial_hill_climb<FeasibleFinder>(root, tour, k);
+    }
+    //double_bridge_explorer(root, tour, 3, 10);
 
     /*
     for (size_t k {2}; k <= 7; ++k)
