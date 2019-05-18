@@ -23,6 +23,15 @@ bool Node::touches(const Box& box) const
     return m_box.touches(box);
 }
 
+std::vector<primitives::point_id_t>
+    Node::get_points(primitives::point_id_t i
+    , const Box& search_box) const
+{
+    std::vector<primitives::point_id_t> points;
+    get_points(i, search_box, points);
+    return points;
+}
+
 void Node::get_points(primitives::point_id_t i
     , const Box& search_box
     , std::vector<primitives::point_id_t>& points) const

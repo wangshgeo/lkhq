@@ -9,6 +9,7 @@ SRCS = k-opt.cpp Tour.cpp \
 	Finder.cpp \
 	LateralFinder.cpp \
 	FeasibleFinder.cpp \
+	MaskedFeasibleFinder.cpp \
 	NonsequentialFinder.cpp \
 	CycleMaker.cpp \
 	SimpleNonsequentialFinder.cpp \

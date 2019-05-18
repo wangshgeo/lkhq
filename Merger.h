@@ -39,8 +39,7 @@ public:
             {
                 max_radius += (margin + 1) / 2;
             }
-            std::vector<primitives::point_id_t> points;
-            root.get_points(i, tour.search_box(i, max_radius), points);
+            const auto points = root.get_points(i, tour.search_box(i, max_radius));
             for (auto p : points)
             {
                 if (tour.prev(i) == p or tour.next(i) == p)

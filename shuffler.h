@@ -2,7 +2,9 @@
 
 #include "primitives.h"
 
-#include <algorithm>
+#include <algorithm>    // rotate, random_shuffle
+#include <cstdint>      // size_t
+#include <vector>
 
 namespace shuffler {
 

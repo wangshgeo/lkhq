@@ -105,8 +105,7 @@ inline void start_search(Tour& tour
     {
         tour.search_box(swap_start, search_radius_factor * (removed_length + tour.max_outgroup_length() + 2))
     };
-    std::vector<primitives::point_id_t> points;
-    root.get_points(swap_start, search_box, points);
+    const auto points = root.get_points(swap_start, search_box);
     for (auto p : points)
     {
         if (tour.cycle_id(p) == excluded_cycle_id)

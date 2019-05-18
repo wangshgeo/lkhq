@@ -29,9 +29,8 @@ public:
     std::vector<primitives::point_id_t> find_swap(primitives::point_id_t i
         , const Box& search_box) const;
 
-    void get_points(primitives::point_id_t i
-        , const Box& search_box
-        , std::vector<primitives::point_id_t>& points) const;
+    std::vector<primitives::point_id_t>
+        get_points(primitives::point_id_t i, const Box& search_box) const;
 
 private:
     std::array<std::unique_ptr<Node>, 4> m_children;
@@ -39,6 +38,9 @@ private:
     const Box m_box;
 
     bool touches(const Box&) const;
+    void get_points(primitives::point_id_t i
+        , const Box& search_box
+        , std::vector<primitives::point_id_t>& points) const;
 };
 
 } // namespace point_quadtree

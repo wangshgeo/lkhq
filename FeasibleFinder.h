@@ -1,5 +1,7 @@
 #pragma once
 
+// There are feasible and non-feasible sequential moves.
+
 #include "BrokenEdge.h"
 #include "Merger.h"
 #include "Tour.h"
@@ -7,7 +9,6 @@
 #include "primitives.h"
 
 #include <algorithm> // fill
-#include <set>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -34,7 +35,7 @@ public:
 
     double average_points() const { return static_cast<double>(m_point_sum) / m_point_neighborhoods; }
 
-private:
+protected:
     const point_quadtree::Node& m_root;
     Tour& m_tour;
     size_t m_kmax {4};

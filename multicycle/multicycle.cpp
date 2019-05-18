@@ -60,8 +60,8 @@ bool search_neighbors(Tour& tour
         }
     }
 
-    std::vector<primitives::point_id_t> points;
-    root.get_points(new_start, tour.search_box(new_start, tour.length(new_removal) + 1), points);
+    const auto points = root.get_points(new_start
+        , tour.search_box(new_start, tour.length(new_removal) + 1));
     const auto minimum_sequence {tour.sequence(new_start, removed_edges.front())};
     for (auto p : points)
     {
@@ -185,8 +185,8 @@ std::array<std::vector<primitives::point_id_t>, 3> start_search(Tour& tour
     const auto removed_length {tour.length(removed_edge)};
     std::vector<primitives::point_id_t> starts {swap_start};
     std::vector<primitives::point_id_t> removed_edges {removed_edge};
-    std::vector<primitives::point_id_t> points;
-    root.get_points(swap_start, tour.search_box(swap_start, removed_length + 1), points);
+    const auto points = root.get_points(swap_start
+        , tour.search_box(swap_start, removed_length + 1));
     for (auto p : points)
     {
         if (p == swap_start or p == tour.prev(swap_start) or p == tour.next(swap_start))
