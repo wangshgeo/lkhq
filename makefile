@@ -14,7 +14,8 @@ SRCS = k-opt.cpp Tour.cpp \
 	CycleMaker.cpp \
 	SimpleNonsequentialFinder.cpp \
 	LengthMap.cpp point_quadtree/Node.cpp \
-    multicycle/multicycle.cpp
+    multicycle/multicycle.cpp \
+    cycle_check.cpp
 
 %.o: %.cpp; $(CXX) $(CXX_FLAGS) -o $@ -c $<
 

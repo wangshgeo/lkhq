@@ -1,10 +1,12 @@
 #pragma once
 
+// "Feasible" means single-cycle-preserving.
 // There are feasible and non-feasible sequential moves.
+// This finds improving, feasible, sequential moves.
 
-#include "BrokenEdge.h"
 #include "Merger.h"
 #include "Tour.h"
+#include "cycle_check.h"
 #include "nearest_points.h"
 #include "point_quadtree/Node.h"
 #include "primitives.h"
@@ -54,6 +56,11 @@ protected:
     size_t m_point_sum {0};
     size_t m_point_neighborhoods {0};
 
+    nearest_points::Neighborhoods m_start_neighborhoods;
+
+    const std::vector<primitives::point_id_t>&
+        get_start_points(primitives::point_id_t i, primitives::length_t radius) const;
+
     void start_search(const primitives::point_id_t swap_start
         , const primitives::point_id_t removed_edge);
     void search_both_sides(const primitives::length_t removed
@@ -62,8 +69,6 @@ protected:
         , const primitives::point_id_t new_remove
         , const primitives::length_t removed
         , const primitives::length_t added);
-
-    bool feasible() const;
 
     void reset_search()
     {

@@ -124,7 +124,7 @@ void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
             m_ends.push_back(m_swap_end);
             m_removes.push_back(new_remove);
             const auto improvement {total_remove - total_closing_add};
-            if (feasible())
+            if (cycle_check::feasible(m_tour, m_starts, m_ends, m_removes))
             {
                 //m_tour.print();
                 //print_move();
@@ -143,7 +143,7 @@ void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
                     }
                     std::cout << __func__ << ": error: non-feasible swap is actually feasible" << std::endl;
                     print_move();
-                    feasible();
+                    cycle_check::feasible(m_tour, m_starts, m_ends, m_removes);
                     std::abort();
                 }
                 else
@@ -218,116 +218,17 @@ void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
     }
 }
 
-// returns true if current swap does not break tour into multiple cycles.
-// new edge i: (starts[i], ends[i])
-// for p in m_removes: (p, next(p))
-// TODO: misses certain subclass of feasible moves.
-bool FeasibleFinder::feasible() const
+const std::vector<primitives::point_id_t>&
+    FeasibleFinder::get_start_points(primitives::point_id_t i, primitives::length_t radius) const
 {
-    // create and sort edges
-    std::vector<BrokenEdge> deleted_edges;
-    for (auto p : m_removes)
+    if (m_start_neighborhoods[i].first.radius == radius)
     {
-        const auto sequence {m_tour.sequence(p, m_removes[0])};
-        const auto first {p};
-        const auto second {m_tour.next(p)};
-        deleted_edges.push_back({first, second, sequence});
+        return m_start_neighborhoods[i].first.near_points;
     }
-    std::sort(std::begin(deleted_edges), std::end(deleted_edges)
-        , [](const auto& lhs, const auto& rhs) { return lhs.sequence < rhs.sequence; });
-    /*
-    auto print_deleted_edges = [&]()
+    else if (m_start_neighborhoods[i].second.radius == radius)
     {
-        std::cout << std::endl;
-        for (const auto& e : deleted_edges)
-        {
-            std::cout << e << std::endl;
-        }
-        std::cout << std::endl;
-    };
-    print_deleted_edges();
-    */
-
-    // maps to identify which removed edges points belong to and
-    //  membership of new edges.
-    std::unordered_map<primitives::point_id_t, size_t> deleted_edge_index;
-    std::unordered_map<primitives::point_id_t, std::vector<primitives::point_id_t>> new_edges;
-    for (size_t i {0}; i < deleted_edges.size(); ++i)
-    {
-        deleted_edge_index[deleted_edges[i].first] = i;
-        deleted_edge_index[deleted_edges[i].second] = i;
-        new_edges[m_starts[i]].push_back(m_ends[i]);
-        new_edges[m_ends[i]].push_back(m_starts[i]);
+        return m_start_neighborhoods[i].second.near_points;
     }
-
-    // traversal
-    const auto start {deleted_edges[0].first};
-    auto current {start};
-    //std::cout << "New tour traversal:" << std::endl;
-    //std::cout << current << std::endl;
-    size_t visited {0};
-    size_t max_visited {m_starts.size() + m_ends.size()};
-    std::unordered_map<primitives::point_id_t, bool> visit_flag;
-    visit_flag[current] = true;
-    std::unordered_set<primitives::point_id_t> checklist;
-    do
-    {
-        if (deleted_edge_index.find(current) == std::cend(deleted_edge_index))
-        {
-            std::cout << "point not recognized" << std::endl;
-            std::abort();
-        }
-        // go to next in new edge.
-        auto next = new_edges[current].back();
-        if (new_edges[next].size() > 2)
-        {
-            std::cout << __func__ << ": error: too many adjacent points" << std::endl;
-            std::abort();
-        }
-        if (visit_flag[next])
-        {
-            next = new_edges[current].front();
-        }
-        current = next;
-        //std::cout << "new edge end: " << current << std::endl;
-        visit_flag[current] = true;
-        ++visited;
-        if (current == start or checklist.find(current) != std::cend(checklist))
-        {
-            ++visited;
-            break;
-        }
-        checklist.insert(current);
-        // find adjacent new edge start point.
-        auto index {deleted_edge_index[current]};
-        const auto& edge {deleted_edges[index]};
-        if (edge.first == current)
-        {
-            if (index == 0)
-            {
-                index = deleted_edges.size() - 1;
-            }
-            else
-            {
-                --index;
-            }
-            current = deleted_edges[index].second;
-        }
-        else
-        {
-            ++index;
-            if (index == deleted_edges.size())
-            {
-                index = 0;
-            }
-            current = deleted_edges[index].first;
-        }
-        checklist.insert(current);
-        //std::cout << "adjacent: " << current << std::endl;
-        visit_flag[current] = true;
-        ++visited;
-    } while (current != start and visited < max_visited);
-    //std::cout << std::endl;
-    return current == start and visited == max_visited;
+    throw std::logic_error("could not find start neighborhood.");
 }
 
