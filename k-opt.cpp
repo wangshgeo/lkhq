@@ -1,3 +1,4 @@
+#include "Config.h"
 #include "Finder.h"
 #include "NanoTimer.h"
 #include "LengthMap.h"
@@ -34,12 +35,16 @@ void print_work_ratio(double comparisons, double n)
     std::cout << "work ratio: " << comparisons / moves << std::endl;
 }
 
-
 // true if improvement found.
 template <typename FinderType = Finder>
-bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, bool suppress_output = false)
+bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, const Config& config)
 {
     FinderType finder(root, tour);
+    const auto kmax = config.get<size_t>("kmax", 4);
+    const auto print_improvements = config.get<bool>("print_improvements", false);
+    const auto suppress_output = config.get<bool>("suppress_output", false);
+    const auto write_best = config.get<bool>("write_best", false);
+    const auto save_period = config.get<size_t>("save_period", 1000);
     finder.set_kmax(kmax);
     int iteration {1};
     NanoTimer timer;
@@ -64,14 +69,14 @@ bool initial_hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kma
                 << max_entry_ratio << ")" << std::endl;
             tour.length_map()->clear();
         }
-        if (constants::print_improvements and not suppress_output)
+        if (print_improvements and not suppress_output)
         {
             std::cout << "improvement: " << finder.best_improvement()
                 << " (length entry ratio: " << entry_ratio << ")" << std::endl;
         }
         tour.swap(finder.best_starts(), finder.best_ends(), finder.best_removes());
         ++iteration;
-        if (constants::write_best and (iteration % constants::save_period) == 0 and not suppress_output)
+        if (write_best and (iteration % save_period) == 0 and not suppress_output)
         {
             std::cout << "current length: " << tour.length() << std::endl;
             fileio::write_ordered_points(tour.order(), "saves/test.tour");
@@ -137,7 +142,7 @@ bool hill_climb(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, b
 void double_bridge_explorer(
     const point_quadtree::Node& root
     , Tour& tour
-    , size_t kmax = 3
+    , const Config& config
     , size_t allowable_cost = 0)
 {
     std::cout << __func__ << std::endl;
@@ -149,7 +154,7 @@ void double_bridge_explorer(
     {
         auto test_tour = tour;
         test_tour.double_bridge_perturbation();
-        initial_hill_climb<FeasibleFinder>(root, test_tour, kmax, true);
+        initial_hill_climb<FeasibleFinder>(root, test_tour, config);
         auto length {test_tour.length()};
         if (length <= best_length + allowable_cost)
         {
@@ -353,6 +358,11 @@ int main(int argc, const char** argv)
     const auto& y {coordinates[1]};
     const auto initial_tour = fileio::initial_tour(argc, argv, x.size());
 
+    // Config file (currently fixed).
+    constexpr char config_path[] = "config.txt";
+    std::cout << "Reading config file: " << config_path << std::endl;
+    Config config(config_path);
+
     // Distance calculation.
     point_quadtree::Domain domain(x, y);
     LengthMap length_map(x, y);
@@ -373,10 +383,8 @@ int main(int argc, const char** argv)
     }
     */
 
-    for (size_t k {2}; k <= 3; ++k)
-    {
-        initial_hill_climb<FeasibleFinder>(root, tour, k);
-    }
+    initial_hill_climb<FeasibleFinder>(root, tour, config);
+
     //double_bridge_explorer(root, tour, 3, 10);
 
     /*
