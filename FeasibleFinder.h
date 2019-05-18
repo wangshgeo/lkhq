@@ -5,6 +5,7 @@
 #include "BrokenEdge.h"
 #include "Merger.h"
 #include "Tour.h"
+#include "nearest_points.h"
 #include "point_quadtree/Node.h"
 #include "primitives.h"
 

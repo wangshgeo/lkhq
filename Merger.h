@@ -4,6 +4,7 @@
 //  and an improvement or length margin,
 //  computes a merged tour if it is an improvement (including margin).
 
+#include "Tour.h"
 #include "point_quadtree/Node.h"
 #include "primitives.h"
 

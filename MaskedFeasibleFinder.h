@@ -9,7 +9,6 @@
 class MaskedFeasibleFinder : public FeasibleFinder
 {
 public:
-
     bool find_best();
 
 private:
@@ -20,7 +19,6 @@ private:
     {
         m_active.clear();
         m_active.insert(i);
-
     }
 
 };

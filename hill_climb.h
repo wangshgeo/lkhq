@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Config.h"
+#include "Finder.h"
 #include "MaskedFeasibleFinder.h"
 #include "Tour.h"
 #include "fileio.h"

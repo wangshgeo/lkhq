@@ -103,6 +103,15 @@ public:
             current = m_next[current];
         } while (current != start);
     }
+
+    std::vector<primitives::point_id_t> get_points(
+        const point_quadtree::Node& root
+        , primitives::point_id_t i
+        , primitives::length_t radius) const
+    {
+        return root.get_points(i, search_box(i, radius));
+    }
+
 private:
     const point_quadtree::Domain* m_domain {nullptr};
     LengthMap* m_length_map {nullptr};

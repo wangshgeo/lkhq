@@ -4,7 +4,6 @@
 // Only leaf nodes have points.
 
 #include "Box.h"
-#include <Tour.h>
 #include <primitives.h>
 
 #include <array>
