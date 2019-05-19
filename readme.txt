@@ -1,8 +1,10 @@
-This implements Lin-Kernighan-Helsgaun-style k-opt, but using a quad tree to limit the search.
-The original LK algorithm limited search neighborhoods for each point to 5 nearest neighbors.
-The LKH algorithm uses "alpha-nearness" to determine search neighborhoods,
-which essentially considers points neighbors if new edges are similar enough to 1-tree edges.
-Constructing the candidate set is done once before hill-climbing and takes O(n ^ 2) work.
+This implements k-opt in the style of Lin-Kernighan-Helsgaun (LKH),
+    but uses a quadtree to dynamically limit the search.
+This approach is novel because fixed search neighborhoods are typically used.
+Original LK limited search neighborhoods to 5 nearest points.
+LKH limits search to 5 "alpha-nearest" points.
+Alpha-nearness measures the similarity of new edges to those in a minimum spanning tree.
+Computing alpha-nearness is done once before hill-climbing and takes O(n^2) work.
 
 Using a quad tree has the following advantages:
 1. All possible improving steps (deletion of one edge and addition of one edge) are considered.
@@ -36,7 +38,6 @@ Style notes:
 TODO:
 1. Check if output directory exists before writing out paths to file (currently silently fails).
 2. Refactor Finder base class.
-3. If possible, memoize searched paths.
-4. Leaf node occupancy metrics to help pick right max tree depth (or, allow for dynamic depth placement).
-5. Since points within search radii for each point doesn't change much, store these neighboring points for each point instead of recomputing.
-6. Account for difference between closing lengths in stopping criterion; e.g. might continue if the closing length gets shorter.
+3. Memoize best-case scenarios searched paths (not sure if practical).
+4. Use logic_error exceptions in place of current abort checks.
+5. Allow leaf nodes to be at depth less than max. In point search routine, if leaf node, then check all points for inclusion in box.
