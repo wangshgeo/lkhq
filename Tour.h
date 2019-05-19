@@ -2,10 +2,11 @@
 
 #include "LengthMap.h"
 #include "constants.h"
-#include "point_quadtree/Node.h"
-#include "point_quadtree/Box.h"
-#include "point_quadtree/Domain.h"
 #include "multicycle/simple_merge/Swap.h"
+#include "point_quadtree/Box.h"
+#include "point_quadtree/BoxMaker.h"
+#include "point_quadtree/Domain.h"
+#include "point_quadtree/Node.h"
 #include "primitives.h"
 
 #include <algorithm> // fill
@@ -122,6 +123,7 @@ private:
     primitives::cycle_id_t m_cycle_end {1}; // one-past-the-last cycle id.
     primitives::length_t m_max_outgroup_length {0};
     size_t m_min_cycle_size {0};
+    BoxMaker m_box_maker;
 
     void reset_adjacencies(const std::vector<primitives::point_id_t>& initial_tour);
     void update_next(const primitives::point_id_t start = 0);

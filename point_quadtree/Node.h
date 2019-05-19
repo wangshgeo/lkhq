@@ -23,17 +23,20 @@ public:
     Node* child(primitives::quadrant_t q) { return m_children[q].get(); }
 
     void insert(primitives::point_id_t i);
+
     const std::vector<primitives::point_id_t>& points() const { return m_points; }
 
-    std::vector<primitives::point_id_t> find_swap(primitives::point_id_t i
-        , const Box& search_box) const;
-
     std::vector<primitives::point_id_t>
-        get_points(primitives::point_id_t i, const Box& search_box) const;
+        get_points
+        (primitives::point_id_t i, const Box& search_box) const;
+
+    void increment_indirect() { ++m_indirect_points; }
+    auto total_points() const { return m_indirect_points + m_points.size(); }
 
 private:
     std::array<std::unique_ptr<Node>, 4> m_children;
     std::vector<primitives::point_id_t> m_points;
+    size_t m_indirect_points {0}; // total number of points under the children of this node (not directly under this node).
     const Box m_box;
 
     bool touches(const Box&) const;

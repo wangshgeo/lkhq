@@ -9,6 +9,7 @@ Tour::Tour(const point_quadtree::Domain* domain
 , m_next(initial_tour.size(), constants::invalid_point)
 , m_sequence(initial_tour.size(), constants::invalid_point)
 , m_cycle_id(initial_tour.size(), constants::invalid_cycle)
+, m_box_maker(length_map->x(), length_map->y())
 {
     reset_adjacencies(initial_tour);
     update_next();

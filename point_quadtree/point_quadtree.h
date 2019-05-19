@@ -57,6 +57,7 @@ inline void insert_point(
     primitives::grid_t y {0};
     for (const auto quadrant : morton_keys::point_insertion_path(morton_keys[point_id]))
     {
+        point_destination->increment_indirect();
         ++depth;
         x <<= 1;
         x += quadrant_x(quadrant);
