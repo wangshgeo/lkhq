@@ -3,7 +3,7 @@
 // Children are indexed by Morton key quadrant.
 // Only leaf nodes have points.
 
-#include "Box.h"
+#include <Box.h>
 #include <primitives.h>
 
 #include <array>

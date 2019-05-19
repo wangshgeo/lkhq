@@ -2,6 +2,7 @@
 
 #include "Node.h"
 #include "morton_keys.h"
+#include <Box.h>
 #include <Tour.h>
 #include <primitives.h>
 

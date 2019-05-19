@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Box.h"
+#include "BoxMaker.h"
 #include "LengthMap.h"
 #include "constants.h"
 #include "multicycle/simple_merge/Swap.h"
-#include "point_quadtree/Box.h"
-#include "point_quadtree/BoxMaker.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/Node.h"
 #include "primitives.h"

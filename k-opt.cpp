@@ -1,3 +1,4 @@
+#include "BoxMaker.h"
 #include "Config.h"
 #include "FeasibleFinder.h"
 #include "LengthMap.h"
@@ -6,7 +7,6 @@
 #include "explorers.h"
 #include "fileio.h"
 #include "hill_climb.h"
-#include "point_quadtree/BoxMaker.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
 
