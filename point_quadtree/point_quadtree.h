@@ -91,18 +91,6 @@ inline void initialize_points(
     }
 }
 
-inline void print_search_pool_sizes(const Tour& tour, const Node& root)
-{
-    for (primitives::point_id_t i {0}; i < tour.size(); ++i)
-    {
-        const auto points_next = root.get_points(i, tour.search_box_next(i));
-        std::cout << i << ": " << points_next.size();
-        const auto points_prev = root.get_points(i, tour.search_box_prev(i));
-        std::cout << ", " << points_prev.size();
-        std::cout << std::endl;
-    }
-}
-
 inline Node make_quadtree(
     const std::vector<primitives::space_t>& x
     , const std::vector<primitives::space_t>& y

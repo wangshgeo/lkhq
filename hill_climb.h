@@ -9,6 +9,7 @@
 #include "point_quadtree/Node.h"
 #include "primitives.h"
 
+#include <algorithm> // random_shuffle
 #include <iostream>
 #include <map>
 
@@ -28,6 +29,49 @@ void print_work_ratio(double comparisons, double n)
 {
     auto moves = (n - 1) * (n - 2) / 2 - 1; // 2-opt
     std::cout << "work ratio: " << comparisons / moves << std::endl;
+}
+
+// true if improvement found.
+bool neighborhood(const Config& //config
+    , const point_quadtree::Node& root
+    , primitives::length_t radius
+    , Tour& tour)
+{
+    // read config parameters.
+    /*
+    const auto kmax = config.get<size_t>("kmax", 4);
+    const auto print_improvements = config.get<bool>("print_improvements", false);
+    const auto suppress_output = config.get<bool>("suppress_output", false);
+    const auto write_best = config.get<bool>("write_best", false);
+    const auto save_period = config.get<size_t>("save_period", 1000);
+    */
+
+    // neighborhood center order of exploration.
+    std::vector<primitives::point_id_t> centers(tour.size());
+    for (size_t i {0}; i < tour.size(); ++i)
+    {
+        centers[i] = i;
+    }
+    std::random_shuffle(std::begin(centers), std::end(centers));
+
+    BoxMaker box_maker(tour.x(), tour.y());
+    size_t min_size {std::numeric_limits<size_t>::max()};
+    size_t max_size {0};
+    double average_size {0};
+    for (auto center : centers)
+    {
+        const auto neighborhood = root.get_points(center, box_maker(center, radius));
+        min_size = std::min(min_size, neighborhood.size());
+        max_size = std::max(max_size, neighborhood.size());
+        average_size += neighborhood.size();
+    }
+    average_size /= centers.size();
+    std::cout << "average, min, max: "
+        << average_size
+        << ", " << min_size
+        << ", " << max_size
+        << std::endl;
+    return true;
 }
 
 // true if improvement found.

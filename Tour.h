@@ -66,8 +66,6 @@ public:
     auto length_map() { return m_length_map; }
     auto domain() const { return m_domain; }
 
-    Box search_box_next(primitives::point_id_t i) const;
-    Box search_box_prev(primitives::point_id_t i) const;
     Box search_box(primitives::point_id_t i, primitives::length_t radius) const;
 
     void validate(bool suppress_success = false) const;
@@ -112,7 +110,7 @@ public:
         , primitives::point_id_t i
         , primitives::length_t radius) const
     {
-        return root.get_points(i, search_box(i, radius));
+        return root.get_points(i, m_box_maker(i, radius));
     }
 
 private:

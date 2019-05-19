@@ -48,5 +48,11 @@ int main(int argc, const char** argv)
 
     hill_climb::initial_hill_climb<FeasibleFinder>(config, root, tour);
 
+    const auto average_outer_dim = 0.5 * (domain.xdim(0) + domain.ydim(0));
+    hill_climb::neighborhood(config
+        , root
+        , 0.05 * average_outer_dim
+        , tour);
+
     return 0;
 }

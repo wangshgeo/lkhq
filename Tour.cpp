@@ -144,16 +144,6 @@ Box Tour::search_box(primitives::point_id_t i, primitives::length_t radius) cons
     return m_box_maker(i, radius);
 }
 
-Box Tour::search_box_next(primitives::point_id_t i) const
-{
-    return search_box(i, length(i) + 1);
-}
-
-Box Tour::search_box_prev(primitives::point_id_t i) const
-{
-    return search_box(i, prev_length(i) + 1);
-}
-
 void Tour::reset_adjacencies(const std::vector<primitives::point_id_t>& initial_tour)
 {
     auto prev = initial_tour.back();
