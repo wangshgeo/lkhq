@@ -38,19 +38,21 @@ public:
     void update_multicycle();
     size_t min_cycle_size() const { return m_min_cycle_size; }
 
-    primitives::point_id_t next(primitives::point_id_t i) const { return m_next[i]; }
+    auto next(primitives::point_id_t i) const { return m_next[i]; }
     primitives::point_id_t prev(primitives::point_id_t i) const;
     std::vector<primitives::point_id_t> order() const;
     size_t size() const { return m_next.size(); }
-    primitives::cycle_id_t cycle_id(primitives::point_id_t i) const { return m_cycle_id[i]; }
+    auto cycle_id(primitives::point_id_t i) const { return m_cycle_id[i]; }
     bool split() const { return m_cycle_end > 1; }
-    primitives::cycle_id_t cycles() const { return m_cycle_end; }
-    primitives::length_t max_outgroup_length() const { return m_max_outgroup_length; }
+    auto cycles() const { return m_cycle_end; }
+    auto max_outgroup_length() const { return m_max_outgroup_length; }
 
     primitives::point_id_t sequence(primitives::point_id_t i, primitives::point_id_t start) const;
 
-    primitives::space_t x(primitives::point_id_t i) const { return m_length_map->x(i); }
-    primitives::space_t y(primitives::point_id_t i) const { return m_length_map->y(i); }
+    const auto& x() const { return m_length_map->x(); }
+    const auto& y() const { return m_length_map->y(); }
+    auto x(primitives::point_id_t i) const { return m_length_map->x(i); }
+    auto y(primitives::point_id_t i) const { return m_length_map->y(i); }
 
     primitives::length_t length() const;
     primitives::length_t length(primitives::point_id_t i) const;
@@ -60,9 +62,9 @@ public:
         return m_length_map->length(i, j);
     }
 
-    const LengthMap& length_map() const { return *m_length_map; }
-    LengthMap* length_map() { return m_length_map; }
-    const point_quadtree::Domain* domain() const { return m_domain; }
+    const auto& length_map() const { return *m_length_map; }
+    auto length_map() { return m_length_map; }
+    auto domain() const { return m_domain; }
 
     Box search_box_next(primitives::point_id_t i) const;
     Box search_box_prev(primitives::point_id_t i) const;

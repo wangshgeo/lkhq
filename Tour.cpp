@@ -141,14 +141,7 @@ primitives::point_id_t Tour::sequence(primitives::point_id_t i, primitives::poin
 
 Box Tour::search_box(primitives::point_id_t i, primitives::length_t radius) const
 {
-    auto x {m_length_map->x(i)};
-    auto y {m_length_map->y(i)};
-    Box box;
-    box.xmin = x - radius;
-    box.xmax = x + radius;
-    box.ymin = y - radius;
-    box.ymax = y + radius;
-    return box;
+    return m_box_maker(i, radius);
 }
 
 Box Tour::search_box_next(primitives::point_id_t i) const
