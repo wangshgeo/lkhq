@@ -4,6 +4,7 @@
 // There are feasible and non-feasible sequential moves.
 // This finds improving, feasible, sequential moves.
 
+#include "BoxMaker.h"
 #include "Merger.h"
 #include "Tour.h"
 #include "cycle_check.h"
@@ -19,7 +20,7 @@ class FeasibleFinder
 {
 public:
     FeasibleFinder(const point_quadtree::Node& root, Tour& tour)
-        : m_root(root), m_tour(tour) {}
+        : m_root(root), m_tour(tour), m_box_maker(tour.x(), tour.y()) {}
 
     // returns true if an improving swap was found.
     bool find_best();
@@ -54,6 +55,8 @@ protected:
     primitives::length_t m_best_improvement {0};
     size_t m_point_sum {0};
     size_t m_point_neighborhoods {0};
+
+    const BoxMaker m_box_maker;
 
     void start_search(const primitives::point_id_t swap_start
         , const primitives::point_id_t removed_edge);

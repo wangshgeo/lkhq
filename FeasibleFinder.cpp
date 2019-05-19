@@ -30,12 +30,7 @@ void FeasibleFinder::start_search(const primitives::point_id_t swap_start
     const auto remove {m_tour.length(removed_edge)};
     m_starts.push_back(swap_start);
     m_removes.push_back(removed_edge);
-    const auto search_box
-    {
-        m_tour.search_box(swap_start, remove + 1)
-    };
-    // TODO: consider storing this neighborhood.
-    const auto points = m_root.get_points(swap_start, search_box);
+    const auto points = m_root.get_points(swap_start, m_box_maker(swap_start, remove + 1));
     m_point_sum += points.size();
     ++m_point_neighborhoods;
     for (auto p : points)
@@ -162,11 +157,8 @@ void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
     }
 
     const auto margin {total_remove - added};
-    const auto search_box
-    {
-        m_tour.search_box(new_start, margin + m_tour.length(new_remove) + 1)
-    };
-    const auto points = m_root.get_points(new_start, search_box);
+    const auto search_radius = margin + m_tour.length(new_remove) + 1;
+    const auto points = m_root.get_points(new_start, m_box_maker(new_start, search_radius));
     m_point_sum += points.size();
     ++m_point_neighborhoods;
     for (auto p : points)
