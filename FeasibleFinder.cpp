@@ -218,17 +218,3 @@ void FeasibleFinder::search_neighbors(const primitives::point_id_t new_start
     }
 }
 
-const std::vector<primitives::point_id_t>&
-    FeasibleFinder::get_start_points(primitives::point_id_t i, primitives::length_t radius) const
-{
-    if (m_start_neighborhoods[i].first.radius == radius)
-    {
-        return m_start_neighborhoods[i].first.near_points;
-    }
-    else if (m_start_neighborhoods[i].second.radius == radius)
-    {
-        return m_start_neighborhoods[i].second.near_points;
-    }
-    throw std::logic_error("could not find start neighborhood.");
-}
-

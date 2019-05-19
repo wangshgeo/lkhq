@@ -7,7 +7,6 @@
 #include "Merger.h"
 #include "Tour.h"
 #include "cycle_check.h"
-#include "nearest_points.h"
 #include "point_quadtree/Node.h"
 #include "primitives.h"
 
@@ -55,11 +54,6 @@ protected:
     primitives::length_t m_best_improvement {0};
     size_t m_point_sum {0};
     size_t m_point_neighborhoods {0};
-
-    nearest_points::Neighborhoods m_start_neighborhoods;
-
-    const std::vector<primitives::point_id_t>&
-        get_start_points(primitives::point_id_t i, primitives::length_t radius) const;
 
     void start_search(const primitives::point_id_t swap_start
         , const primitives::point_id_t removed_edge);
