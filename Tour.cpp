@@ -15,6 +15,11 @@ Tour::Tour(const point_quadtree::Domain* domain
     update_next();
 }
 
+void Tour::swap(const KMove& kmove)
+{
+    swap(kmove.starts, kmove.ends, kmove.removes);
+}
+
 void Tour::double_bridge_perturbation()
 {
     constexpr size_t segments_to_replace {4};

@@ -1,7 +1,11 @@
 # as in k-opt
-kmax                4
+kmax                3
 print_improvements  true
 suppress_output     false
 write_best          true
 save_period         1000
 
+basic_hill_climb    true
+experimental        false
+
+validate_tour       true

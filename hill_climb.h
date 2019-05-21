@@ -158,8 +158,44 @@ bool initial_hill_climb(const Config& config, const point_quadtree::Node& root, 
 }
 
 // true if improvement found.
+template <typename FinderType = Finder>
+bool basic_hill_climb(const Config& config, const point_quadtree::Node& root, Tour& tour)
+{
+    FinderType finder(config, root, tour);
+
+    int iteration {1};
+    const auto log_hillclimb = config.get<bool>("log_hillclimb", false);
+    while (const auto kmove = finder.find_best())
+    {
+        tour.swap(kmove->starts, kmove->ends, kmove->removes);
+        if (log_hillclimb)
+        {
+            std::cout << "iteration " << iteration
+                << " current tour length: " << tour.length()
+                << std::endl;
+        }
+        ++iteration;
+    }
+    if (log_hillclimb)
+    {
+        std::cout << __func__
+            << ": tour length after hill-climb: " << tour.length()
+            << " (" << iteration << " iterations)"
+            << std::endl;
+    }
+    const auto validate_tour = config.get<bool>("validate_tour", false);
+    if (validate_tour)
+    {
+        std::cout << __func__
+            << ": cycles: " << tour.cycles()
+            << std::endl;
+    }
+    return iteration > 1;
+}
+
+// true if improvement found.
 template <typename FinderType = OldFinder>
-bool hill_climb(const Config& config, const point_quadtree::Node& root, Tour& tour)
+bool old_hill_climb(const Config& config, const point_quadtree::Node& root, Tour& tour)
 {
     FinderType finder(root, tour);
 
@@ -222,7 +258,7 @@ bool try_nonsequential(const Config& config, const point_quadtree::Node& root, T
         auto new_tour = tour;
         new_tour.multicycle_swap(move.starts, move.ends, move.removes);
         multicycle::merge(root, new_tour);
-        hill_climb(config, root, new_tour);
+        old_hill_climb(config, root, new_tour);
         const auto new_length = new_tour.length();
         if (new_length < old_length)
         {

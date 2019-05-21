@@ -4,6 +4,7 @@
 // There are feasible and non-feasible sequential moves.
 // This finds improving, feasible, sequential moves.
 
+#include "Config.h"
 #include "BoxMaker.h"
 #include "Merger.h"
 #include "Tour.h"
@@ -22,9 +23,14 @@ class FeasibleFinder
 public:
     FeasibleFinder(const point_quadtree::Node& root, Tour& tour)
         : m_root(root), m_tour(tour), m_box_maker(tour.x(), tour.y()) {}
+    FeasibleFinder(const Config& config, const point_quadtree::Node& root, Tour& tour)
+        : FeasibleFinder(root, tour)
+    {
+        m_kmax = config.get<size_t>("kmax", m_kmax);
+    }
 
     // returns true if an improving swap was found.
-    bool find_best();
+    std::optional<KMove> find_best();
 
     const auto& best_starts() const { return m_best_starts; }
     const auto& best_ends() const { return m_best_ends; }
@@ -38,9 +44,9 @@ public:
     double average_points() const { return static_cast<double>(m_point_sum) / m_point_neighborhoods; }
 
 protected:
+    size_t m_kmax {4};
     const point_quadtree::Node& m_root;
     Tour& m_tour;
-    size_t m_kmax {4};
     size_t m_comparisons {0};
 
     std::vector<primitives::point_id_t> m_starts; // start of new edge.

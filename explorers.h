@@ -72,7 +72,7 @@ void try_lateral(const Config& config, const point_quadtree::Node& root, Tour& t
             << std::endl;
         auto new_tour = tour;
         new_tour.swap(lateral.starts, lateral.ends, lateral.removes);
-        hill_climb::hill_climb(config, root, new_tour);
+        hill_climb::old_hill_climb(config, root, new_tour);
         if (new_tour.length() < old_length)
         {
             std::cout << "found lateral improvement" << std::endl;
@@ -97,7 +97,7 @@ void shuffle(const Config& config, const point_quadtree::Node& root, Tour& tour)
         {
             const auto shuffled = shuffler::shuffle(tour.order(), i, shuffle_length);
             Tour new_tour(tour.domain(), shuffled, tour.length_map());
-            hill_climb::hill_climb(config, root, new_tour);
+            hill_climb::old_hill_climb(config, root, new_tour);
             const auto new_length {new_tour.length()};
             std::cout << "iteration " << iteration
                 << ", length " << new_length

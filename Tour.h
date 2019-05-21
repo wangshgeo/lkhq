@@ -2,6 +2,7 @@
 
 #include "Box.h"
 #include "BoxMaker.h"
+#include "KMove.h"
 #include "LengthMap.h"
 #include "constants.h"
 #include "multicycle/simple_merge/Swap.h"
@@ -31,6 +32,7 @@ public:
     void breaking_forward_swap(const std::vector<primitives::point_id_t>& swap);
     template <typename PointContainer = std::vector<primitives::point_id_t>>
     void swap(const PointContainer& starts, const PointContainer& ends, const PointContainer& removed_edges);
+    void swap(const KMove&);
     void multicycle_swap(
         const std::vector<primitives::point_id_t>& starts
         , const std::vector<primitives::point_id_t>& ends

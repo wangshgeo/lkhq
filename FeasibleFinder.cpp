@@ -1,6 +1,6 @@
 #include "FeasibleFinder.h"
 
-bool FeasibleFinder::find_best()
+std::optional<KMove> FeasibleFinder::find_best()
 {
     reset_search();
     constexpr primitives::point_id_t start {0};
@@ -11,17 +11,17 @@ bool FeasibleFinder::find_best()
         start_search(i, m_swap_end);
         if (found_improvement())
         {
-            return true;
+            return KMove{m_best_starts, m_best_ends, m_best_removes};
         }
         m_swap_end = m_tour.next(i);
         start_search(i, i);
         if (found_improvement())
         {
-            return true;
+            return KMove{m_best_starts, m_best_ends, m_best_removes};
         }
         i = m_tour.next(i);
     } while (i != start);
-    return false;
+    return std::nullopt;
 }
 
 void FeasibleFinder::start_search(const primitives::point_id_t swap_start

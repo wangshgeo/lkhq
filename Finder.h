@@ -1,5 +1,8 @@
 #pragma once
 
+// Base class for other search strategies.
+// Makes sequential improvements.
+
 #include "BoxMaker.h"
 #include "Config.h"
 #include "KMove.h"
