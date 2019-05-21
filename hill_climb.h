@@ -49,21 +49,30 @@ bool neighborhood(const Config& //config
     size_t min_size {std::numeric_limits<size_t>::max()};
     size_t max_size {0};
     double average_size {0};
-    size_t checks {0};
+    size_t sweeps {0};
     MaskedFeasibleFinder finder(root, tour);
 
-    for (primitives::point_id_t center {0}; center < tour.size(); ++center)
+    while (true)
     {
-        const auto neighborhood = root.get_points(center, box_maker(center, radius));
-        min_size = std::min(min_size, neighborhood.size());
-        max_size = std::max(max_size, neighborhood.size());
-        average_size += neighborhood.size();
-        const auto kmove = finder.find_best();
-        if (kmove)
+        bool stop {true};
+        for (primitives::point_id_t center {0}; center < tour.size(); ++center)
         {
-            tour.swap(kmove->starts, kmove->ends, kmove->removes);
+            const auto neighborhood = root.get_points(center, box_maker(center, radius));
+            min_size = std::min(min_size, neighborhood.size());
+            max_size = std::max(max_size, neighborhood.size());
+            average_size += neighborhood.size();
+            const auto kmove = finder.find_best();
+            if (kmove)
+            {
+                tour.swap(kmove->starts, kmove->ends, kmove->removes);
+                stop = false;
+            }
         }
-        ++checks;
+        ++sweeps;
+        if (stop)
+        {
+            break;
+        }
     }
 
     average_size /= tour.size();
@@ -71,9 +80,9 @@ bool neighborhood(const Config& //config
         << average_size
         << ", " << min_size
         << ", " << max_size
-        << " (" << checks << " checks)"
+        << " (" << sweeps << " sweeps)"
         << std::endl;
-    return checks != tour.size();
+    return sweeps > 1;
 }
 
 // true if improvement found.

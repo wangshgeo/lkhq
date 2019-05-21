@@ -41,3 +41,5 @@ TODO:
 3. Memoize best-case scenarios searched paths (not sure if practical).
 4. Use logic_error exceptions in place of current abort checks.
 5. Allow leaf nodes to be at depth less than max. In point search routine, if leaf node, then check all points for inclusion in box.
+6. Implement book keeping of already-tried, unchanged neighborhoods (in masked feasible finder) to prevent redundant search.
+7. Use of unordered_set instead of vector of chars in mask.
