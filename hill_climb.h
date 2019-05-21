@@ -75,12 +75,14 @@ bool neighborhood(const Config& //config
         }
     }
 
-    average_size /= tour.size();
+    const auto searched_neighborhoods = sweeps * tour.size();
+    average_size /= searched_neighborhoods;
     std::cout << "neighborhood average, min, max: "
         << average_size
         << ", " << min_size
         << ", " << max_size
-        << " (" << sweeps << " sweeps)"
+        << " (" << sweeps << " sweeps"
+        << ", " << searched_neighborhoods << " searched neighborhoods)"
         << std::endl;
     return sweeps > 1;
 }
