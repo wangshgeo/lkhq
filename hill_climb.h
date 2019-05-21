@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Config.h"
-#include "Finder.h"
+#include "OldFinder.h"
 #include "MaskedFeasibleFinder.h"
 #include "Tour.h"
 #include "fileio.h"
@@ -88,7 +88,7 @@ bool neighborhood(const Config& //config
 }
 
 // true if improvement found.
-template <typename FinderType = Finder>
+template <typename FinderType = OldFinder>
 bool initial_hill_climb(const Config& config, const point_quadtree::Node& root, Tour& tour)
 {
     FinderType finder(root, tour);
@@ -158,7 +158,7 @@ bool initial_hill_climb(const Config& config, const point_quadtree::Node& root, 
 }
 
 // true if improvement found.
-template <typename FinderType = Finder>
+template <typename FinderType = OldFinder>
 bool hill_climb(const Config& config, const point_quadtree::Node& root, Tour& tour)
 {
     FinderType finder(root, tour);
@@ -200,7 +200,7 @@ bool hill_climb(const Config& config, const point_quadtree::Node& root, Tour& to
 bool try_nonsequential(const Config& config, const point_quadtree::Node& root, Tour& tour)
 {
     const auto old_length = tour.length();
-    Finder finder(root, tour);
+    OldFinder finder(root, tour);
     finder.save_nonsequential_moves();
     if (finder.find_best())
     {
@@ -245,7 +245,7 @@ bool try_nonsequential(const Config& config, const point_quadtree::Node& root, T
 // true if improvement found.
 bool bottom_up_iteration(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, bool suppress_output = false)
 {
-    Finder finder(root, tour);
+    OldFinder finder(root, tour);
     finder.set_kmax(kmax);
     int iteration {1};
     size_t i {0};
@@ -275,7 +275,7 @@ bool bottom_up_iteration(const point_quadtree::Node& root, Tour& tour, size_t km
 bool segmented_hill_climb_iteration(const point_quadtree::Node& root, Tour& tour, size_t kmax = 4, size_t segment_size = 50, bool suppress_output = false)
 {
     std::cout << "segmented hill climb" << std::endl;
-    Finder finder(root, tour);
+    OldFinder finder(root, tour);
     finder.set_kmax(kmax);
     for (primitives::point_id_t i {0}; i < tour.size(); ++i)
     {

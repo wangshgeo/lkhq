@@ -1,6 +1,6 @@
-#include "Finder.h"
+#include "OldFinder.h"
 
-bool Finder::find_best()
+bool OldFinder::find_best()
 {
     reset_search();
     constexpr primitives::point_id_t start {0};
@@ -24,8 +24,7 @@ bool Finder::find_best()
     return false;
 }
 
-// TODO: refactor to inherited class.
-bool Finder::find_best(primitives::point_id_t start, size_t size)
+bool OldFinder::find_best(primitives::point_id_t start, size_t size)
 {
     reset_search();
     m_restricted = true;
@@ -53,8 +52,7 @@ bool Finder::find_best(primitives::point_id_t start, size_t size)
     return m_best_improvement > 0;
 }
 
-// TODO: refactor to inherited class.
-bool Finder::find_best(primitives::length_t length)
+bool OldFinder::find_best(primitives::length_t length)
 {
     reset_search();
     constexpr primitives::point_id_t start {0};
@@ -76,7 +74,7 @@ bool Finder::find_best(primitives::length_t length)
     return m_best_improvement > 0;
 }
 
-void Finder::start_search(const primitives::point_id_t swap_start
+void OldFinder::start_search(const primitives::point_id_t swap_start
     , const primitives::point_id_t removed_edge)
 {
     if (m_first_improvement and m_best_improvement > 0)
@@ -120,8 +118,7 @@ void Finder::start_search(const primitives::point_id_t swap_start
     m_removes.pop_back();
 }
 
-// TODO: rename delete_edge
-void Finder::search_both_sides(const primitives::length_t removed
+void OldFinder::search_both_sides(const primitives::length_t removed
     , const primitives::length_t added)
 {
     if (m_first_improvement and m_best_improvement > 0)
@@ -170,8 +167,7 @@ void Finder::search_both_sides(const primitives::length_t removed
     }
 }
 
-// TODO: rename add_edge
-void Finder::search_neighbors(const primitives::point_id_t new_start
+void OldFinder::search_neighbors(const primitives::point_id_t new_start
     , const primitives::point_id_t new_remove
     , const primitives::length_t removed
     , const primitives::length_t added)
@@ -319,7 +315,7 @@ void Finder::search_neighbors(const primitives::point_id_t new_start
 // returns true if current swap does not break tour into multiple cycles.
 // new edge i: (starts[i], ends[i])
 // for p in m_removes: (p, next(p))
-bool Finder::feasible() const
+bool OldFinder::feasible() const
 {
     // create and sort edges
     std::vector<BrokenEdge> edges;
@@ -391,7 +387,7 @@ bool Finder::feasible() const
     return current == start and visited == max_visited;
 }
 
-std::set<primitives::length_t> Finder::compute_length_set()
+std::set<primitives::length_t> OldFinder::compute_length_set()
 {
     std::set<primitives::length_t> length_set;
     constexpr primitives::point_id_t start {0};

@@ -3,6 +3,7 @@
 // Local optima exploration strategies.
 
 #include "Config.h"
+#include "OldFinder.h"
 #include "Tour.h"
 #include "hill_climb.h"
 #include "point_quadtree/Node.h"
@@ -53,7 +54,7 @@ void double_bridge_explorer(
 void try_lateral(const Config& config, const point_quadtree::Node& root, Tour& tour)
 {
     const auto old_length = tour.length();
-    Finder finder(root, tour);
+    OldFinder finder(root, tour);
     finder.save_lateral_moves();
     if (finder.find_best())
     {

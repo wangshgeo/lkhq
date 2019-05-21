@@ -13,10 +13,10 @@
 #include <vector>
 #include <set>
 
-class Finder
+class OldFinder
 {
 public:
-    Finder(const point_quadtree::Node& root, Tour& tour)
+    OldFinder(const point_quadtree::Node& root, Tour& tour)
         : m_root(root), m_tour(tour), m_searchable(tour.size(), true) {}
 
     // returns true if an improving swap was found.
