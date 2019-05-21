@@ -1,24 +1,5 @@
 #include "Finder.h"
 
-template <typename PointContainer>
-std::optional<KMove> Finder::find_best(const std::optional<PointContainer>& starts)
-{
-    if (not starts)
-    {
-        return find_best();
-    }
-    reset_search();
-    for (auto i : starts)
-    {
-        start_search(i);
-        if (m_stop)
-        {
-            return m_kmove;
-        }
-    }
-    return std::nullopt;
-}
-
 std::optional<KMove> Finder::find_best()
 {
     reset_search();

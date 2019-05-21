@@ -24,6 +24,7 @@ public:
         , m_kmax(config.get<size_t>("kmax", m_kmax)) {}
 
     std::optional<KMove> find_best();
+    std::optional<KMove> find_best(std::nullopt_t) { return find_best(); }
 
     template <typename PointContainer>
     std::optional<KMove> find_best(const std::optional<PointContainer>& starts);
@@ -54,4 +55,19 @@ private:
     bool gainful(primitives::length_t new_length, primitives::length_t removed_length) const;
 
 };
+
+template <typename PointContainer>
+std::optional<KMove> Finder::find_best(const std::optional<PointContainer>& starts)
+{
+    reset_search();
+    for (auto i : starts)
+    {
+        start_search(i);
+        if (m_stop)
+        {
+            return m_kmove;
+        }
+    }
+    return std::nullopt;
+}
 

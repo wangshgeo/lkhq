@@ -159,19 +159,17 @@ bool initial_hill_climb(const Config& config, const point_quadtree::Node& root, 
 
 // true if improvement found.
 template <typename FinderType = Finder>
-bool basic_hill_climb(const Config& config, const point_quadtree::Node& root, Tour& tour)
+bool basic_hill_climb(const Config& config, FinderType& finder)
 {
-    FinderType finder(config, root, tour);
-
     int iteration {1};
     const auto log_hillclimb = config.get<bool>("log_hillclimb", false);
     while (const auto kmove = finder.find_best())
     {
-        tour.swap(*kmove);
+        finder.tour().swap(*kmove);
         if (log_hillclimb)
         {
             std::cout << "iteration " << iteration
-                << " current tour length: " << tour.length()
+                << " current tour length: " << finder.tour().length()
                 << std::endl;
         }
         ++iteration;
@@ -179,11 +177,19 @@ bool basic_hill_climb(const Config& config, const point_quadtree::Node& root, To
     if (log_hillclimb)
     {
         std::cout << __func__
-            << ": tour length after hill-climb: " << tour.length()
+            << ": tour length after hill-climb: " << finder.tour().length()
             << " (" << iteration << " iterations)"
             << std::endl;
     }
     return iteration > 1;
+}
+
+// true if improvement found.
+template <typename FinderType = Finder>
+bool basic_hill_climb(const Config& config, const point_quadtree::Node& root, Tour& tour)
+{
+    FinderType finder(config, root, tour);
+    return basic_hill_climb(config, finder);
 }
 
 // true if improvement found.

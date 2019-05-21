@@ -6,6 +6,6 @@ write_best          true
 save_period         1000
 
 basic_hill_climb    true
-experimental        false
+experimental        true
 
 validate_tour       true
