@@ -8,6 +8,7 @@
 #include "hill_climb.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
+#include "sweep.h"
 
 #include <iostream>
 #include <map>
