@@ -9,6 +9,7 @@
 #include "Tour.h"
 #include "cycle_check.h"
 #include "point_quadtree/Node.h"
+#include "Finder.h"
 #include "primitives.h"
 
 #include <algorithm> // fill

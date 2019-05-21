@@ -6,6 +6,7 @@ CXX_FLAGS += -O3 -ffast-math # "production" version.
 CXX_FLAGS += -I./ # include paths.
 
 SRCS = k-opt.cpp Tour.cpp \
+	Finder.cpp \
 	OldFinder.cpp \
 	LateralFinder.cpp \
 	FeasibleFinder.cpp \
