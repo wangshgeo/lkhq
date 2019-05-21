@@ -24,12 +24,10 @@ public:
 
     // returns true if an improving swap was found.
     bool find_best();
-    bool find_best(primitives::length_t);
-    bool find_best(primitives::point_id_t start, size_t size);
 
-    const std::vector<primitives::point_id_t>& best_starts() const { return m_best_starts; }
-    const std::vector<primitives::point_id_t>& best_ends() const { return m_best_ends; }
-    const std::vector<primitives::point_id_t>& best_removes() const { return m_best_removes; }
+    const auto& best_starts() const { return m_best_starts; }
+    const auto& best_ends() const { return m_best_ends; }
+    const auto& best_removes() const { return m_best_removes; }
     primitives::length_t best_improvement() const { return m_best_improvement; }
 
     void set_kmax(size_t k) { m_kmax = k; }

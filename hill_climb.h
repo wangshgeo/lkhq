@@ -9,7 +9,6 @@
 #include "point_quadtree/Node.h"
 #include "primitives.h"
 
-#include <algorithm> // random_shuffle
 #include <iostream>
 #include <map>
 
@@ -46,32 +45,35 @@ bool neighborhood(const Config& //config
     const auto save_period = config.get<size_t>("save_period", 1000);
     */
 
-    // neighborhood center order of exploration.
-    std::vector<primitives::point_id_t> centers(tour.size());
-    for (size_t i {0}; i < tour.size(); ++i)
-    {
-        centers[i] = i;
-    }
-    std::random_shuffle(std::begin(centers), std::end(centers));
-
     BoxMaker box_maker(tour.x(), tour.y());
     size_t min_size {std::numeric_limits<size_t>::max()};
     size_t max_size {0};
     double average_size {0};
-    for (auto center : centers)
+    size_t checks {0};
+    MaskedFeasibleFinder finder(root, tour);
+
+    for (primitives::point_id_t center {0}; center < tour.size(); ++center)
     {
         const auto neighborhood = root.get_points(center, box_maker(center, radius));
         min_size = std::min(min_size, neighborhood.size());
         max_size = std::max(max_size, neighborhood.size());
         average_size += neighborhood.size();
+        const auto kmove = finder.find_best();
+        if (kmove)
+        {
+            tour.swap(kmove->starts, kmove->ends, kmove->removes);
+        }
+        ++checks;
     }
-    average_size /= centers.size();
-    std::cout << "average, min, max: "
+
+    average_size /= tour.size();
+    std::cout << "neighborhood average, min, max: "
         << average_size
         << ", " << min_size
         << ", " << max_size
+        << " (" << checks << " checks)"
         << std::endl;
-    return true;
+    return checks != tour.size();
 }
 
 // true if improvement found.
