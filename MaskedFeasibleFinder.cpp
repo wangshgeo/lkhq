@@ -8,10 +8,13 @@ std::optional<KMove> MaskedFeasibleFinder::find_best(
     for (auto i : actives)
     {
         m_swap_end = m_tour.prev(i);
-        start_search(i, m_swap_end);
-        if (m_stop)
+        if (m_mask.active(m_swap_end))
         {
-            return m_kmove;
+            start_search(i, m_swap_end);
+            if (m_stop)
+            {
+                return m_kmove;
+            }
         }
         m_swap_end = m_tour.next(i);
         start_search(i, i);

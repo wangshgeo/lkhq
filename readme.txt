@@ -6,6 +6,12 @@ LKH limits search to 5 "alpha-nearest" points.
 Alpha-nearness measures the similarity of new edges to those in a minimum spanning tree.
 Computing alpha-nearness is done once before hill-climbing and takes O(n^2) work.
 
+Proof of efficacy of current method:
+1. Using 3-opt hill-climber on first world record (by LKH) of lrb744710 quickly returns improvements.
+    Although is an old world record, it proves that LKH (and LK) gives up k-optimality by arbitrarily fixing search neighborhoods.
+    http://www.math.uwaterloo.ca/tsp/vlsi/lrb744710.log.html
+
+
 Using a quad tree has the following advantages:
 1. All possible improving steps (deletion of one edge and addition of one edge) are considered.
     Search neighborhoods change any time the tour changes, which is especially useful for

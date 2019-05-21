@@ -61,7 +61,7 @@ bool neighborhood(const Config& //config
             min_size = std::min(min_size, neighborhood.size());
             max_size = std::max(max_size, neighborhood.size());
             average_size += neighborhood.size();
-            const auto kmove = finder.find_best();
+            const auto kmove = finder.find_best(neighborhood);
             if (kmove)
             {
                 tour.swap(kmove->starts, kmove->ends, kmove->removes);
@@ -93,6 +93,7 @@ bool initial_hill_climb(const Config& config, const point_quadtree::Node& root, 
 {
     FinderType finder(root, tour);
     const auto kmax = config.get<size_t>("kmax", 4);
+    std::cout << "read kmax: " << kmax << std::endl;
     const auto print_improvements = config.get<bool>("print_improvements", false);
     const auto suppress_output = config.get<bool>("suppress_output", false);
     const auto write_best = config.get<bool>("write_best", false);

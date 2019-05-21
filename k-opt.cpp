@@ -46,13 +46,15 @@ int main(int argc, const char** argv)
     }
     std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds." << std::endl;
 
-    //hill_climb::initial_hill_climb<FeasibleFinder>(config, root, tour);
+    hill_climb::initial_hill_climb<FeasibleFinder>(config, root, tour);
 
+    /*
     const auto average_outer_dim = 0.5 * (domain.xdim(0) + domain.ydim(0));
     hill_climb::neighborhood(config
         , root
-        , 0.05 * average_outer_dim
+        , 0.15 * average_outer_dim
         , tour);
+    */
 
     std::cout << "Final tour length: " << tour.length() << std::endl;
     return 0;

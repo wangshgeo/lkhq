@@ -1,4 +1,5 @@
-kmax                4       # as in k-opt
+# as in k-opt
+kmax                3
 print_improvements  true
 suppress_output     false
 write_best          true

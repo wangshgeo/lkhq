@@ -1,5 +1,8 @@
 #pragma once
 
+// Deprecated; capable of sequential and nonsequential moves.
+// Also saves lateral (non-improving) moves for perturbations.
+
 #include "BrokenEdge.h"
 #include "Merger.h"
 #include "Tour.h"

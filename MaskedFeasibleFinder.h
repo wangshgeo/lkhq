@@ -33,7 +33,7 @@ private:
     Mask m_mask;
     const std::unordered_set<primitives::point_id_t>* m_active_set {nullptr};
 
-    size_t m_kmax {4};
+    size_t m_kmax {5};
 
     KMove m_kmove;
     primitives::point_id_t m_swap_end {constants::invalid_point};
