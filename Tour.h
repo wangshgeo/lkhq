@@ -4,6 +4,7 @@
 #include "BoxMaker.h"
 #include "KMove.h"
 #include "LengthMap.h"
+#include "LengthCalculator.h"
 #include "constants.h"
 #include "multicycle/simple_merge/Swap.h"
 #include "point_quadtree/Domain.h"
@@ -70,7 +71,8 @@ public:
 
     Box search_box(primitives::point_id_t i, primitives::length_t radius) const;
 
-    void validate(bool suppress_success = false) const;
+    // throws if invalid tour.
+    void validate() const;
 
     void print_first_cycle() const
     {
@@ -126,6 +128,7 @@ private:
     primitives::length_t m_max_outgroup_length {0};
     size_t m_min_cycle_size {0};
     BoxMaker m_box_maker;
+    LengthCalculator m_length_calculator;
 
     void reset_adjacencies(const std::vector<primitives::point_id_t>& initial_tour);
     void update_next(const primitives::point_id_t start = 0);

@@ -167,7 +167,7 @@ bool basic_hill_climb(const Config& config, const point_quadtree::Node& root, To
     const auto log_hillclimb = config.get<bool>("log_hillclimb", false);
     while (const auto kmove = finder.find_best())
     {
-        tour.swap(kmove->starts, kmove->ends, kmove->removes);
+        tour.swap(*kmove);
         if (log_hillclimb)
         {
             std::cout << "iteration " << iteration
@@ -181,13 +181,6 @@ bool basic_hill_climb(const Config& config, const point_quadtree::Node& root, To
         std::cout << __func__
             << ": tour length after hill-climb: " << tour.length()
             << " (" << iteration << " iterations)"
-            << std::endl;
-    }
-    const auto validate_tour = config.get<bool>("validate_tour", false);
-    if (validate_tour)
-    {
-        std::cout << __func__
-            << ": cycles: " << tour.cycles()
             << std::endl;
     }
     return iteration > 1;

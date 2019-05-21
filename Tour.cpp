@@ -10,6 +10,7 @@ Tour::Tour(const point_quadtree::Domain* domain
 , m_sequence(initial_tour.size(), constants::invalid_point)
 , m_cycle_id(initial_tour.size(), constants::invalid_cycle)
 , m_box_maker(length_map->x(), length_map->y())
+, m_length_calculator(length_map->x(), length_map->y())
 {
     reset_adjacencies(initial_tour);
     update_next();
@@ -375,7 +376,7 @@ void Tour::vacate_adjacent_slot(primitives::point_id_t point, primitives::point_
     }
 }
 
-void Tour::validate(bool suppress_success) const
+void Tour::validate() const
 {
     constexpr primitives::point_id_t start {0};
     primitives::point_id_t current {start};
@@ -392,12 +393,7 @@ void Tour::validate(bool suppress_success) const
     } while(current != start);
     if (visited != m_next.size())
     {
-        std::cout << __func__ << ": error: invalid tour." << std::endl;
-        std::abort();
-    }
-    if (not suppress_success)
-    {
-        std::cout << __func__ << ": success: tour valid." << std::endl;
+        throw std::logic_error("invalid tour.");
     }
 }
 

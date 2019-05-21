@@ -61,6 +61,11 @@ int main(int argc, const char** argv)
             , tour);
     }
 
+    const auto validate_tour = config.get<bool>("validate_tour", false);
+    if (validate_tour)
+    {
+        tour.validate();
+    }
     std::cout << "Final tour length: " << tour.length() << std::endl;
     return 0;
 }
