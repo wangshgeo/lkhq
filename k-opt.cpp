@@ -6,10 +6,11 @@
 #include "explorers.h"
 #include "fileio.h"
 #include "hill_climb.h"
+#include "length_stats.h"
+#include "perturbers/SimpleDoubleBridge.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
 #include "sweep.h"
-#include "perturbers/SimpleDoubleBridge.h"
 
 #include <iostream>
 #include <map>
@@ -34,6 +35,13 @@ int main(int argc, const char** argv)
 
     // Initial tour length calculation.
     point_quadtree::Domain domain(x, y);
+    const auto print_domain_stats = config.get<bool>("domain_stats", false);
+    if (print_domain_stats)
+    {
+        std::cout << "bounding x, y dim: "
+            << domain.xdim(0) << ", " << domain.ydim(0)
+            << std::endl;
+    }
     LengthMap length_map(x, y);
     Tour tour(&domain, initial_tour, &length_map);
     std::cout << "Initial tour length: " << tour.length() << std::endl;
@@ -74,5 +82,10 @@ int main(int argc, const char** argv)
         tour.validate();
     }
     std::cout << "Final tour length: " << tour.length() << std::endl;
+    const auto print_length_stats = config.get<bool>("length_stats", false);
+    if (print_length_stats)
+    {
+        length_stats::print_lengths(tour);
+    }
     return 0;
 }

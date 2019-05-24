@@ -16,7 +16,9 @@ inline bool perturb(const Config& config
     auto best_length = finder.tour().length();
     for (primitives::point_id_t i {0}; i < finder.tour().size(); ++i)
     {
-        std::cout << "trying " << i << " / " << finder.tour().size() << std::endl;
+        std::cout << "trying " << i << " / " << finder.tour().size()
+            << " (best length: " << best_length << ")"
+            << std::endl;
         auto original_tour = finder.tour();
         perturber(i, finder.tour());
         hill_climb::basic_hill_climb(config, finder);

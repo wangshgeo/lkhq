@@ -5,7 +5,10 @@ suppress_output     false
 write_best          true
 save_period         1000
 
+domain_stats        true
+
 basic_hill_climb    true
-experimental        true
+experimental        false
 
 validate_tour       true
+length_stats        true
