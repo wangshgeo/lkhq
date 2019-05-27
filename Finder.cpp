@@ -5,7 +5,7 @@ std::optional<KMove> Finder::find_best()
     reset_search();
     for (primitives::point_id_t i {0}; i < m_tour.size(); ++i)
     {
-        start_search(i);
+        search(i);
         if (m_stop)
         {
             return m_kmove;
@@ -14,15 +14,17 @@ std::optional<KMove> Finder::find_best()
     return std::nullopt;
 }
 
-void Finder::start_search(primitives::point_id_t i)
+void Finder::search(primitives::point_id_t i)
 {
     m_swap_end = m_tour.prev(i);
+    delete_prev_edge(i);
     start_search(i, m_swap_end);
     if (m_stop)
     {
         return;
     }
     m_swap_end = m_tour.next(i);
+    delete_next_edge(i);
     start_search(i, i);
     if (m_stop)
     {
@@ -30,10 +32,23 @@ void Finder::start_search(primitives::point_id_t i)
     }
 }
 
+void Finder::delete_prev_edge(primitives::point_id_t new_edge_start)
+{
+    const auto removed_edge_start = m_tour.prev(new_edge_start);
+    m_kmove.push_deletion(new_edge_start, removed_edge_start);
+    m_kmargin.add_increment(m_tour.length(removed_edge_start));
+}
+
+void Finder::delete_next_edge(primitives::point_id_t new_edge_start)
+{
+    const auto removed_edge_start = new_edge_start;
+    m_kmove.push_deletion(new_edge_start, removed_edge_start);
+    m_kmargin.add_increment(m_tour.length(removed_edge_start));
+}
+
 void Finder::start_search(const primitives::point_id_t swap_start
     , const primitives::point_id_t removed_edge)
 {
-    m_kmove.push_deletion(swap_start, removed_edge);
     const auto remove {m_tour.length(removed_edge)};
     const auto points = m_root.get_points(swap_start, m_box_maker(swap_start, remove + 1));
     for (auto p : points)
@@ -156,6 +171,7 @@ void Finder::add_edge(const primitives::point_id_t new_start
 void Finder::reset_search()
 {
     m_kmove.clear();
+    m_kmargin.clear();
     m_swap_end = constants::invalid_point;
     m_stop = false;
 }

@@ -5,6 +5,7 @@
 
 #include "BoxMaker.h"
 #include "Config.h"
+#include "KMargin.h"
 #include "KMove.h"
 #include "Tour.h"
 #include "constants.h"
@@ -41,7 +42,9 @@ private:
     primitives::point_id_t m_swap_end {constants::invalid_point};
     bool m_stop {false};
 
-    void start_search(primitives::point_id_t i);
+    KMargin m_kmargin;
+
+    void search(primitives::point_id_t i);
     void start_search(const primitives::point_id_t swap_start
         , const primitives::point_id_t removed_edge);
     void delete_edge(const primitives::length_t removed
@@ -53,6 +56,9 @@ private:
 
     void reset_search();
     bool gainful(primitives::length_t new_length, primitives::length_t removed_length) const;
+
+    void delete_prev_edge(primitives::point_id_t new_edge_start);
+    void delete_next_edge(primitives::point_id_t new_edge_start);
 
 };
 
