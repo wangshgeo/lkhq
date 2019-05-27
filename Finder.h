@@ -49,6 +49,7 @@ private:
         , const primitives::point_id_t removed_edge);
     void delete_edge(const primitives::length_t removed
         , const primitives::length_t added);
+    void delete_both_edges(primitives::point_id_t p);
     void add_edge(const primitives::point_id_t new_start
         , const primitives::point_id_t new_remove
         , const primitives::length_t removed
@@ -59,16 +60,18 @@ private:
 
     void delete_prev_edge(primitives::point_id_t new_edge_start);
     void delete_next_edge(primitives::point_id_t new_edge_start);
+    bool add_new_edge(primitives::point_id_t new_edge_end);
+
+    void pop_new_edge();
 
 };
 
 template <typename PointContainer>
 std::optional<KMove> Finder::find_best(const std::optional<PointContainer>& starts)
 {
-    reset_search();
     for (auto i : starts)
     {
-        start_search(i);
+        search(i);
         if (m_stop)
         {
             return m_kmove;
