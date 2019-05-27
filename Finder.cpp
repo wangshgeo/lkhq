@@ -41,11 +41,27 @@ void Finder::delete_prev_edge(primitives::point_id_t new_edge_start)
     m_kmargin.increase(m_tour.length(removed_edge_start));
 }
 
+void Finder::delete_prev_edge()
+{
+    delete_prev_edge(m_kmove.ends.back());
+}
+
 void Finder::delete_next_edge(primitives::point_id_t new_edge_start)
 {
     const auto removed_edge_start = new_edge_start;
     m_kmove.push_deletion(new_edge_start, removed_edge_start);
     m_kmargin.increase(m_tour.length(removed_edge_start));
+}
+
+void Finder::delete_next_edge()
+{
+    delete_next_edge(m_kmove.ends.back());
+}
+
+void Finder::undo_deletion()
+{
+    m_kmove.pop_deletion();
+    m_kmargin.pop_increase();
 }
 
 bool Finder::add_new_edge(primitives::point_id_t new_edge_end)
@@ -60,7 +76,7 @@ bool Finder::add_new_edge(primitives::point_id_t new_edge_end)
     return true;
 }
 
-void Finder::pop_new_edge()
+void Finder::delete_new_edge()
 {
     m_kmargin.pop_decrease();
     m_kmove.pop_addition();
@@ -80,13 +96,6 @@ void Finder::start_search(const primitives::point_id_t swap_start
             continue;
         }
         const auto add {m_tour.length(swap_start, p)};
-        /*
-        if (not gainful(add, remove))
-        {
-            continue;
-        }
-        m_kmove.push_addition(p);
-        */
         if (not add_new_edge(p))
         {
             continue;
@@ -96,38 +105,42 @@ void Finder::start_search(const primitives::point_id_t swap_start
         {
             return;
         }
-        pop_new_edge();
+        delete_new_edge();
     }
 }
 
-/*
+void Finder::delete_both_edges()
+{
+    delete_both_edges(m_kmove.ends.back());
+}
+
 void Finder::delete_both_edges(primitives::point_id_t p)
 {
     if (m_kmove.removable(p))
     {
         delete_next_edge(p);
-        const auto next = m_tour.next(p);
-        add_edge(next, p, removed, added);
+        try_nearby_points();
         if (m_stop)
         {
             return;
         }
+        undo_deletion();
     }
 
     p = m_tour.prev(p);
     if (m_kmove.removable(p))
     {
         delete_next_edge(p);
-        add_edge(p, p, removed, added);
+        try_nearby_points();
         if (m_stop)
         {
             return;
         }
+        undo_deletion();
     }
 }
 
-void Finder::check_close(const primitives::point_id_t new_start
-    , const primitives::point_id_t new_remove)
+void Finder::check_close()
 {
     if (not add_new_edge(m_swap_end))
     {
@@ -136,88 +149,70 @@ void Finder::check_close(const primitives::point_id_t new_start
     const auto close_edge_start = m_kmove.starts.back();
     const auto remake_prev_edge = close_edge_start == m_tour.prev(m_swap_end);
     const auto remake_next_edge = close_edge_start == m_tour.next(m_swap_end);
-    if (remake_prev_edge or remake_next_edge)
+    if (not remake_prev_edge and not remake_next_edge)
     {
-        return;
-    }
-    m_kmove.ends(close_edge_start, m_swap_end, new_remove);
-    if (cycle_check::feasible(m_tour, m_kmove.starts, m_kmove.ends, m_kmove.removes))
-    {
-        m_stop = true;
-        return;
-    }
-    m_kmove.pop_all();
-    }
-}
-}
-
-void Finder::add_edge(const primitives::point_id_t new_start
-    , const primitives::point_id_t new_remove
-{
-    const auto remove {m_tour.length(new_remove)};
-    // first check if can close.
-    const auto closing_length {m_tour.length(new_start, m_swap_end)};
-    const auto total_closing_add {closing_length + added};
-    const auto total_remove {removed + remove};
-    const bool improving {total_remove > total_closing_add};
-    if (improving)
-    {
-        if (new_start != m_tour.prev(m_swap_end) and new_start != m_tour.next(m_swap_end))
+        // TODO: pass KMove to feasible()
+        if (cycle_check::feasible(m_tour, m_kmove.starts, m_kmove.ends, m_kmove.removes))
         {
-            m_kmove.push_all(new_start, m_swap_end, new_remove);
-            if (cycle_check::feasible(m_tour, m_kmove.starts, m_kmove.ends, m_kmove.removes))
-            {
-                m_stop = true;
-                return;
-            }
-            m_kmove.pop_all();
+            m_stop = true;
+            return;
         }
     }
+    delete_new_edge();
+}
 
+void Finder::try_nearby_points()
+{
+    // TODO: right place for this check?
     if (m_kmove.size() >= m_kmax - 1)
     {
         return;
     }
 
-    const auto margin {total_remove - added};
-    const auto search_radius = margin + m_tour.length(new_remove) + 1;
-    const auto points = m_root.get_points(new_start, m_box_maker(new_start, search_radius));
+    const auto start = m_kmove.starts.back();
+    const auto search_radius = m_kmargin.total_margin + 1;
+    const auto points = m_root.get_points(start, m_box_maker(start, search_radius));
     for (auto p : points)
     {
         // check easy exclusion cases.
+        // TODO: instead of prior close check, check here (slightly more efficient).
         const bool closing {p == m_swap_end}; // closing should already have been checked.
-
-        const bool neighboring {p == m_tour.next(new_start) or p == m_tour.prev(new_start)};
-        const bool self {p == new_start};
-        const bool backtrack {p == m_kmove.starts.back()};
-        if (backtrack or self or closing or neighboring)
+        const bool old_edge {p == m_tour.next(start) or p == m_tour.prev(start)};
+        const bool self {p == start};
+        const bool backtrack {(not m_kmove.ends.empty()) and p == m_kmove.ends.back()};
+        if (backtrack or self or closing or old_edge)
         {
             continue;
         }
 
         // check if worth considering.
-        const auto add {m_tour.length(new_start, p)};
-        if (not gainful(add, margin))
+        if (not add_new_edge(p))
         {
             continue;
         }
-
+        if (p == m_swap_end)
+        {
+            // TODO: pass KMove to feasible()
+            if (cycle_check::feasible(m_tour, m_kmove.starts, m_kmove.ends, m_kmove.removes))
+            {
+                m_stop = true;
+                return;
+            }
+        }
         // check if repeating move.
-        if (m_kmove.has_start(new_start) and m_kmove.has_end(p))
+        // TODO: this might be overly exclusive.
+        if (not m_kmove.has_start(start) or not m_kmove.has_end(p))
         {
-            continue;
+            // TODO
+            delete_both_edges();
+            if (m_stop)
+            {
+                return;
+            }
         }
-
-        m_kmove.push_all(new_start, p, new_remove);
-        delete_edge(removed + remove, added + add);
-        if (m_stop)
-        {
-            return;
-        }
-        m_kmove.pop_all();
+        delete_new_edge();
     }
 }
-*/
 
 void Finder::delete_edge(const primitives::length_t removed
     , const primitives::length_t added)
