@@ -23,6 +23,7 @@ struct KMargin
 
     bool decrease(primitives::length_t increment)
     {
+        // TODO: threshold
         if (increment >= total_margin)
         {
             return false;
@@ -31,6 +32,7 @@ struct KMargin
         decreases.push_back(increment);
         return true;
     }
+
     void pop_decrease()
     {
         total_margin += decreases.back();

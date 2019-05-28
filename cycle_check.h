@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BrokenEdge.h"
+#include "KMove.h"
 #include "Tour.h"
 #include "primitives.h"
 
@@ -18,6 +19,11 @@ bool feasible(const Tour&
     , const std::vector<primitives::point_id_t>& starts
     , const std::vector<primitives::point_id_t>& ends
     , const std::vector<primitives::point_id_t>& removes);
+
+inline bool feasible(const Tour& tour, const KMove& kmove)
+{
+    return feasible(tour, kmove.starts, kmove.ends, kmove.removes);
+}
 
 } // namespace cycle_check
 

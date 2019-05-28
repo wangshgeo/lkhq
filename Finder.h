@@ -13,6 +13,7 @@
 #include "point_quadtree/Node.h"
 #include "primitives.h"
 
+#include <array>
 #include <optional>
 
 class Finder
@@ -45,31 +46,13 @@ private:
     KMargin m_kmargin;
 
     void search(primitives::point_id_t i);
-    void start_search(const primitives::point_id_t swap_start
-        , const primitives::point_id_t removed_edge);
-    void delete_edge(const primitives::length_t removed
-        , const primitives::length_t added);
-    void delete_both_edges(primitives::point_id_t p);
     void delete_both_edges();
-    void add_edge(const primitives::point_id_t new_start
-        , const primitives::point_id_t new_remove
-        , const primitives::length_t removed
-        , const primitives::length_t added);
     void try_nearby_points();
 
     void reset_search();
-    bool gainful(primitives::length_t new_length, primitives::length_t removed_length) const;
 
-    void delete_prev_edge(primitives::point_id_t new_edge_start);
-    void delete_prev_edge();
-    void delete_next_edge(primitives::point_id_t new_edge_start);
-    void delete_next_edge();
-    bool add_new_edge(primitives::point_id_t new_edge_end);
-    void delete_new_edge();
-    void undo_deletion();
-
-    void check_close();
-
+    primitives::length_t length(primitives::point_id_t a) const;
+    primitives::length_t length(primitives::point_id_t a, primitives::point_id_t b) const;
 };
 
 template <typename PointContainer>
