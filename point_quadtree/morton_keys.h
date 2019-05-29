@@ -67,18 +67,32 @@ inline std::vector<primitives::morton_key_t> compute_point_morton_keys(const std
     return point_morton_keys;
 }
 
-inline std::array<primitives::quadrant_t, constants::max_tree_depth - 1> point_insertion_path(primitives::morton_key_t key)
+// The number of steps to get to max_tree_depth from the root is max_tree_depth - 1.
+using InsertionPath = std::array<primitives::quadrant_t, constants::max_tree_depth - 1>;
+
+inline auto point_insertion_path(primitives::morton_key_t key)
 {
-    std::array<primitives::quadrant_t, constants::max_tree_depth - 1> path;
+    InsertionPath path;
     for(int i {1}; i < constants::max_tree_depth; ++i)
     {
         const auto shift_bits {2 * (constants::max_tree_depth - i - 1)};
         primitives::morton_key_t level {key >> shift_bits};
-        constexpr primitives::morton_key_t quadrant_mask {static_cast<primitives::morton_key_t>(3)}; // binary: 11
+        constexpr primitives::morton_key_t quadrant_mask {static_cast<primitives::morton_key_t>(0b11)};
         const auto quadrant {static_cast<primitives::quadrant_t>(level & quadrant_mask)};
         path[i - 1] = quadrant;
     }
     return path;
+}
+
+// TODO remove
+inline auto point_insertion_paths(const std::vector<primitives::morton_key_t>& morton_keys)
+{
+    std::vector<InsertionPath> paths(morton_keys.size());
+    for (primitives::point_id_t i {0}; i < morton_keys.size(); ++i)
+    {
+        paths[i] = point_insertion_path(morton_keys[i]);
+    }
+    return paths;
 }
 
 } // namespace morton_keys

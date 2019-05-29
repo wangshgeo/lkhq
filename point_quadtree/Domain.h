@@ -16,12 +16,12 @@ public:
     Domain(const std::vector<primitives::space_t>& x, const std::vector<primitives::space_t>& y)
     {
         // Get domain bounds
-        m_xmin = *std::min_element(x.begin(), x.end());
-        primitives::space_t xmax = *std::max_element(x.begin(), x.end());
-        m_ymin = *std::min_element(y.begin(), y.end());
-        primitives::space_t ymax = *std::max_element(y.begin(), y.end());
-        primitives::space_t xrange = xmax - m_xmin;
-        primitives::space_t yrange = ymax - m_ymin;
+        m_xmin = *std::min_element(std::cbegin(x), std::cend(x));
+        auto xmax = *std::max_element(std::cbegin(x), std::cend(x));
+        m_ymin = *std::min_element(std::cbegin(y), std::cend(y));
+        auto ymax = *std::max_element(std::cbegin(y), std::cend(y));
+        auto xrange = xmax - m_xmin;
+        auto yrange = ymax - m_ymin;
         // Points within each node have the same Morton Key prefix.
         // So when a point is on the exact boundary,
         // it gets put into the quadrant it would go in if it was a small increment
@@ -47,8 +47,8 @@ public:
     primitives::space_t ydim(int depth) const { return m_ydim[depth]; }
 
 private:
-    primitives::space_t m_xmin{0};
-    primitives::space_t m_ymin{0};
+    primitives::space_t m_xmin {0};
+    primitives::space_t m_ymin {0};
     std::array<primitives::space_t, constants::max_tree_depth> m_xdim; // x-dimension of boxes.
     std::array<primitives::space_t, constants::max_tree_depth> m_ydim; // y-dimension of boxes.
 };

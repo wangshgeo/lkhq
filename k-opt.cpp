@@ -50,6 +50,14 @@ int main(int argc, const char** argv)
     NanoTimer timer;
     timer.start();
     const auto root {point_quadtree::make_quadtree(x, y, domain)};
+    std::cout << root.box() << std::endl;
+    for (const auto& ptr : root.children())
+    {
+        if (ptr)
+        {
+            std::cout << ptr->box() << std::endl;
+        }
+    }
     if (root.total_points() != tour.size())
     {
         throw std::logic_error("quadtree root did not count points accurately.");

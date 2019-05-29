@@ -9,7 +9,8 @@ class BoxMaker
 {
 public:
     BoxMaker() = default;
-    BoxMaker(const std::vector<primitives::space_t>& x, const std::vector<primitives::space_t>& y)
+    BoxMaker(const std::vector<primitives::space_t>& x
+        , const std::vector<primitives::space_t>& y)
         : m_x(&x), m_y(&y) {}
 
     auto operator()(primitives::point_id_t i, primitives::length_t radius) const
