@@ -1,9 +1,6 @@
 #include "Config.h"
-#include "FeasibleFinder.h"
-#include "LengthMap.h"
 #include "NanoTimer.h"
 #include "Tour.h"
-#include "explorers.h"
 #include "fileio.h"
 #include "hill_climb.h"
 #include "length_stats.h"
@@ -13,8 +10,6 @@
 #include "sweep.h"
 
 #include <iostream>
-#include <map>
-#include <stdexcept>
 
 int main(int argc, const char** argv)
 {
@@ -36,15 +31,14 @@ int main(int argc, const char** argv)
     // Initial tour length calculation.
     point_quadtree::Domain domain(x, y);
     std::cout << "domain aspect ratio: " << domain.xdim(0) / domain.ydim(0) << std::endl;
-    const auto print_domain_stats = config.get<bool>("domain_stats", false);
+    const auto print_domain_stats = config.get("domain_stats", false);
     if (print_domain_stats)
     {
         std::cout << "bounding x, y dim: "
             << domain.xdim(0) << ", " << domain.ydim(0)
             << std::endl;
     }
-    LengthMap length_map(x, y);
-    Tour tour(&domain, initial_tour, &length_map);
+    Tour tour(&domain, initial_tour);
     std::cout << "Initial tour length: " << tour.length() << std::endl;
 
     // Quad tree.
@@ -57,33 +51,26 @@ int main(int argc, const char** argv)
         << std::endl;
     std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds." << std::endl;
 
-    if (config.get<bool>("basic_hill_climb", true))
+    if (config.get("basic_hill_climb", true))
     {
         hill_climb::basic_hill_climb<Finder>(config, root, tour);
         std::cout << "hill climb final tour length: " << tour.length() << std::endl;
     }
 
-    if (config.get<bool>("experimental", false))
+    if (config.get("experimental", false))
     {
         perturbers::SimpleDoubleBridge perturber;
         Finder finder(config, root, tour);
         while (sweep::perturb(config, finder, perturber));
-        /*
-        const auto average_outer_dim = 0.5 * (domain.xdim(0) + domain.ydim(0));
-        hill_climb::neighborhood(config
-            , root
-            , 0.15 * average_outer_dim
-            , tour);
-        */
     }
 
-    const auto validate_tour = config.get<bool>("validate_tour", false);
+    const auto validate_tour = config.get("validate_tour", false);
     if (validate_tour)
     {
         tour.validate();
     }
     std::cout << "Final tour length: " << tour.length() << std::endl;
-    const auto print_length_stats = config.get<bool>("length_stats", false);
+    const auto print_length_stats = config.get("length_stats", false);
     if (print_length_stats)
     {
         length_stats::print_lengths(tour);

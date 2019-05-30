@@ -3,10 +3,8 @@
 #include "Box.h"
 #include "BoxMaker.h"
 #include "KMove.h"
-#include "LengthMap.h"
 #include "LengthCalculator.h"
 #include "constants.h"
-#include "multicycle/simple_merge/Swap.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/Node.h"
 #include "primitives.h"
@@ -16,6 +14,7 @@
 #include <cstdlib> // abort
 #include <iostream>
 #include <random> // sample
+#include <stdexcept>
 #include <vector>
 
 class Tour
@@ -24,8 +23,7 @@ class Tour
 public:
     Tour() = default;
     Tour(const point_quadtree::Domain* domain
-        , const std::vector<primitives::point_id_t>& initial_tour
-        , LengthMap*);
+        , const std::vector<primitives::point_id_t>& initial_tour);
 
     void double_bridge_perturbation();
 
@@ -52,21 +50,16 @@ public:
 
     primitives::point_id_t sequence(primitives::point_id_t i, primitives::point_id_t start) const;
 
-    const auto& x() const { return m_length_map->x(); }
-    const auto& y() const { return m_length_map->y(); }
-    auto x(primitives::point_id_t i) const { return m_length_map->x(i); }
-    auto y(primitives::point_id_t i) const { return m_length_map->y(i); }
+    const auto& x() const { return m_domain->x(); }
+    const auto& y() const { return m_domain->y(); }
+    auto x(primitives::point_id_t i) const { return x()[i]; }
+    auto y(primitives::point_id_t i) const { return y()[i]; }
 
     primitives::length_t length() const;
     primitives::length_t length(primitives::point_id_t i) const;
     primitives::length_t prev_length(primitives::point_id_t i) const;
-    primitives::length_t length(primitives::point_id_t i, primitives::point_id_t j)
-    {
-        return m_length_map->length(i, j);
-    }
+    primitives::length_t length(primitives::point_id_t i, primitives::point_id_t j) const;
 
-    const auto& length_map() const { return *m_length_map; }
-    auto length_map() { return m_length_map; }
     auto domain() const { return m_domain; }
 
     Box search_box(primitives::point_id_t i, primitives::length_t radius) const;
@@ -119,7 +112,6 @@ public:
 
 private:
     const point_quadtree::Domain* m_domain {nullptr};
-    LengthMap* m_length_map {nullptr};
     std::vector<Adjacents> m_adjacents;
     std::vector<primitives::point_id_t> m_next;
     std::vector<primitives::point_id_t> m_sequence;

@@ -96,7 +96,7 @@ void shuffle(const Config& config, const point_quadtree::Node& root, Tour& tour)
         for (size_t i {0}; i < tour.size(); ++i)
         {
             const auto shuffled = shuffler::shuffle(tour.order(), i, shuffle_length);
-            Tour new_tour(tour.domain(), shuffled, tour.length_map());
+            Tour new_tour(tour.domain(), shuffled);
             hill_climb::old_hill_climb(config, root, new_tour);
             const auto new_length {new_tour.length()};
             std::cout << "iteration " << iteration

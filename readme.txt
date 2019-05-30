@@ -44,5 +44,4 @@ Style notes:
 TODO:
 1. Check if output directory exists before writing out paths to file (currently silently fails).
 2. Memoize best-case scenarios searched paths (not sure if practical).
-3. Allow leaf nodes to be at depth less than max. In point search routine, if leaf node, then check all points for inclusion in box.
-4. Implement book keeping of already-tried, unchanged neighborhoods (in masked feasible finder) to prevent redundant search.
+3. Use squares of distances instead of sqrt wherever possible.

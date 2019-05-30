@@ -1,16 +1,14 @@
 #include "Tour.h"
 
 Tour::Tour(const point_quadtree::Domain* domain
-    , const std::vector<primitives::point_id_t>& initial_tour
-    , LengthMap* length_map)
+    , const std::vector<primitives::point_id_t>& initial_tour)
 : m_domain(domain)
-, m_length_map(length_map)
 , m_adjacents(initial_tour.size(), {constants::invalid_point, constants::invalid_point})
 , m_next(initial_tour.size(), constants::invalid_point)
 , m_sequence(initial_tour.size(), constants::invalid_point)
 , m_cycle_id(initial_tour.size(), constants::invalid_cycle)
-, m_box_maker(length_map->x(), length_map->y())
-, m_length_calculator(length_map->x(), length_map->y())
+, m_box_maker(domain->x(), domain->y())
+, m_length_calculator(domain->x(), domain->y())
 {
     reset_adjacencies(initial_tour);
     update_next();
@@ -40,23 +38,6 @@ void Tour::double_bridge_perturbation()
         , next(old_starts[0])
         , next(old_starts[1])
     }};
-    /*
-    std::cout << "tour start:" << std::endl;
-    print();
-    std::cout << "tour end." << std::endl;
-    std::cout << "old starts:";
-    for (auto s : old_starts)
-    {
-        std::cout << " " << s;
-    }
-    std::cout << std::endl;
-    std::cout << "ends:";
-    for (auto s : ends)
-    {
-        std::cout << " " << s;
-    }
-    std::cout << std::endl;
-    */
     swap(old_starts, ends, old_starts);
 }
 
@@ -110,19 +91,6 @@ void Tour::multicycle_swap(
     , const std::vector<primitives::point_id_t>& ends
     , const std::vector<primitives::point_id_t>& removed_edges)
 {
-    /*
-    for (auto o : order())
-    {
-        std::cout << o << std::endl;
-    }
-    std::cout << "starts:";
-    print_short_vec(starts);
-    std::cout << "ends:";
-    print_short_vec(ends);
-    std::cout << "removes:";
-    print_short_vec(removed_edges);
-    std::cout << __func__ << std::endl;
-    */
     for (auto p : removed_edges)
     {
         break_adjacency(p);
@@ -196,12 +164,17 @@ primitives::length_t Tour::length() const
 
 primitives::length_t Tour::prev_length(primitives::point_id_t i) const
 {
-    return m_length_map->length(i, prev(i));
+    return m_length_calculator(i, prev(i));
 }
 
 primitives::length_t Tour::length(primitives::point_id_t i) const
 {
-    return m_length_map->length(i, m_next[i]);
+    return m_length_calculator(i, m_next[i]);
+}
+
+primitives::length_t Tour::length(primitives::point_id_t i, primitives::point_id_t j) const
+{
+    return m_length_calculator(i, j);
 }
 
 std::vector<primitives::point_id_t> Tour::order() const

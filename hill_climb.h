@@ -114,18 +114,9 @@ bool initial_hill_climb(const Config& config, const point_quadtree::Node& root, 
             std::cout << "average points (kmax = " << kmax << "): " << finder.average_points() << std::endl;
         }
 
-        const auto entry_ratio = tour.length_map()->entry_ratio();
-        constexpr double max_entry_ratio {20};
-        if (entry_ratio > max_entry_ratio and not suppress_output)
-        {
-            std::cout << "Clearing length map (max: "
-                << max_entry_ratio << ")" << std::endl;
-            tour.length_map()->clear();
-        }
         if (print_improvements and not suppress_output)
         {
-            std::cout << "improvement: " << finder.best_improvement()
-                << " (length entry ratio: " << entry_ratio << ")" << std::endl;
+            std::cout << "improvement: " << finder.best_improvement() << std::endl;
         }
         tour.swap(finder.best_starts(), finder.best_ends(), finder.best_removes());
         ++iteration;

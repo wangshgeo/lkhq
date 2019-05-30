@@ -14,6 +14,7 @@ class Domain
 {
 public:
     Domain(const std::vector<primitives::space_t>& x, const std::vector<primitives::space_t>& y)
+        : m_x(x), m_y(y)
     {
         // Get domain bounds
         m_xmin = *std::min_element(std::cbegin(x), std::cend(x));
@@ -41,12 +42,18 @@ public:
             grid_dim <<= 1;
         }
     }
-    primitives::space_t xmin() const { return m_xmin; }
-    primitives::space_t ymin() const { return m_ymin; }
-    primitives::space_t xdim(int depth) const { return m_xdim[depth]; }
-    primitives::space_t ydim(int depth) const { return m_ydim[depth]; }
+    auto xmin() const { return m_xmin; }
+    auto ymin() const { return m_ymin; }
+    auto xdim(int depth) const { return m_xdim[depth]; }
+    auto ydim(int depth) const { return m_ydim[depth]; }
+
+    const auto& x() const { return m_x; }
+    const auto& y() const { return m_y; }
 
 private:
+    const std::vector<primitives::space_t>& m_x;
+    const std::vector<primitives::space_t>& m_y;
+
     primitives::space_t m_xmin {0};
     primitives::space_t m_ymin {0};
     std::array<primitives::space_t, constants::max_tree_depth> m_xdim; // x-dimension of boxes.

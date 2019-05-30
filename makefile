@@ -14,7 +14,6 @@ SRCS = k-opt.cpp Tour.cpp \
 	NonsequentialFinder.cpp \
 	CycleMaker.cpp \
 	SimpleNonsequentialFinder.cpp \
-	LengthMap.cpp \
     point_quadtree/Node.cpp \
     point_quadtree/point_quadtree.cpp \
     point_quadtree/PointInserter.cpp \
