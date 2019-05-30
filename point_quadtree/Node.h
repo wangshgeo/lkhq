@@ -25,17 +25,24 @@ public:
     void insert(primitives::point_id_t i);
 
     size_t empty() const { return m_points.empty(); }
+    size_t size() const { return m_points.size(); }
 
     std::vector<primitives::point_id_t>
         get_points
         (primitives::point_id_t i, const Box& search_box) const;
 
+    // TODO: consider better implementation.
     void increment_indirect() { ++m_indirect_points; }
     auto total_points() const { return m_indirect_points + m_points.size(); }
 
+    // TODO: remove as member, apply visitor pattern.
+    // TODO: check for multiple points in non-max-depth nodes.
+    // TODO: check max_depth.
     void validate() const;
 
     const auto& box() const { return m_box; }
+    bool leaf() const;
+    primitives::point_id_t pop();
 
 private:
     // Children are indexed by Morton key quadrant.
@@ -49,7 +56,6 @@ private:
     void get_points(primitives::point_id_t i
         , const Box& search_box
         , std::vector<primitives::point_id_t>& points) const;
-    bool leaf() const;
 
 };
 

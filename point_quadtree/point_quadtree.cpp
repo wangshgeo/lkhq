@@ -8,27 +8,33 @@ Node make_quadtree(const std::vector<primitives::space_t>& x
 {
     const auto morton_keys
     {
-        point_quadtree::morton_keys::compute_point_morton_keys(x, y, domain)
+        morton_keys::compute_point_morton_keys(x, y, domain)
     };
     GridPosition grid_position(domain);
-    point_quadtree::Node root(grid_position.make_box());
-    const auto nodes_created = point_quadtree::initialize_points(root, morton_keys, domain);
+    Node root(grid_position.make_box());
+    const auto nodes_created = initialize_points(root, morton_keys, domain);
     std::cout << "quadtree node ratio: " << double(nodes_created) / x.size() << std::endl;
     root.validate();
+    if (root.total_points() != x.size())
+    {
+        throw std::logic_error("quadtree root did not count points accurately.");
+    }
     return root;
 }
 
-size_t insert_points(point_quadtree::Node&
-    , const std::vector<primitives::morton_key_t>& morton_keys
-    , const point_quadtree::Domain&)
+void insert_points(const std::vector<primitives::space_t>& x
+    , const std::vector<primitives::space_t>& y
+    , const Domain& domain
+    , Node&)
 {
-    const auto insertion_paths = morton_keys::point_insertion_paths(morton_keys);
-    size_t total_nodes_created {0};
+    const auto morton_keys
+    {
+        morton_keys::compute_point_morton_keys(x, y, domain)
+    };
     for (primitives::point_id_t i {0}; i < morton_keys.size(); ++i)
     {
-        //total_nodes_created += point_quadtree::shallow_insert(morton_keys, i, root, domain);
+        //shallow_insert(morton_keys, i, root, domain);
     }
-    return total_nodes_created;
 }
 
 size_t shallow_insert(const std::vector<morton_keys::InsertionPath>& insertion_paths
@@ -64,14 +70,14 @@ size_t shallow_insert(const std::vector<morton_keys::InsertionPath>& insertion_p
     return nodes_created;
 }
 
-size_t initialize_points(point_quadtree::Node& root
+size_t initialize_points(Node& root
     , const std::vector<primitives::morton_key_t>& morton_keys
-    , const point_quadtree::Domain& domain)
+    , const Domain& domain)
 {
     size_t total_nodes_created {0};
     for (primitives::point_id_t i {0}; i < morton_keys.size(); ++i)
     {
-        total_nodes_created += point_quadtree::insert_point(morton_keys, i, root, domain);
+        total_nodes_created += insert_point(morton_keys, i, root, domain);
     }
     return total_nodes_created;
 }

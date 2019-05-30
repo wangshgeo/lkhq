@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Domain.h"
 #include "GridPosition.h"
 #include "Node.h"
 #include "morton_keys.h"
@@ -12,15 +13,16 @@ Node make_quadtree(const std::vector<primitives::space_t>& x
     , const std::vector<primitives::space_t>& y
     , const Domain&);
 
-size_t insert_points(point_quadtree::Node& root
-    , const std::vector<primitives::morton_key_t>& morton_keys
-    , const point_quadtree::Domain&);
+void insert_points(const std::vector<primitives::space_t>& x
+    , const std::vector<primitives::space_t>& y
+    , const Domain& domain
+    , Node& root);
 size_t shallow_insert(const std::vector<primitives::morton_key_t>& morton_keys
     , primitives::point_id_t p, Node& root, const Domain& domain);
 
-size_t initialize_points(point_quadtree::Node& root
+size_t initialize_points(Node& root
     , const std::vector<primitives::morton_key_t>& morton_keys
-    , const point_quadtree::Domain&);
+    , const Domain&);
 size_t insert_point(const std::vector<primitives::morton_key_t>& morton_keys
     , primitives::point_id_t point_id, Node& root, const Domain&);
 

@@ -35,6 +35,7 @@ int main(int argc, const char** argv)
 
     // Initial tour length calculation.
     point_quadtree::Domain domain(x, y);
+    std::cout << "domain aspect ratio: " << domain.xdim(0) / domain.ydim(0) << std::endl;
     const auto print_domain_stats = config.get<bool>("domain_stats", false);
     if (print_domain_stats)
     {
@@ -50,18 +51,7 @@ int main(int argc, const char** argv)
     NanoTimer timer;
     timer.start();
     const auto root {point_quadtree::make_quadtree(x, y, domain)};
-    std::cout << root.box() << std::endl;
-    for (const auto& ptr : root.children())
-    {
-        if (ptr)
-        {
-            std::cout << ptr->box() << std::endl;
-        }
-    }
-    if (root.total_points() != tour.size())
-    {
-        throw std::logic_error("quadtree root did not count points accurately.");
-    }
+    const auto test_root {point_quadtree::make_quadtree(x, y, domain)};
     std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds." << std::endl;
 
     if (config.get<bool>("basic_hill_climb", true))

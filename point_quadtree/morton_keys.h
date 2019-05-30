@@ -10,19 +10,30 @@
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 
 namespace point_quadtree {
 namespace morton_keys {
 
-inline primitives::morton_key_t interleave_coordinates(double normalized_coordinate1, double normalized_coordinate2)
+inline primitives::morton_key_t interleave_coordinates(primitives::space_t normalized_coordinate1
+    , primitives::space_t normalized_coordinate2)
 {
     // if c1 and c2 are x and y respectively, then the curve looks like an "N"
     // in "typical" coordinate space (+y is up, +x is right).
     using IntegerCoordinate = uint32_t;
-    constexpr IntegerCoordinate IntegerCoordinateMax {static_cast<IntegerCoordinate>(1) << (constants::max_tree_depth - 1)}; // to be multiplied by the normalized (0,1) coordinate.
-    IntegerCoordinate c1 {static_cast<IntegerCoordinate>(IntegerCoordinateMax * normalized_coordinate1)};
-    IntegerCoordinate c2 {static_cast<IntegerCoordinate>(IntegerCoordinateMax * normalized_coordinate2)};
+    constexpr IntegerCoordinate IntegerCoordinateMax
+    {
+        static_cast<IntegerCoordinate>(1) << (constants::max_tree_depth - 1)
+    }; // to be multiplied by the normalized (0,1) coordinate.
+    IntegerCoordinate c1
+    {
+        static_cast<IntegerCoordinate>(IntegerCoordinateMax * normalized_coordinate1)
+    };
+    IntegerCoordinate c2
+    {
+        static_cast<IntegerCoordinate>(IntegerCoordinateMax * normalized_coordinate2)
+    };
     primitives::morton_key_t morton_key {static_cast<primitives::morton_key_t>(0)};
     constexpr int bytes {sizeof(IntegerCoordinate)};
     constexpr int bits {8 * bytes};
@@ -40,26 +51,23 @@ inline primitives::morton_key_t interleave_coordinates(double normalized_coordin
     return morton_key;
 }
 
-inline std::vector<primitives::morton_key_t> compute_point_morton_keys(const std::vector<double>& x, const std::vector<double>& y,
-    const Domain& domain)
+inline auto compute_point_morton_keys(const std::vector<primitives::space_t>& x
+    , const std::vector<primitives::space_t>& y
+    , const Domain& domain)
 {
     const size_t point_count {x.size()};
     std::vector<primitives::morton_key_t> point_morton_keys;
     for (size_t i {0}; i < point_count; ++i)
     {
-        double x_normalized {(x[i] - domain.xmin()) / domain.xdim(0)};
-        double y_normalized {(y[i] - domain.ymin()) / domain.ydim(0)};
+        auto x_normalized {(x[i] - domain.xmin()) / domain.xdim(0)};
+        auto y_normalized {(y[i] - domain.ymin()) / domain.ydim(0)};
         if (x_normalized < 0.0 or x_normalized > 1.0)
         {
-            std::cout << __func__ << ": error: out-of-bounds normalized x coordinate: "
-                << x_normalized << std::endl;
-            std::abort();
+            throw std::logic_error("out-of-bounds normalized x coordinate");
         }
         if (y_normalized < 0.0 or y_normalized > 1.0)
         {
-            std::cout << __func__ << ": error: out-of-bounds normalized y coordinate: "
-                << y_normalized << std::endl;
-            std::abort();
+            throw std::logic_error("out-of-bounds normalized y coordinate");
         }
         primitives::morton_key_t morton_key {interleave_coordinates(x_normalized, y_normalized)};
         point_morton_keys.push_back(morton_key);

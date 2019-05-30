@@ -1,9 +1,11 @@
 #pragma once
 
-#include "constants.h"
+#include "Domain.h"
+#include "GridPosition.h"
+#include "Node.h"
 #include "morton_keys.h"
-#include "primitives.h"
-#include "point_quadtree/Node.h"
+#include <constants.h>
+#include <primitives.h>
 
 #include <stdexcept>
 #include <vector>
@@ -13,7 +15,8 @@ namespace point_quadtree {
 class PointInserter
 {
 public:
-    PointInserter(const std::vector<primitives::morton_key_t>& morton_keys
+    PointInserter(const GridPosition& grid_position
+        , const std::vector<primitives::morton_key_t>& morton_keys
         , primitives::point_id_t point
         , point_quadtree::Node* current_node
         , primitives::depth_t current_depth);
@@ -22,12 +25,15 @@ public:
 
 private:
     const std::vector<primitives::morton_key_t>& m_morton_keys;
-    const primitives::point_id_t m_point {constants::invalid_point};
-    const morton_keys::InsertionPath m_path;
 
-    point_quadtree::Node*   m_current_node {nullptr};
+    const primitives::point_id_t        m_point {constants::invalid_point};
+    const morton_keys::InsertionPath    m_path;
+
+    point_quadtree::Node*   m_current_node  {nullptr};
     primitives::depth_t     m_current_depth {0}; // 0 is root.
+    GridPosition            m_grid_position;
 
+    void descend();
 };
 
 } // namespace point_quadtree

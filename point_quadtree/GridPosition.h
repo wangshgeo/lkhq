@@ -9,7 +9,7 @@ namespace point_quadtree {
 class GridPosition
 {
 public:
-    GridPosition(const Domain& domain) : m_domain(domain) {}
+    GridPosition(const Domain& domain) : m_domain(&domain) {}
 
     void descend(primitives::quadrant_t q)
     {
@@ -23,10 +23,10 @@ public:
     auto make_box() const
     {
         Box box;
-        box.xmin = m_domain.xmin() + m_x * m_domain.xdim(m_depth);
-        box.ymin = m_domain.ymin() + m_y * m_domain.ydim(m_depth);
-        box.xmax = box.xmin + m_domain.xdim(m_depth);
-        box.ymax = box.ymin + m_domain.ydim(m_depth);
+        box.xmin = m_domain->xmin() + m_x * m_domain->xdim(m_depth);
+        box.ymin = m_domain->ymin() + m_y * m_domain->ydim(m_depth);
+        box.xmax = box.xmin + m_domain->xdim(m_depth);
+        box.ymax = box.ymin + m_domain->ydim(m_depth);
         return box;
     }
 
@@ -34,7 +34,7 @@ public:
     auto y() const { return m_y; }
 
 private:
-    const Domain& m_domain;
+    const Domain* m_domain {nullptr};
     primitives::depth_t m_depth {0};
     primitives::grid_t m_x {0};
     primitives::grid_t m_y {0};
