@@ -9,13 +9,14 @@ void Node::insert(primitives::point_id_t i)
     m_points.push_back(i);
 }
 
-void Node::create_child(primitives::quadrant_t quadrant, const Box& box)
+Node* Node::create_child(primitives::quadrant_t quadrant, const Box& box)
 {
     if (m_children[quadrant])
     {
-        return;
+        return m_children[quadrant].get();
     }
     m_children[quadrant] = std::make_unique<Node>(box);
+    return m_children[quadrant].get();
 }
 
 bool Node::touches(const Box& box) const

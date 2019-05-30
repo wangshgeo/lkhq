@@ -51,7 +51,10 @@ int main(int argc, const char** argv)
     NanoTimer timer;
     timer.start();
     const auto root {point_quadtree::make_quadtree(x, y, domain)};
-    const auto test_root {point_quadtree::make_quadtree(x, y, domain)};
+    std::cout << "node ratio: "
+        << static_cast<double>(point_quadtree::count_nodes(root))
+            / point_quadtree::count_points(root)
+        << std::endl;
     std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds." << std::endl;
 
     if (config.get<bool>("basic_hill_climb", true))

@@ -32,7 +32,7 @@ void PointInserter::descend()
     m_grid_position.descend(q);
     if (not child)
     {
-        m_current_node->create_child(q, m_grid_position.make_box());
+        child = m_current_node->create_child(q, m_grid_position.make_box());
     }
     m_current_node = child;
     ++m_current_depth;

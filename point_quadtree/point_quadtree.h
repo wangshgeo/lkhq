@@ -3,6 +3,7 @@
 #include "Domain.h"
 #include "GridPosition.h"
 #include "Node.h"
+#include "PointInserter.h"
 #include "morton_keys.h"
 #include <Box.h>
 #include <primitives.h>
@@ -25,6 +26,9 @@ size_t initialize_points(Node& root
     , const Domain&);
 size_t insert_point(const std::vector<primitives::morton_key_t>& morton_keys
     , primitives::point_id_t point_id, Node& root, const Domain&);
+
+size_t count_points(const Node& node);
+size_t count_nodes(const Node& node);
 
 } // namespace point_quadtree
 

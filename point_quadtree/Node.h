@@ -18,7 +18,7 @@ class Node
 public:
     Node(const Box&);
 
-    void create_child(primitives::quadrant_t, const Box& box);
+    Node* create_child(primitives::quadrant_t, const Box& box);
     const std::array<std::unique_ptr<Node>, 4>& children() const { return m_children; }
     Node* child(primitives::quadrant_t q) { return m_children[q].get(); }
 
@@ -30,10 +30,6 @@ public:
     std::vector<primitives::point_id_t>
         get_points
         (primitives::point_id_t i, const Box& search_box) const;
-
-    // TODO: consider better implementation.
-    void increment_indirect() { ++m_indirect_points; }
-    auto total_points() const { return m_indirect_points + m_points.size(); }
 
     // TODO: remove as member, apply visitor pattern.
     // TODO: check for multiple points in non-max-depth nodes.
@@ -49,7 +45,6 @@ private:
     std::array<std::unique_ptr<Node>, 4> m_children;
 
     std::vector<primitives::point_id_t> m_points;
-    size_t m_indirect_points {0}; // total number of points under the children of this node (not directly under this node).
     const Box m_box;
 
     bool touches(const Box&) const;
