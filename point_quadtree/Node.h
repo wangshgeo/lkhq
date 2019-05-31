@@ -27,14 +27,10 @@ public:
     size_t empty() const { return m_points.empty(); }
     size_t size() const { return m_points.size(); }
 
+    // TODO: consider making this non-member.
     std::vector<primitives::point_id_t>
         get_points
         (primitives::point_id_t i, const Box& search_box) const;
-
-    // TODO: remove as member, apply visitor pattern.
-    // TODO: check for multiple points in non-max-depth nodes.
-    // TODO: check max_depth.
-    void validate() const;
 
     const auto& box() const { return m_box; }
     bool leaf() const;

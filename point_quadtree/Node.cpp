@@ -56,25 +56,6 @@ void Node::get_points(primitives::point_id_t i
     }
 }
 
-void Node::validate() const
-{
-    if (leaf() and empty())
-    {
-        throw std::logic_error("leaf node is empty!");
-    }
-    if (not leaf() and not empty())
-    {
-        throw std::logic_error("non-leaf node is not empty!");
-    }
-    for (const auto& unique_ptr : m_children)
-    {
-        if (unique_ptr)
-        {
-            unique_ptr->validate();
-        }
-    }
-}
-
 bool Node::leaf() const
 {
     return std::all_of(std::cbegin(m_children)

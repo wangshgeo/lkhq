@@ -1,4 +1,5 @@
 # as in k-opt
+kmax                15
 kmax                3
 kmax                14 # latest mona lisa
 print_improvements  true

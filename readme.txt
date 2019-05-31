@@ -44,4 +44,5 @@ Style notes:
 TODO:
 1. Check if output directory exists before writing out paths to file (currently silently fails).
 2. Memoize best-case scenarios searched paths (not sure if practical).
-3. Use squares of distances instead of sqrt wherever possible.
+3. Try choosing only a single new edge at each search neighborhood, with no backtracking.
+

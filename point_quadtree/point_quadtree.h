@@ -18,17 +18,13 @@ void insert_points(const std::vector<primitives::space_t>& x
     , const std::vector<primitives::space_t>& y
     , const Domain& domain
     , Node& root);
-size_t shallow_insert(const std::vector<primitives::morton_key_t>& morton_keys
-    , primitives::point_id_t p, Node& root, const Domain& domain);
-
-size_t initialize_points(Node& root
-    , const std::vector<primitives::morton_key_t>& morton_keys
-    , const Domain&);
-size_t insert_point(const std::vector<primitives::morton_key_t>& morton_keys
-    , primitives::point_id_t point_id, Node& root, const Domain&);
 
 size_t count_points(const Node& node);
 size_t count_nodes(const Node& node);
+
+void validate(const Node& node, primitives::depth_t depth = 0);
+
+size_t max_leaf_points(const Node& node);
 
 } // namespace point_quadtree
 

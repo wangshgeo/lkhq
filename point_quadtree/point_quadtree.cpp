@@ -9,7 +9,7 @@ Node make_quadtree(const std::vector<primitives::space_t>& x
     GridPosition grid_position(domain);
     Node root(grid_position.make_box());
     insert_points(x, y, domain, root);
-    root.validate();
+    validate(root);
     if (count_points(root) != x.size())
     {
         throw std::logic_error("quadtree root did not count points accurately.");
@@ -65,6 +65,33 @@ size_t count_nodes(const Node& node)
         }
     }
     return counted;
+}
+
+void validate(const Node& node, primitives::depth_t depth)
+{
+    if (node.leaf() and node.empty())
+    {
+        throw std::logic_error("leaf node is empty!");
+    }
+    if (not node.leaf() and not node.empty())
+    {
+        throw std::logic_error("non-leaf node is not empty!");
+    }
+    if (depth != constants::max_tree_depth and node.size() > 1)
+    {
+        throw std::logic_error("found non-max-depth node with more than 1 point!");
+    }
+    if (depth > constants::max_tree_depth)
+    {
+        throw std::logic_error("max tree depth exceeded!");
+    }
+    for (const auto& unique_ptr : node.children())
+    {
+        if (unique_ptr)
+        {
+            validate(*unique_ptr, depth + 1);
+        }
+    }
 }
 
 } // namespace point_quadtree
