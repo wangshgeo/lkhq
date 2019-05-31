@@ -152,7 +152,7 @@ void GenericFinder<Derived>::delete_both_edges()
         m_kmove.starts.push_back(start);
         m_kmove.removes.push_back(edge);
         m_kmargin.increase(length(edge));
-        if (m_kmove.current_k() == m_kmax)
+        if (derived()->final_new_edge())
         {
             if (m_kmargin.decrease(length(start, m_swap_end)))
             {

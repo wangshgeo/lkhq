@@ -7,3 +7,7 @@ OptimalFinder::search_neighborhood(primitives::point_id_t p) const
     return m_root.get_points(p, m_box_maker(p, search_radius));
 }
 
+bool OptimalFinder::final_new_edge() const
+{
+    return m_kmove.current_k() == m_kmax;
+}

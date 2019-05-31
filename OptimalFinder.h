@@ -11,6 +11,7 @@ class OptimalFinder : public GenericFinder<OptimalFinder>
 public:
     using base::base;
     std::vector<primitives::point_id_t> search_neighborhood(primitives::point_id_t p) const;
+    bool final_new_edge() const;
 
 };
 
