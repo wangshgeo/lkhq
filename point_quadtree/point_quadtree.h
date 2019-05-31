@@ -25,6 +25,7 @@ size_t count_nodes(const Node& node);
 void validate(const Node& node, primitives::depth_t depth = 0);
 
 size_t max_leaf_points(const Node& node);
+primitives::depth_t max_depth(const Node& node, primitives::depth_t depth = 0);
 
 } // namespace point_quadtree
 
