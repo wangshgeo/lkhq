@@ -33,7 +33,7 @@ public:
 
     auto& tour() { return m_tour; }
 
-private:
+protected:
     const point_quadtree::Node& m_root;
     Tour& m_tour;
     const BoxMaker m_box_maker;
