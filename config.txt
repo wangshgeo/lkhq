@@ -13,4 +13,4 @@ basic_hill_climb    true
 experimental        false
 
 validate_tour       true
-length_stats        true
+length_stats        false

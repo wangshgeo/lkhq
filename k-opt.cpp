@@ -1,5 +1,7 @@
 #include "Config.h"
+#include "Finder.h"
 #include "NanoTimer.h"
+#include "OptimalFinder.h"
 #include "Tour.h"
 #include "fileio.h"
 #include "hill_climb.h"
@@ -44,16 +46,18 @@ int main(int argc, const char** argv)
     // Quad tree.
     NanoTimer timer;
     timer.start();
+
+    std::cout << "\nquadtree stats:\n";
     const auto root {point_quadtree::make_quadtree(x, y, domain)};
     std::cout << "node ratio: "
         << static_cast<double>(point_quadtree::count_nodes(root))
             / point_quadtree::count_points(root)
         << std::endl;
-    std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds." << std::endl;
+    std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds.\n\n";
 
     if (config.get("basic_hill_climb", true))
     {
-        hill_climb::basic_hill_climb<Finder>(config, root, tour);
+        hill_climb::basic_hill_climb<OptimalFinder>(config, root, tour);
         std::cout << "hill climb final tour length: " << tour.length() << std::endl;
     }
 

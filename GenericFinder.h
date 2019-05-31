@@ -29,9 +29,6 @@ public:
     auto& tour() { return m_tour; }
 
 protected:
-    auto* derived() { return static_cast<Derived*>(this); }
-    const auto* derived() const { return static_cast<const Derived*>(this); }
-
     const point_quadtree::Node& m_root;
     Tour& m_tour;
     const BoxMaker m_box_maker;
@@ -101,9 +98,7 @@ template <typename Derived>
 void GenericFinder<Derived>::try_nearby_points()
 {
     const auto start = m_kmove.starts.back();
-    const auto search_radius = m_kmargin.total_margin + 1;
-    const auto points = m_root.get_points(start, m_box_maker(start, search_radius));
-    for (auto p : points)
+    for (auto p : derived()->search_neighborhood(start))
     {
         // check easy exclusion cases.
         const bool old_edge {p == m_tour.next(start) or p == m_tour.prev(start)};
