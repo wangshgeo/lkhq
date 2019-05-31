@@ -1,6 +1,6 @@
 # as in k-opt
 kmax                15
-kmax                3
+kmax                6
 kmax                15 # latest mona lisa
 print_improvements  true
 suppress_output     false
@@ -11,6 +11,7 @@ domain_stats        true
 
 basic_hill_climb    true
 experimental        false
+random_finder       true
 
 validate_tour       true
 length_stats        false

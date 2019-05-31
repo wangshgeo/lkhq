@@ -1,6 +1,7 @@
 #include "Config.h"
 #include "Finder.h"
 #include "NanoTimer.h"
+#include "RandomFinder.h"
 #include "OptimalFinder.h"
 #include "Tour.h"
 #include "fileio.h"
@@ -58,9 +59,17 @@ int main(int argc, const char** argv)
     if (config.get("basic_hill_climb", true))
     {
         hill_climb::basic_hill_climb<OptimalFinder>(config, root, tour);
-        std::cout << "hill climb final tour length: " << tour.length() << std::endl;
+        std::cout << "hill climb final tour length: " << tour.length() << "\n\n";
     }
-
+    if (config.get("random_finder", true))
+    {
+        while (true)
+        {
+            hill_climb::basic_hill_climb<RandomFinder>(config, root, tour);
+            std::cout << "hill climb final tour length: " << tour.length() << "\n\n";
+            // TODO: save tour if better
+        }
+    }
     if (config.get("experimental", false))
     {
         perturbers::SimpleDoubleBridge perturber;

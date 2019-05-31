@@ -67,6 +67,7 @@ std::optional<KMove> GenericFinder<Derived>::find_best()
             return m_kmove;
         }
     }
+    derived()->final_stats();
     return std::nullopt;
 }
 
@@ -120,7 +121,6 @@ void GenericFinder<Derived>::try_nearby_points()
                 {
                     if (cycle_check::feasible(m_tour, m_kmove))
                     {
-                        m_kmove.validate();
                         m_stop = true;
                         return;
                     }
@@ -159,7 +159,6 @@ void GenericFinder<Derived>::delete_both_edges()
                 m_kmove.ends.push_back(m_swap_end);
                 if (cycle_check::feasible(m_tour, m_kmove))
                 {
-                    m_kmove.validate();
                     m_stop = true;
                     return;
                 }
