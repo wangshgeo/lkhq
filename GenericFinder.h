@@ -21,6 +21,7 @@ public:
         : m_root(root)
         , m_tour(tour)
         , m_box_maker(tour.x(), tour.y())
+        , m_length_calculator(tour.x(), tour.y())
         , m_kmax(config.get<size_t>("kmax", m_kmax)) {}
 
     std::optional<KMove> find_best();
@@ -32,6 +33,7 @@ protected:
     const point_quadtree::Node& m_root;
     Tour& m_tour;
     const BoxMaker m_box_maker;
+    LengthCalculator m_length_calculator;
     size_t m_kmax {3};
 
     KMove m_kmove;
@@ -46,7 +48,7 @@ protected:
 
     void reset_search();
 
-    primitives::length_t length(primitives::point_id_t a) const;
+    primitives::length_t length(primitives::point_id_t edge_start) const;
     primitives::length_t length(primitives::point_id_t a, primitives::point_id_t b) const;
 
 private:
@@ -192,11 +194,11 @@ void GenericFinder<Derived>::reset_search()
 template <typename Derived>
 primitives::length_t GenericFinder<Derived>::length(primitives::point_id_t a, primitives::point_id_t b) const
 {
-    return m_tour.length(a, b);
+    return m_length_calculator(a, b);
 }
 
 template <typename Derived>
-primitives::length_t GenericFinder<Derived>::length(primitives::point_id_t a) const
+primitives::length_t GenericFinder<Derived>::length(primitives::point_id_t edge_start) const
 {
-    return m_tour.length(a);
+    return m_length_calculator(edge_start, m_tour.next(edge_start));
 }

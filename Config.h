@@ -8,6 +8,7 @@
 
 #include <algorithm> // transform, all_of
 #include <cctype> // tolower, isdigit
+#include <cstdlib> // strto*
 #include <fstream>
 #include <sstream> // stringstream
 #include <string> // getline, stoul
@@ -19,14 +20,14 @@ class Config
 public:
     Config(const std::string& file_path);
 
-    template <typename ValueType>
+    template <typename ValueType = std::string>
     ValueType get(const std::string& key) const;
 
     template <typename ValueType>
     ValueType get(const std::string& key, const ValueType& default_value) const;
 
 private:
-    using Variant = std::variant<bool, size_t, std::string>;
+    using Variant = std::variant<std::string, bool, size_t, long, double>;
     std::unordered_map<std::string, Variant> m_dictionary;
 
 };
@@ -72,10 +73,30 @@ inline Config::Config(const std::string& file_path)
             continue;
         }
 
-        // check size_t.
+        // check positive integer.
         if (std::all_of(std::cbegin(value), std::cend(value), ::isdigit))
         {
             m_dictionary[key] = std::stoul(value);
+            continue;
+        }
+
+        // check signed integer.
+        const char* const parse_start = value.data();
+        char* observed_parse_end {nullptr};
+        constexpr int base {10};
+        const auto parsed_long = std::strtol(parse_start, &observed_parse_end, base);
+        const char* const full_parse_end = parse_start + value.length();
+        if (observed_parse_end == full_parse_end)
+        {
+            m_dictionary[key] = parsed_long;
+            continue;
+        }
+
+        // check double.
+        const auto parsed_double = std::strtod(parse_start, &observed_parse_end);
+        if (observed_parse_end == full_parse_end)
+        {
+            m_dictionary[key] = parsed_double;
             continue;
         }
 

@@ -42,7 +42,8 @@ int main(int argc, const char** argv)
             << std::endl;
     }
     Tour tour(&domain, initial_tour);
-    std::cout << "Initial tour length: " << tour.length() << std::endl;
+    const auto initial_tour_length = tour.length();
+    std::cout << "Initial tour length: " << initial_tour_length << std::endl;
 
     // Quad tree.
     NanoTimer timer;
@@ -56,18 +57,33 @@ int main(int argc, const char** argv)
         << std::endl;
     std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds.\n\n";
 
+    auto best_length = initial_tour_length;
+    auto write_if_better = [&config, &tour, &best_length](primitives::length_t new_length)
+    {
+        if (new_length < best_length)
+        {
+            if (config.get("write_best", false))
+            {
+                fileio::write_ordered_points(tour.order(), config.get("output_filename"));
+            }
+        }
+    };
+
     if (config.get("basic_hill_climb", true))
     {
         hill_climb::basic_hill_climb<OptimalFinder>(config, root, tour);
-        std::cout << "hill climb final tour length: " << tour.length() << "\n\n";
+        const auto new_length = tour.length();
+        std::cout << "hill climb final tour length: " << new_length << "\n\n";
+        write_if_better(new_length);
     }
     if (config.get("random_finder", true))
     {
         while (true)
         {
             hill_climb::basic_hill_climb<RandomFinder>(config, root, tour);
-            std::cout << "hill climb final tour length: " << tour.length() << "\n\n";
-            // TODO: save tour if better
+            const auto new_length = tour.length();
+            std::cout << "hill climb final tour length: " << new_length << "\n\n";
+            write_if_better(new_length);
         }
     }
     if (config.get("experimental", false))
