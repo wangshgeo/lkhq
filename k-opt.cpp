@@ -1,5 +1,4 @@
 #include "Config.h"
-#include "Finder.h"
 #include "NanoTimer.h"
 #include "RandomFinder.h"
 #include "OptimalFinder.h"
@@ -7,10 +6,8 @@
 #include "fileio.h"
 #include "hill_climb.h"
 #include "length_stats.h"
-#include "perturbers/SimpleDoubleBridge.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
-#include "sweep.h"
 
 #include <iostream>
 
@@ -88,9 +85,6 @@ int main(int argc, const char** argv)
     }
     if (config.get("experimental", false))
     {
-        perturbers::SimpleDoubleBridge perturber;
-        Finder finder(config, root, tour);
-        while (sweep::perturb(config, finder, perturber));
     }
 
     const auto validate_tour = config.get("validate_tour", false);

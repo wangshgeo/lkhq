@@ -44,60 +44,6 @@ struct KMove
         }
     }
 
-
-    // TODO: deprecate following public members.
-
-    bool has_start(primitives::point_id_t start) const
-    {
-        return contains(starts, start);
-    }
-
-    bool has_end(primitives::point_id_t end) const
-    {
-        return contains(ends, end);
-    }
-
-    auto size() const { return starts.size(); }
-
-    auto newest_point() const { return ends.back(); }
-
-    void push_all(
-        primitives::point_id_t start
-        , primitives::point_id_t end
-        , primitives::point_id_t remove)
-    {
-        push_deletion(start, remove);
-        push_addition(end);
-    }
-
-    void pop_all()
-    {
-        pop_deletion();
-        pop_addition();
-    }
-
-    void push_deletion(primitives::point_id_t new_start, primitives::point_id_t new_remove)
-    {
-        starts.push_back(new_start);
-        removes.push_back(new_remove);
-    }
-
-    void push_addition(primitives::point_id_t new_end)
-    {
-        ends.push_back(new_end);
-    }
-
-    void pop_deletion()
-    {
-        starts.pop_back();
-        removes.pop_back();
-    }
-
-    void pop_addition()
-    {
-        ends.pop_back();
-    }
-
 private:
     static bool contains(const std::vector<primitives::point_id_t>& points
         , primitives::point_id_t point)

@@ -92,16 +92,5 @@ inline auto point_insertion_path(primitives::morton_key_t key)
     return path;
 }
 
-// TODO remove
-inline auto point_insertion_paths(const std::vector<primitives::morton_key_t>& morton_keys)
-{
-    std::vector<InsertionPath> paths(morton_keys.size());
-    for (primitives::point_id_t i {0}; i < morton_keys.size(); ++i)
-    {
-        paths[i] = point_insertion_path(morton_keys[i]);
-    }
-    return paths;
-}
-
 } // namespace morton_keys
 } // namespace point_quadtree

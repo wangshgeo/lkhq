@@ -5,7 +5,6 @@ kmax                15 # latest mona lisa
 
 print_improvements  true
 suppress_output     false
-save_period         1000
 
 domain_stats        true
 

@@ -6,22 +6,12 @@ CXX_FLAGS += -O3 -ffast-math # "production" version.
 CXX_FLAGS += -I./ # include paths.
 
 SRCS = k-opt.cpp Tour.cpp \
-	Finder.cpp \
-	OldFinder.cpp \
-	LateralFinder.cpp \
-	FeasibleFinder.cpp \
 	RandomFinder.cpp \
 	OptimalFinder.cpp \
-	MaskedFeasibleFinder.cpp \
-	NonsequentialFinder.cpp \
-	CycleMaker.cpp \
-	SimpleNonsequentialFinder.cpp \
     point_quadtree/Node.cpp \
     point_quadtree/point_quadtree.cpp \
     point_quadtree/PointInserter.cpp \
-    multicycle/multicycle.cpp \
-    cycle_check.cpp \
-    Mask.cpp
+    cycle_check.cpp
 
 %.o: %.cpp; $(CXX) $(CXX_FLAGS) -o $@ -c $<
 
