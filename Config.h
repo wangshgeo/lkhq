@@ -26,6 +26,8 @@ public:
     template <typename ValueType>
     ValueType get(const std::string& key, const ValueType& default_value) const;
 
+    bool has(const std::string& key) const;
+
 private:
     using Variant = std::variant<std::string, bool, size_t, long, double>;
     std::unordered_map<std::string, Variant> m_dictionary;
@@ -113,9 +115,15 @@ ValueType Config::get(const std::string& key) const
 template <typename ValueType>
 ValueType Config::get(const std::string& key, const ValueType& default_value) const
 {
-    if (m_dictionary.find(key) == std::cend(m_dictionary))
+    if (has(key))
     {
-        return default_value;
+        return get<ValueType>(key);
     }
-    return get<ValueType>(key);
+    return default_value;
 }
+
+inline bool Config::has(const std::string& key) const
+{
+    return m_dictionary.find(key) != std::cend(m_dictionary);
+}
+

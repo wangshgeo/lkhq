@@ -9,6 +9,7 @@
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
 
+#include <filesystem>
 #include <iostream>
 
 int main(int argc, const char** argv)
@@ -19,14 +20,23 @@ int main(int argc, const char** argv)
         return 0;
     }
 
-    // Read input files.
-    const auto [x, y] = fileio::read_coordinates(argv[1]);
-    const auto initial_tour = fileio::initial_tour(argc, argv, x.size());
-
     // Config file (currently fixed).
     constexpr char config_path[] = "config.txt";
     std::cout << "Reading config file: " << config_path << std::endl;
     Config config(config_path);
+    if (config.has("output_filename"))
+    {
+        const std::filesystem::path output_path(config.get("output_filename"));
+        const auto parent_path = output_path.parent_path();
+        if (not std::filesystem::exists(parent_path))
+        {
+            throw std::runtime_error("output_filename parent directory does not exist.");
+        }
+    }
+
+    // Read input files.
+    const auto [x, y] = fileio::read_coordinates(argv[1]);
+    const auto initial_tour = fileio::initial_tour(argc, argv, x.size());
 
     // Initial tour length calculation.
     point_quadtree::Domain domain(x, y);
@@ -66,14 +76,14 @@ int main(int argc, const char** argv)
         }
     };
 
-    if (config.get("basic_hill_climb", true))
+    if (config.get("basic_hill_climb", false))
     {
         hill_climb::basic_hill_climb<OptimalFinder>(config, root, tour);
         const auto new_length = tour.length();
         std::cout << "hill climb final tour length: " << new_length << "\n\n";
         write_if_better(new_length);
     }
-    if (config.get("random_finder", true))
+    if (config.get("random_finder", false))
     {
         while (true)
         {

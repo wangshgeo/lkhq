@@ -42,7 +42,6 @@ Style notes:
 3. Put one line break in between function definitions for convenient vim navigation via ctrl + { and ctrl + }.
 
 TODO:
-1. Check if output directory exists before writing out paths to file (currently silently fails).
-2. Memoize best-case scenarios searched paths (not sure if practical).
-3. Try choosing only a single new edge at each search neighborhood, with no backtracking.
+1. Memoize moves between 2 points that are better than the direct distance between them.
+2. Check combinations of non-feasible non-sequential moves that may make a feasible non-sequential move.
 
