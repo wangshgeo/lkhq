@@ -10,6 +10,7 @@ domain_stats        true
 
 basic_hill_climb    true
 random_finder       false
+nonsequential       false
 experimental        false
 
 validate_tour       true

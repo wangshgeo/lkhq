@@ -51,11 +51,40 @@ protected:
     primitives::length_t length(primitives::point_id_t edge_start) const;
     primitives::length_t length(primitives::point_id_t a, primitives::point_id_t b) const;
 
+    void final_move_check();
+    bool final_new_edge() const;
+    void final_stats() const {}
+
+    std::vector<primitives::point_id_t> search_neighborhood(primitives::point_id_t p) const;
+
 private:
     auto* derived() { return static_cast<Derived*>(this); }
     const auto* derived() const { return static_cast<const Derived*>(this); }
 
 };
+
+template <typename Derived>
+void GenericFinder<Derived>::final_move_check()
+{
+    if (cycle_check::feasible(m_tour, m_kmove))
+    {
+        m_stop = true;
+    }
+}
+
+template <typename Derived>
+bool GenericFinder<Derived>::final_new_edge() const
+{
+    return m_kmove.current_k() == m_kmax;
+}
+
+template <typename Derived>
+std::vector<primitives::point_id_t>
+GenericFinder<Derived>::search_neighborhood(primitives::point_id_t p) const
+{
+    const auto search_radius = m_kmargin.total_margin + 1;
+    return m_root.get_points(p, m_box_maker(p, search_radius));
+}
 
 template <typename Derived>
 std::optional<KMove> GenericFinder<Derived>::find_best()
@@ -121,9 +150,9 @@ void GenericFinder<Derived>::try_nearby_points()
                 // check if closing swap.
                 if (p == m_swap_end)
                 {
-                    if (cycle_check::feasible(m_tour, m_kmove))
+                    derived()->final_move_check();
+                    if (m_stop)
                     {
-                        m_stop = true;
                         return;
                     }
                 }
@@ -159,9 +188,9 @@ void GenericFinder<Derived>::delete_both_edges()
             if (m_kmargin.decrease(length(start, m_swap_end)))
             {
                 m_kmove.ends.push_back(m_swap_end);
-                if (cycle_check::feasible(m_tour, m_kmove))
+                derived()->final_move_check();
+                if (m_stop)
                 {
-                    m_stop = true;
                     return;
                 }
                 m_kmove.ends.pop_back();

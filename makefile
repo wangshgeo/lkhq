@@ -9,7 +9,6 @@ LINK_FLAGS = -lstdc++fs # filesystem
 
 SRCS = k-opt.cpp Tour.cpp \
 	RandomFinder.cpp \
-	OptimalFinder.cpp \
     point_quadtree/Node.cpp \
     point_quadtree/point_quadtree.cpp \
     point_quadtree/PointInserter.cpp \
