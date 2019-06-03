@@ -86,9 +86,11 @@ int main(int argc, const char** argv)
     }
     if (config.get("nonsequential", false))
     {
-        hill_climb::basic_hill_climb<NonsequentialFinder>(config, root, tour);
+        NonsequentialFinder finder(config, root, tour);
+        finder.find_best();
+        finder.find_best_nonsequential();
         const auto new_length = tour.length();
-        std::cout << "hill climb final tour length: " << new_length << "\n\n";
+        std::cout << "nonsequential final tour length: " << new_length << "\n\n";
         write_if_better(new_length);
     }
     if (config.get("random_finder", false))

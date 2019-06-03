@@ -44,6 +44,21 @@ struct KMove
         }
     }
 
+    KMove operator+(const KMove& other) const
+    {
+        auto new_kmove = *this;
+        new_kmove.starts.insert(std::end(new_kmove.starts)
+            , std::cbegin(other.starts)
+            , std::cend(other.starts));
+        new_kmove.ends.insert(std::end(new_kmove.ends)
+            , std::cbegin(other.ends)
+            , std::cend(other.ends));
+        new_kmove.removes.insert(std::end(new_kmove.removes)
+            , std::cbegin(other.removes)
+            , std::cend(other.removes));
+        return new_kmove;
+    }
+
 private:
     static bool contains(const std::vector<primitives::point_id_t>& points
         , primitives::point_id_t point)

@@ -12,7 +12,8 @@ SRCS = k-opt.cpp Tour.cpp \
     point_quadtree/Node.cpp \
     point_quadtree/point_quadtree.cpp \
     point_quadtree/PointInserter.cpp \
-    cycle_check.cpp
+    cycle_check.cpp \
+	MulticycleTour.cpp
 
 %.o: %.cpp; $(CXX) $(CXX_FLAGS) -o $@ -c $<
 

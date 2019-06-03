@@ -6,7 +6,6 @@ Tour::Tour(const point_quadtree::Domain* domain
 , m_adjacents(initial_tour.size(), {constants::invalid_point, constants::invalid_point})
 , m_next(initial_tour.size(), constants::invalid_point)
 , m_sequence(initial_tour.size(), constants::invalid_point)
-, m_cycle_id(initial_tour.size(), constants::invalid_cycle)
 , m_box_maker(domain->x(), domain->y())
 , m_length_calculator(domain->x(), domain->y())
 {
@@ -19,63 +18,6 @@ void Tour::swap(const KMove& kmove)
     swap(kmove.starts, kmove.ends, kmove.removes);
 }
 
-void Tour::double_bridge_perturbation()
-{
-    constexpr size_t segments_to_replace {4};
-    std::array<primitives::point_id_t, segments_to_replace> old_starts {{constants::invalid_point}};
-    std::sample(std::cbegin(m_next), std::cend(m_next), std::begin(old_starts)
-        , segments_to_replace
-        , std::mt19937(std::random_device{}())); // TODO: ensure this is uniformly random.
-    std::sort(std::begin(old_starts), std::end(old_starts)
-        , [&m_sequence = m_sequence](primitives::point_id_t lhs, primitives::point_id_t rhs)
-            {
-                return m_sequence[lhs] < m_sequence[rhs];
-            });
-    std::array<primitives::point_id_t, segments_to_replace> ends
-    {{
-        next(old_starts[2])
-        , next(old_starts[3])
-        , next(old_starts[0])
-        , next(old_starts[1])
-    }};
-    swap(old_starts, ends, old_starts);
-}
-
-void Tour::update_multicycle()
-{
-    std::fill(std::begin(m_cycle_id), std::end(m_cycle_id), constants::invalid_cycle);
-    constexpr primitives::point_id_t first_group_start {0};
-    primitives::point_id_t cycle_start {first_group_start};
-    m_cycle_end = 0;
-    m_min_cycle_size = std::numeric_limits<size_t>::max();
-    while (cycle_start != constants::invalid_point)
-    {
-        auto cycle_size = update_next(cycle_start, m_cycle_end);
-        m_min_cycle_size = std::min(cycle_size, m_min_cycle_size);
-        //std::cout << "cycle size: " << cycle_size << std::endl;
-        cycle_start = constants::invalid_point;
-        for (primitives::point_id_t i {0}; i < size(); ++i)
-        {
-            if (m_cycle_id[i] == constants::invalid_cycle)
-            {
-                cycle_start = i;
-                break;
-            }
-        }
-        ++m_cycle_end;
-    }
-    // TODO: merge this with previous traversal.
-    const auto ingroup_id {m_cycle_id[first_group_start]};
-    m_max_outgroup_length = 0;
-    for (primitives::point_id_t i {0}; i < size(); ++i)
-    {
-        if (m_cycle_id[i] != ingroup_id)
-        {
-            m_max_outgroup_length = std::max(m_max_outgroup_length, length(i));
-        }
-    }
-}
-
 template <typename T>
 void print_short_vec(const std::vector<T>& vec)
 {
@@ -84,22 +26,6 @@ void print_short_vec(const std::vector<T>& vec)
         std::cout << "\t" << v;
     }
     std::cout << std::endl;
-}
-
-void Tour::multicycle_swap(
-    const std::vector<primitives::point_id_t>& starts
-    , const std::vector<primitives::point_id_t>& ends
-    , const std::vector<primitives::point_id_t>& removed_edges)
-{
-    for (auto p : removed_edges)
-    {
-        break_adjacency(p);
-    }
-    for (size_t i {0}; i < starts.size(); ++i)
-    {
-        create_adjacency(starts[i], ends[i]);
-    }
-    update_multicycle();
 }
 
 primitives::point_id_t Tour::sequence(primitives::point_id_t i, primitives::point_id_t start) const
@@ -208,71 +134,6 @@ std::vector<primitives::point_id_t> Tour::order() const
         }
     }
     return ordered_points;
-}
-
-void Tour::breaking_forward_swap(const std::vector<primitives::point_id_t>& swap)
-{
-    nonbreaking_forward_swap(swap, true);
-    update_multicycle();
-}
-
-void Tour::nonbreaking_forward_swap(const std::vector<primitives::point_id_t>& swap, bool cyclic_first)
-{
-    // Use of prev() should precede use of break_adjacency().
-    primitives::point_id_t last {prev(swap.front())};
-    if (cyclic_first)
-    {
-        last = m_next[swap.front()];
-    }
-    std::vector<primitives::point_id_t> prevs;
-    auto it = ++std::cbegin(swap);
-    while (it != std::cend(swap))
-    {
-        prevs.push_back(prev(*it));
-        ++it;
-    }
-    // for each point p in swap, edge (p, prev(p)) is deleted.
-    for (size_t i {1}; i < swap.size(); ++i)
-    {
-        break_adjacency(prevs[i - 1], swap[i]);
-    }
-    if (cyclic_first)
-    {
-        break_adjacency(swap.front());
-    }
-    else
-    {
-        break_adjacency(swap.front(), last);
-    }
-    create_adjacency(swap[0], swap[1]);
-    for (size_t i {2}; i < swap.size(); ++i)
-    {
-        create_adjacency(prevs[i - 2], swap[i]);
-    }
-    create_adjacency(prevs.back(), last);
-    update_next();
-}
-
-size_t Tour::update_next(const primitives::point_id_t start
-    , const primitives::cycle_id_t cycle_id)
-{
-    primitives::point_id_t current {start};
-    m_next[current] = m_adjacents[current].front();
-    primitives::point_id_t sequence {0};
-    do
-    {
-        auto prev = current;
-        m_sequence[current] = sequence++;
-        current = m_next[current];
-        m_next[current] = get_other(current, prev);
-        m_cycle_id[current] = cycle_id;
-        if (sequence > size())
-        {
-            std::cout << __func__ << ": error: sequence is higher than total number of points." << std::endl;
-            std::abort();
-        }
-    } while (current != start); // tour cycle condition.
-    return sequence;
 }
 
 void Tour::update_next(const primitives::point_id_t start)
