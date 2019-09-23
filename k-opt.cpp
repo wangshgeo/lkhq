@@ -31,7 +31,7 @@ int main(int argc, const char** argv)
         const auto parent_path = output_path.parent_path();
         if (not std::filesystem::exists(parent_path))
         {
-            throw std::runtime_error("output_filename parent directory does not exist.");
+            std::filesystem::create_directory(parent_path);
         }
     }
 
