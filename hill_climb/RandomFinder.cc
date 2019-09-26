@@ -1,5 +1,7 @@
 #include "RandomFinder.h"
 
+namespace hill_climb {
+
 std::vector<primitives::point_id_t>
 RandomFinder::search_neighborhood(primitives::point_id_t p)
 {
@@ -40,3 +42,4 @@ bool RandomFinder::final_new_edge() const
     return false;
 }
 
+}  // namespace hill_climb

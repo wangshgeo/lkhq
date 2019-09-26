@@ -7,6 +7,8 @@
 #include <iostream>
 #include <vector>
 
+namespace hill_climb {
+
 class RandomFinder : public GenericFinder<RandomFinder>
 {
     using base = GenericFinder<RandomFinder>;
@@ -23,3 +25,4 @@ private:
 
 };
 
+}  // namespace hill_climb

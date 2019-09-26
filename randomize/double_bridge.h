@@ -7,6 +7,7 @@
 #include <array>
 #include <random>
 
+namespace randomize {
 namespace double_bridge {
 
 // random integer in [a, b].
@@ -40,4 +41,5 @@ void swap(Tour& tour) {
     tour.swap_sequence(removal, ends, removal);
 }
 
-} // namespace double_bridge
+}  // namespace double_bridge
+}  // namespace randomize

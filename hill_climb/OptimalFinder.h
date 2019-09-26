@@ -1,9 +1,8 @@
 #pragma once
 
 #include "GenericFinder.h"
-#include "primitives.h"
 
-#include <vector>
+namespace hill_climb {
 
 class OptimalFinder : public GenericFinder<OptimalFinder>
 {
@@ -13,4 +12,5 @@ public:
 
 };
 
+}  // namespace hill_climb
 

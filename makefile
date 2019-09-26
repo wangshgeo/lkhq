@@ -8,7 +8,7 @@ CXX_FLAGS += -I./ # include paths.
 LINK_FLAGS = -lstdc++fs # filesystem
 
 SRCS = k-opt.cc Tour.cc \
-	RandomFinder.cc \
+	hill_climb/RandomFinder.cc \
     point_quadtree/node.cc \
     point_quadtree/point_quadtree.cc \
     point_quadtree/point_inserter.cc \

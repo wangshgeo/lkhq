@@ -1,13 +1,13 @@
 #include "Config.h"
 #include "NanoTimer.h"
-#include "NonsequentialFinder.h"
-#include "OptimalFinder.h"
-#include "RandomFinder.h"
+#include "hill_climb/NonsequentialFinder.h"
+#include "hill_climb/OptimalFinder.h"
+#include "hill_climb/RandomFinder.h"
 #include "Tour.h"
 #include "check.hh"
-#include "double_bridge.h"
+#include "randomize/double_bridge.h"
 #include "fileio.h"
-#include "hill_climb.h"
+#include "hill_climb/hill_climb.h"
 #include "length_stats.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
@@ -82,17 +82,17 @@ int main(int argc, const char** argv)
     if (config.get("basic_hill_climb", false))
     {
         {
-            hill_climb::basic_hill_climb<OptimalFinder>(config, root, tour);
+            hill_climb::basic_hill_climb<hill_climb::OptimalFinder>(config, root, tour);
             const auto new_length = tour.length();
             std::cout << "hill climb final tour length: " << new_length << "\n\n";
             write_if_better(new_length);
         }
 
-        double_bridge::swap(tour);
+        randomize::double_bridge::swap(tour);
         check::check_tour(tour);
 
         {
-            hill_climb::basic_hill_climb<OptimalFinder>(config, root, tour);
+            hill_climb::basic_hill_climb<hill_climb::OptimalFinder>(config, root, tour);
             const auto new_length = tour.length();
             std::cout << "hill climb final tour length: " << new_length << "\n\n";
             write_if_better(new_length);
@@ -101,23 +101,25 @@ int main(int argc, const char** argv)
 
     if (config.get("nonsequential", false))
     {
-        NonsequentialFinder finder(config, root, tour);
+        hill_climb::NonsequentialFinder finder(config, root, tour);
         finder.find_best();
         finder.find_best_nonsequential();
         const auto new_length = tour.length();
         std::cout << "nonsequential final tour length: " << new_length << "\n\n";
         write_if_better(new_length);
     }
+
     if (config.get("random_finder", false))
     {
         while (true)
         {
-            hill_climb::basic_hill_climb<RandomFinder>(config, root, tour);
+            hill_climb::basic_hill_climb<hill_climb::RandomFinder>(config, root, tour);
             const auto new_length = tour.length();
             std::cout << "hill climb final tour length: " << new_length << "\n\n";
             write_if_better(new_length);
         }
     }
+
     if (config.get("experimental", false))
     {
     }

@@ -13,6 +13,8 @@
 #include <array>
 #include <optional>
 
+namespace hill_climb {
+
 template <typename Derived>
 class GenericFinder
 {
@@ -231,3 +233,5 @@ primitives::length_t GenericFinder<Derived>::length(primitives::point_id_t edge_
 {
     return m_length_calculator(edge_start, m_tour.next(edge_start));
 }
+
+}  // namespace hill_climb

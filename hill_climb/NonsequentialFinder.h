@@ -10,6 +10,8 @@
 #include <unordered_set>
 #include <vector>
 
+namespace hill_climb {
+
 class NonsequentialFinder : public GenericFinder<NonsequentialFinder>
 {
     using base = GenericFinder<NonsequentialFinder>;
@@ -190,3 +192,5 @@ inline void NonsequentialFinder::final_move_check()
         m_nonsequential_moves.push_back(m_kmove);
     }
 }
+
+}  // namespace hill_climb
