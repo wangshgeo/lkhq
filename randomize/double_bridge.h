@@ -1,7 +1,7 @@
 #pragma once
 
 #include "primitives.h"
-#include "Tour.h"
+#include "tour.hh"
 
 #include <algorithm>
 #include <array>

@@ -4,7 +4,7 @@
 #include "Config.h"
 #include "KMargin.h"
 #include "KMove.h"
-#include "Tour.h"
+#include "tour.hh"
 #include "constants.h"
 #include "cycle_check.h"
 #include "point_quadtree/Node.h"

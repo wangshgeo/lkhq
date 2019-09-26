@@ -1,4 +1,4 @@
-#include "Tour.h"
+#include "tour.hh"
 
 Tour::Tour(const point_quadtree::Domain* domain
     , const std::vector<primitives::point_id_t>& initial_tour)

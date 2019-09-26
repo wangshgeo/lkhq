@@ -46,6 +46,7 @@ public:
     auto x(primitives::point_id_t i) const { return x()[i]; }
     auto y(primitives::point_id_t i) const { return y()[i]; }
 
+    // total length of tour.
     primitives::length_t length() const;
     primitives::length_t length(primitives::point_id_t i) const;
     primitives::length_t prev_length(primitives::point_id_t i) const;

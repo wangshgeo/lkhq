@@ -7,7 +7,7 @@
 
 namespace primitives {
 
-using length_t = uint64_t; // as in Segment lengths.
+using length_t = uint64_t; // as in segment or tour lengths.
 using point_id_t = uint32_t;
 using sequence_t = uint32_t;
 using space_t = double; // as in x, y coordinates.

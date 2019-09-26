@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Tour.h"
+#include "tour.hh"
 
 class MulticycleTour : public Tour
 {

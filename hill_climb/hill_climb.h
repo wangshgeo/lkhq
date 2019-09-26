@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Config.h"
-#include "Tour.h"
+#include "tour.hh"
 #include "fileio.h"
 #include "point_quadtree/Node.h"
 #include "primitives.h"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "LengthCalculator.h"
-#include "Tour.h"
+#include "tour.hh"
 #include "primitives.h"
 
 #include <iostream>

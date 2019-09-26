@@ -2,7 +2,7 @@
 
 #include "BrokenEdge.h"
 #include "KMove.h"
-#include "Tour.h"
+#include "tour.hh"
 #include "primitives.h"
 
 #include <algorithm> // sort
