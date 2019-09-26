@@ -7,17 +7,17 @@ CXX_FLAGS += -I./ # include paths.
 
 LINK_FLAGS = -lstdc++fs # filesystem
 
-SRCS = k-opt.cpp Tour.cpp \
-	RandomFinder.cpp \
-    point_quadtree/Node.cpp \
-    point_quadtree/point_quadtree.cpp \
-    point_quadtree/PointInserter.cpp \
-    cycle_check.cpp \
-	MulticycleTour.cpp
+SRCS = k-opt.cc Tour.cc \
+	RandomFinder.cc \
+    point_quadtree/node.cc \
+    point_quadtree/point_quadtree.cc \
+    point_quadtree/point_inserter.cc \
+    cycle_check.cc \
+	MulticycleTour.cc
 
-%.o: %.cpp; $(CXX) $(CXX_FLAGS) -o $@ -c $<
+%.o: %.cc; $(CXX) $(CXX_FLAGS) -o $@ -c $<
 
-OBJS = $(SRCS:.cpp=.o)
+OBJS = $(SRCS:.cc=.o)
 
 all: $(OBJS); $(CXX) $^ $(LINK_FLAGS) -o k-opt.out
 

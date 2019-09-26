@@ -81,13 +81,22 @@ int main(int argc, const char** argv)
 
     if (config.get("basic_hill_climb", false))
     {
-        hill_climb::basic_hill_climb<OptimalFinder>(config, root, tour);
-        const auto new_length = tour.length();
-        std::cout << "hill climb final tour length: " << new_length << "\n\n";
-        write_if_better(new_length);
+        {
+            hill_climb::basic_hill_climb<OptimalFinder>(config, root, tour);
+            const auto new_length = tour.length();
+            std::cout << "hill climb final tour length: " << new_length << "\n\n";
+            write_if_better(new_length);
+        }
 
         double_bridge::swap(tour);
         check::check_tour(tour);
+
+        {
+            hill_climb::basic_hill_climb<OptimalFinder>(config, root, tour);
+            const auto new_length = tour.length();
+            std::cout << "hill climb final tour length: " << new_length << "\n\n";
+            write_if_better(new_length);
+        }
     }
 
     if (config.get("nonsequential", false))
