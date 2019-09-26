@@ -4,12 +4,13 @@
 #include "OptimalFinder.h"
 #include "RandomFinder.h"
 #include "Tour.h"
+#include "check.hh"
+#include "double_bridge.h"
 #include "fileio.h"
 #include "hill_climb.h"
 #include "length_stats.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
-#include "double_bridge.h"
 
 #include <filesystem>
 #include <iostream>
@@ -86,6 +87,7 @@ int main(int argc, const char** argv)
         write_if_better(new_length);
 
         double_bridge::swap(tour);
+        check::check_tour(tour);
     }
 
     if (config.get("nonsequential", false))

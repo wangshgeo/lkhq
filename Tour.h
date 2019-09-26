@@ -37,7 +37,6 @@ public:
     auto next(primitives::point_id_t i) const { return m_next[i]; }
     primitives::point_id_t prev(primitives::point_id_t i) const;
 
-    std::vector<primitives::point_id_t> order() const;
     size_t size() const { return m_next.size(); }
 
     primitives::sequence_t sequence(primitives::point_id_t i, primitives::point_id_t start) const;
