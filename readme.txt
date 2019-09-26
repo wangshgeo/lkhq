@@ -1,3 +1,5 @@
+Code style disclaimer: the style can be a little inconsistent, as there is a migration taking place. See notes below for target style.
+
 This implements k-opt in the style of Lin-Kernighan-Helsgaun (LKH),
     but uses a quadtree to dynamically limit the search.
 This approach is novel because fixed search neighborhoods are typically used.
@@ -8,9 +10,8 @@ Computing alpha-nearness is done once before hill-climbing and takes O(n^2) work
 
 Proof of efficacy of current method:
 1. Using 3-opt hill-climber on first world record (by LKH) of lrb744710 quickly returns improvements.
-    Although is an old world record, it proves that LKH (and LK) gives up k-optimality by arbitrarily fixing search neighborhoods.
+    Although it is an old world record, it proves that LKH (and LK) gives up k-optimality by arbitrarily fixing search neighborhoods.
     http://www.math.uwaterloo.ca/tsp/vlsi/lrb744710.log.html
-
 
 Using a quad tree has the following advantages:
 1. All possible improving steps (deletion of one edge and addition of one edge) are considered.
@@ -40,6 +41,13 @@ Style notes:
 1. Namespaces follow directory structure. If an entire namespace is in a single header file, the header file name will be the namespace name.
 2. Headers are grouped from most to least specific to this repo (e.g. repo header files will come before standard library headers).
 3. Put one line break in between function definitions for convenient vim navigation via ctrl + { and ctrl + }.
+4. Filenames are lower case and underscore-separated.
+5. Header extension is .hh and source extension is .cc.
+6. Reference and pointer symbols are right-associated, e.g. "T &ref" vs. "T& ref".
+7. Exceptions are not caught.
+8. Compile-time constants are capitalized with underscores.
+9. Member variables are indicated as such with trailing underscores.
+10. Scope start brace is not new-line separated.
 
 TODO:
 1. Memoize moves between 2 points that are better than the direct distance between them.

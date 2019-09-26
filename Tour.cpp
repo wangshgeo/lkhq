@@ -28,7 +28,7 @@ void print_short_vec(const std::vector<T>& vec)
     std::cout << std::endl;
 }
 
-primitives::point_id_t Tour::sequence(primitives::point_id_t i, primitives::point_id_t start) const
+primitives::sequence_t Tour::sequence(primitives::point_id_t i, primitives::point_id_t start) const
 {
     auto start_sequence {m_sequence[start]};
     auto raw_sequence {m_sequence[i]};
@@ -141,13 +141,19 @@ void Tour::update_next(const primitives::point_id_t start)
     primitives::point_id_t current {start};
     m_next[current] = m_adjacents[current].front();
     primitives::point_id_t sequence {0};
+    m_order.clear();
+    m_order.reserve(m_next.size());
     do
     {
         auto prev = current;
         m_sequence[current] = sequence++;
+        m_order.push_back(current);
         current = m_next[current];
         m_next[current] = get_other(current, prev);
     } while (current != start); // tour cycle condition.
+    if (m_order.size() != m_next.size()) {
+        throw std::logic_error("m_order was not build up properly.");
+    }
 }
 
 primitives::point_id_t Tour::get_other(primitives::point_id_t point, primitives::point_id_t adjacent) const

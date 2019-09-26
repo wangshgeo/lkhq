@@ -9,6 +9,7 @@
 #include "length_stats.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
+#include "double_bridge.h"
 
 #include <filesystem>
 #include <iostream>
@@ -83,7 +84,10 @@ int main(int argc, const char** argv)
         const auto new_length = tour.length();
         std::cout << "hill climb final tour length: " << new_length << "\n\n";
         write_if_better(new_length);
+
+        double_bridge::swap(tour);
     }
+
     if (config.get("nonsequential", false))
     {
         NonsequentialFinder finder(config, root, tour);

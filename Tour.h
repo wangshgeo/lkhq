@@ -28,6 +28,11 @@ public:
     template <typename PointContainer = std::vector<primitives::point_id_t>>
     void swap(const PointContainer& starts, const PointContainer& ends, const PointContainer& removed_edges);
     void swap(const KMove&);
+    template <typename SequenceContainer = std::vector<primitives::sequence_t>>
+    void swap_sequence(SequenceContainer starts, SequenceContainer ends, SequenceContainer edges_to_remove);
+
+    const auto &next() const { return m_next; }
+    const auto &order() const { return m_order; }
 
     auto next(primitives::point_id_t i) const { return m_next[i]; }
     primitives::point_id_t prev(primitives::point_id_t i) const;
@@ -35,7 +40,7 @@ public:
     std::vector<primitives::point_id_t> order() const;
     size_t size() const { return m_next.size(); }
 
-    primitives::point_id_t sequence(primitives::point_id_t i, primitives::point_id_t start) const;
+    primitives::sequence_t sequence(primitives::point_id_t i, primitives::point_id_t start) const;
 
     const auto& x() const { return m_domain->x(); }
     const auto& y() const { return m_domain->y(); }
@@ -101,7 +106,8 @@ protected:
     const point_quadtree::Domain* m_domain {nullptr};
     std::vector<Adjacents> m_adjacents;
     std::vector<primitives::point_id_t> m_next;
-    std::vector<primitives::point_id_t> m_sequence;
+    std::vector<primitives::sequence_t> m_sequence;
+    std::vector<primitives::point_id_t> m_order;
     BoxMaker m_box_maker;
     LengthCalculator m_length_calculator;
 
@@ -129,5 +135,13 @@ void Tour::swap(const PointContainer& starts, const PointContainer& ends, const 
         create_adjacency(starts[i], ends[i]);
     }
     update_next();
+}
+
+template <typename SequenceContainer>
+void Tour::swap_sequence(SequenceContainer starts, SequenceContainer ends, SequenceContainer edges_to_remove) {
+    std::transform(std::begin(starts), std::end(starts), std::begin(starts), [this](const auto& sequence) { return m_order[sequence]; });
+    std::transform(std::begin(ends), std::end(ends), std::begin(ends), [this](const auto& sequence) { return m_order[sequence]; });
+    std::transform(std::begin(edges_to_remove), std::end(edges_to_remove), std::begin(edges_to_remove), [this](const auto& sequence) { return m_order[sequence]; });
+    swap(starts, ends, edges_to_remove);
 }
 
