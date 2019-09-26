@@ -1,7 +1,7 @@
 #include "Config.h"
 #include "NanoTimer.h"
 #include "hill_climb/NonsequentialFinder.h"
-#include "hill_climb/OptimalFinder.h"
+#include "hill_climb/hill_climber.h"
 #include "hill_climb/RandomFinder.h"
 #include "Tour.h"
 #include "check.hh"
@@ -82,7 +82,7 @@ int main(int argc, const char** argv)
     if (config.get("basic_hill_climb", false))
     {
         {
-            hill_climb::basic_hill_climb<hill_climb::OptimalFinder>(config, root, tour);
+            hill_climb::basic_hill_climb<hill_climb::HillClimber>(config, root, tour);
             const auto new_length = tour.length();
             std::cout << "hill climb final tour length: " << new_length << "\n\n";
             write_if_better(new_length);
@@ -92,7 +92,7 @@ int main(int argc, const char** argv)
         check::check_tour(tour);
 
         {
-            hill_climb::basic_hill_climb<hill_climb::OptimalFinder>(config, root, tour);
+            hill_climb::basic_hill_climb<hill_climb::HillClimber>(config, root, tour);
             const auto new_length = tour.length();
             std::cout << "hill climb final tour length: " << new_length << "\n\n";
             write_if_better(new_length);
