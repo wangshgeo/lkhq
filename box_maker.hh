@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Box.h"
-#include "primitives.h"
+#include "primitives.hh"
 
 #include <vector>
 

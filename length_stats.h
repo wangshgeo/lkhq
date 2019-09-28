@@ -1,8 +1,8 @@
 #pragma once
 
-#include "LengthCalculator.h"
+#include "length_calculator.hh"
 #include "tour.hh"
-#include "primitives.h"
+#include "primitives.hh"
 
 #include <iostream>
 #include <map>

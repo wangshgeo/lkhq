@@ -3,7 +3,7 @@
 // Only leaf nodes have points.
 
 #include <Box.h>
-#include <primitives.h>
+#include <primitives.hh>
 
 #include <algorithm> // all_of
 #include <array>

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "BrokenEdge.h"
-#include "KMove.h"
+#include "kmove.hh"
 #include "tour.hh"
-#include "primitives.h"
+#include "primitives.hh"
 
 #include <algorithm> // sort
 #include <stdexcept>

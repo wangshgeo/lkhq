@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GenericFinder.h"
-#include "primitives.h"
+#include "primitives.hh"
 
 #include <algorithm> // max, random_shuffle
 #include <iostream>

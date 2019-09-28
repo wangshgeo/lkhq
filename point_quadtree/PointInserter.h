@@ -2,10 +2,10 @@
 
 #include "Domain.h"
 #include "GridPosition.h"
-#include "Node.h"
+#include "node.hh"
 #include "morton_keys.h"
 #include <constants.h>
-#include <primitives.h>
+#include <primitives.hh>
 
 #include <stdexcept>
 #include <vector>

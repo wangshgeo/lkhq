@@ -1,7 +1,7 @@
 #pragma once
 
 #include <constants.h>
-#include <primitives.h>
+#include <primitives.hh>
 #include <iostream>
 
 struct BrokenEdge

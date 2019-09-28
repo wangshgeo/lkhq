@@ -1,8 +1,8 @@
 #pragma once
 
-#include "primitives.h"
+#include "primitives.hh"
 
-#include <cmath> // sqrt
+#include <cmath>
 #include <vector>
 
 class LengthCalculator

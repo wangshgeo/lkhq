@@ -1,9 +1,8 @@
 #pragma once
 
 #include "tour.hh"
-#include "primitives.h"
+#include "primitives.hh"
 #include "constants.h"
-
 
 class BestKeeper {
  public:

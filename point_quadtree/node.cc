@@ -1,4 +1,4 @@
-#include "Node.h"
+#include "node.hh"
 
 namespace point_quadtree {
 

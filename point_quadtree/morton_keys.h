@@ -5,7 +5,7 @@
 
 #include "Domain.h"
 #include <constants.h>
-#include <primitives.h>
+#include <primitives.hh>
 
 #include <algorithm>
 #include <cstdint>

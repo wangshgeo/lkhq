@@ -1,4 +1,4 @@
-#include "cycle_check.h"
+#include "cycle_check.hh"
 
 namespace cycle_check {
 

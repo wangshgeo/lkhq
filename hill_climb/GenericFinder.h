@@ -1,14 +1,14 @@
 #pragma once
 
-#include "BoxMaker.h"
+#include "box_maker.hh"
 #include "Config.h"
-#include "KMargin.h"
-#include "KMove.h"
+#include "kmargin.hh"
+#include "kmove.hh"
 #include "tour.hh"
 #include "constants.h"
-#include "cycle_check.h"
-#include "point_quadtree/Node.h"
-#include "primitives.h"
+#include "cycle_check.hh"
+#include "point_quadtree/node.hh"
+#include "primitives.hh"
 
 #include <array>
 #include <optional>

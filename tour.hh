@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Box.h"
-#include "BoxMaker.h"
-#include "KMove.h"
-#include "LengthCalculator.h"
+#include "box_maker.hh"
+#include "kmove.hh"
+#include "length_calculator.hh"
 #include "constants.h"
 #include "point_quadtree/Domain.h"
-#include "point_quadtree/Node.h"
-#include "primitives.h"
+#include "point_quadtree/node.hh"
+#include "primitives.hh"
 
 #include <algorithm> // fill
 #include <array>

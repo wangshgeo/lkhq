@@ -2,11 +2,11 @@
 
 #include "Domain.h"
 #include "GridPosition.h"
-#include "Node.h"
+#include "node.hh"
 #include "PointInserter.h"
 #include "morton_keys.h"
 #include <Box.h>
-#include <primitives.h>
+#include <primitives.hh>
 
 namespace point_quadtree {
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Domain.h"
-#include "primitives.h"
+#include "primitives.hh"
 #include <Box.h>
 
 namespace point_quadtree {
