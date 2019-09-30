@@ -26,7 +26,7 @@ x = [c[0] for c in coordinates]
 y = [c[1] for c in coordinates]
 plt.plot(x, y, "xk")
 
-def read_and_plot_tour(tour_file_path, color):
+def read_and_plot_tour(coordinates, tour_file_path, markers):
     tour = []
     with open(tour_file_path, "r") as f:
         for line in f:
@@ -42,10 +42,10 @@ def read_and_plot_tour(tour_file_path, color):
     for i in range(len(tour) - 1):
         c = coordinates[tour[i] - 1]
         n = coordinates[tour[i + 1] - 1]
-        plt.plot([c[0], n[0]], [c[1], n[1]], color)
+        plt.plot([c[0], n[0]], [c[1], n[1]], markers)
     c = coordinates[tour[-1] - 1]
     n = coordinates[tour[0] - 1]
-    plt.plot([c[0], n[0]], [c[1], n[1]], color)
+    plt.plot([c[0], n[0]], [c[1], n[1]], markers)
     plt.axis("equal")
 
 print("plotting tours.")

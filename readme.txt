@@ -8,6 +8,9 @@ LKH limits search to 5 "alpha-nearest" points.
 Alpha-nearness measures the similarity of new edges to those in a minimum spanning tree.
 Computing alpha-nearness is done once before hill-climbing and takes O(n^2) work.
 
+LKH gives up sequential-move k-optimality. This implementation preserves sequential-move k-optimality.
+Note that sequential-move k-optimality is equivalent to k-optimality for k in [2, 3].
+
 Proof of efficacy of current method:
 1. Using 3-opt hill-climber on first world record (by LKH) of lrb744710 quickly returns improvements.
     Although it is an old world record, it proves that LKH (and LK) gives up k-optimality by arbitrarily fixing search neighborhoods.

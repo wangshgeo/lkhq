@@ -1,19 +1,22 @@
 #include "Config.h"
 #include "NanoTimer.h"
 #include "hill_climb/NonsequentialFinder.h"
-#include "hill_climb/hill_climber.hh"
+#include "hill_climber.hh"
+#include "hill_climb.hh"
 #include "hill_climb/RandomFinder.h"
 #include "tour.hh"
+#include "perturb.hh"
 #include "check.hh"
+#include "merge/merge.hh"
 #include "randomize/double_bridge.h"
 #include "fileio.h"
-#include "hill_climb/hill_climb.h"
 #include "length_stats.h"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
 
 #include <filesystem>
 #include <iostream>
+#include <fstream>
 
 int main(int argc, const char** argv)
 {
@@ -80,70 +83,22 @@ int main(int argc, const char** argv)
     };
 
     PointSet point_set(root, x, y);
-    hill_climb::HillClimber hill_climber(point_set);
     if (config.get("basic_hill_climb", false))
     {
-        const auto log_hillclimb = config.get<bool>("log_hillclimb", false);
-        int iteration{0};
         const auto kmax = config.get<size_t>("kmax", 3);
-        auto kmove = hill_climber.find_best(tour, kmax);
-        while (kmove) {
-            tour.swap(*kmove);
-            if (log_hillclimb)
-            {
-                std::cout << "iteration " << iteration << " current tour length: " << tour.length() << std::endl;
-            }
-            kmove = hill_climber.find_best(tour, kmax);
-            ++iteration;
+        auto new_length = hill_climb::hill_climb(point_set, tour, kmax);
+        if (new_length < best_length) {
+            best_length = new_length;
+            std::cout << "improvement: " << new_length << std::endl;
         }
-        const auto final_length = tour.length();
-        if (log_hillclimb)
-        {
-            std::cout << "tour length after hill-climb: " << final_length
-                << " (" << iteration << " iterations)" << std::endl;
-        }
-        write_if_better(final_length);
-
-        randomize::double_bridge::swap(tour);
-        check::check_tour(tour);
-
-    }
-
-    if (config.get("nonsequential", false))
-    {
-        hill_climb::NonsequentialFinder finder(config, root, tour);
-        finder.find_best();
-        finder.find_best_nonsequential();
-        const auto new_length = tour.length();
-        std::cout << "nonsequential final tour length: " << new_length << "\n\n";
         write_if_better(new_length);
+
+        const auto new_tour = perturb::perturb(point_set, tour, kmax);
+        check::check_tour(new_tour);
+        write_if_better(new_tour.length());
+
+        merge::merge(tour, new_tour);
     }
 
-    if (config.get("random_finder", false))
-    {
-        while (true)
-        {
-            hill_climb::basic_hill_climb<hill_climb::RandomFinder>(config, root, tour);
-            const auto new_length = tour.length();
-            std::cout << "hill climb final tour length: " << new_length << "\n\n";
-            write_if_better(new_length);
-        }
-    }
-
-    if (config.get("experimental", false))
-    {
-    }
-
-    const auto validate_tour = config.get("validate_tour", false);
-    if (validate_tour)
-    {
-        tour.validate();
-    }
-    std::cout << "Final tour length: " << tour.length() << std::endl;
-    const auto print_length_stats = config.get("length_stats", false);
-    if (print_length_stats)
-    {
-        length_stats::print_lengths(tour);
-    }
-    return 0;
+    return EXIT_SUCCESS;
 }

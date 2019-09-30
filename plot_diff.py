@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
+import plot_util
 
 import sys
 
@@ -8,21 +9,7 @@ if len(sys.argv) < 4:
     print("inputs: point_file_path first_tour_file_path second_tour_file_path")
     sys.exit()
 
-def read_point_file_path(point_file_path):
-    coordinates = []
-    with open(point_file_path, "r") as f:
-        for line in f:
-            if "NODE_COORD_SECTION" in line:
-                break
-        for line in f:
-            line = line.strip()
-            if "EOF" in line or not line:
-                break
-            fields = line.strip().split()
-            coordinates.append((float(fields[1]), float(fields[2])))
-    return coordinates
-
-coordinates = read_point_file_path(sys.argv[1])
+coordinates = plot_util.read_point_file_path(sys.argv[1])
 x = [c[0] for c in coordinates]
 y = [c[1] for c in coordinates]
 plt.plot(x, y, "xk")

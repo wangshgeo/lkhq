@@ -8,6 +8,8 @@ CXX_FLAGS += -I./ # include paths.
 LINK_FLAGS = -lstdc++fs # filesystem
 
 SRCS = k-opt.cc tour.cc \
+	merge/merge.cc merge/edge_map.cc merge/exchange_pair.cc \
+	hill_climber.cc \
 	best_keeper.cc \
 	hill_climb/RandomFinder.cc \
     point_quadtree/node.cc \

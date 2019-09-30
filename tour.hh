@@ -56,6 +56,8 @@ public:
 
     Box search_box(primitives::point_id_t i, primitives::length_t radius) const;
 
+    const auto &adjacents() const { return m_adjacents; }
+
     // throws if invalid tour.
     void validate() const;
 
