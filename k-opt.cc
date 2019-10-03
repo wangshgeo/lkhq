@@ -93,11 +93,14 @@ int main(int argc, const char** argv)
         }
         write_if_better(new_length);
 
-        const auto new_tour = perturb::perturb(point_set, tour, kmax);
-        check::check_tour(new_tour);
-        write_if_better(new_tour.length());
-
-        merge::merge(tour, new_tour);
+        //auto new_tour = perturb::perturb(point_set, tour, kmax);
+        while (true) {
+            //new_tour = perturb::perturb(point_set, new_tour, kmax);
+            const auto new_tour = perturb::perturb(point_set, tour, kmax);
+            check::check_tour(new_tour);
+            write_if_better(new_tour.length());
+            merge::merge(tour, new_tour);
+        }
     }
 
     return EXIT_SUCCESS;

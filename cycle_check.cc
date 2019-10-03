@@ -2,7 +2,80 @@
 
 namespace cycle_check {
 
-size_t count_cycles(const Tour& tour, const KMove& kmove)
+namespace {
+
+// sort deleted edges by sequence number.
+std::vector<BrokenEdge> sorted_removes(const Tour &tour
+    , const std::vector<primitives::point_id_t> &removes) {
+    std::vector<BrokenEdge> deleted_edges;
+    for (auto p : removes)
+    {
+        const auto sequence {tour.sequence(p, removes[0])};
+        const auto first {p};
+        const auto second {tour.next(p)};
+        deleted_edges.push_back({first, second, sequence});
+    }
+    std::sort(std::begin(deleted_edges), std::end(deleted_edges)
+        , [](const auto& lhs, const auto& rhs) { return lhs.sequence < rhs.sequence; });
+    return deleted_edges;
+}
+
+// map points to up to 2 points making up new edges.
+std::unordered_map<primitives::point_id_t, std::vector<primitives::point_id_t>>
+compute_new_edge_connectivity(const std::vector<primitives::point_id_t> &starts
+    , const std::vector<primitives::point_id_t> &ends) {
+    std::unordered_map<primitives::point_id_t, std::vector<primitives::point_id_t>> new_edges;
+    for (size_t i {0}; i < starts.size(); ++i)
+    {
+        new_edges[starts[i]].push_back(ends[i]);
+        new_edges[ends[i]].push_back(starts[i]);
+    }
+    for (const auto& pair : new_edges)
+    {
+        // TODO: remove this check after verified.
+        // There can be 1 or 2 new edges incident to any point.
+        if (pair.second.size() > 2)
+        {
+            throw std::logic_error("too many adjacent points");
+        }
+    }
+    return new_edges;
+}
+
+// map constituent points of deleted edges to sequence.
+std::unordered_map<primitives::point_id_t, size_t>
+compute_sequence(const std::vector<BrokenEdge> &deleted_edges)
+{
+    std::unordered_map<primitives::point_id_t, size_t> deleted_edge_order;
+    for (size_t i {0}; i < deleted_edges.size(); ++i)
+    {
+        deleted_edge_order[deleted_edges[i].first] = i;
+        deleted_edge_order[deleted_edges[i].second] = i;
+    }
+    return deleted_edge_order;
+}
+
+bool breaks_cycle_(const std::vector<BrokenEdge>& deleted_edges
+    , const std::unordered_map<primitives::point_id_t, std::vector<primitives::point_id_t>>& new_edges) {
+    const auto sequence = compute_sequence(deleted_edges);
+    std::unordered_set<primitives::point_id_t> visited;
+    visit_cycle(sequence, deleted_edges, new_edges, visited);
+    return visited.size() != sequence.size();
+}
+
+}  // namespace
+
+bool breaks_cycle(const Tour &tour, const KMove &kmove) {
+    const auto deleted_edges = sorted_removes(tour, kmove.removes);
+    if (kmove.starts.size() != deleted_edges.size())
+    {
+        throw std::logic_error("number of deleted edges does not equal number of new edges.");
+    }
+    const auto new_edges = compute_new_edge_connectivity(kmove.starts, kmove.ends);
+    return breaks_cycle_(deleted_edges, new_edges);
+}
+
+size_t count_cycles(const Tour &tour, const KMove &kmove)
 {
     const auto deleted_edges = sorted_removes(tour, kmove.removes);
     if (kmove.starts.size() != deleted_edges.size())
@@ -16,8 +89,7 @@ size_t count_cycles(const Tour& tour, const KMove& kmove)
 void visit_cycle(const std::unordered_map<primitives::point_id_t, size_t>& sequence
     , const std::vector<BrokenEdge>& deleted_edges
     , const std::unordered_map<primitives::point_id_t, std::vector<primitives::point_id_t>>& new_edges
-    , std::unordered_set<primitives::point_id_t>& visited)
-{
+    , std::unordered_set<primitives::point_id_t>& visited) {
     primitives::point_id_t current {constants::invalid_point};
     for (const auto& pair : sequence)
     {
@@ -163,56 +235,6 @@ bool feasible(const Tour& tour
         ++visited;
     } while (current != start and visited < max_visited);
     return current == start and visited == max_visited;
-}
-
-std::vector<BrokenEdge> sorted_removes(const Tour& tour
-    , const std::vector<primitives::point_id_t>& removes)
-{
-    std::vector<BrokenEdge> deleted_edges;
-    for (auto p : removes)
-    {
-        const auto sequence {tour.sequence(p, removes[0])};
-        const auto first {p};
-        const auto second {tour.next(p)};
-        deleted_edges.push_back({first, second, sequence});
-    }
-    std::sort(std::begin(deleted_edges), std::end(deleted_edges)
-        , [](const auto& lhs, const auto& rhs) { return lhs.sequence < rhs.sequence; });
-    return deleted_edges;
-}
-
-std::unordered_map<primitives::point_id_t, size_t>
-compute_sequence(const std::vector<BrokenEdge>& deleted_edges)
-{
-    std::unordered_map<primitives::point_id_t, size_t> deleted_edge_order;
-    for (size_t i {0}; i < deleted_edges.size(); ++i)
-    {
-        deleted_edge_order[deleted_edges[i].first] = i;
-        deleted_edge_order[deleted_edges[i].second] = i;
-    }
-    return deleted_edge_order;
-}
-
-std::unordered_map<primitives::point_id_t, std::vector<primitives::point_id_t>>
-compute_new_edge_connectivity(const std::vector<primitives::point_id_t>& starts
-    , const std::vector<primitives::point_id_t>& ends)
-{
-    std::unordered_map<primitives::point_id_t, std::vector<primitives::point_id_t>> new_edges;
-    for (size_t i {0}; i < starts.size(); ++i)
-    {
-        new_edges[starts[i]].push_back(ends[i]);
-        new_edges[ends[i]].push_back(starts[i]);
-    }
-    for (const auto& pair : new_edges)
-    {
-        // TODO: remove this check after verified.
-        // There can be 1 or 2 new edges incident to any point.
-        if (pair.second.size() > 2)
-        {
-            throw std::logic_error("too many adjacent points");
-        }
-    }
-    return new_edges;
 }
 
 } // namespace cycle_check

@@ -3,6 +3,8 @@
 #include "edge_map.hh"
 
 #include <vector>
+#include <optional>
+#include <iostream>
 #include <primitives.hh>
 
 #include <length_calculator.hh>
@@ -11,10 +13,19 @@ namespace merge {
 
 struct ExchangePair {
     EdgeMap current, candidate;
-    int improvement{0};
+    std::optional<int> improvement{std::nullopt};
 
     bool empty() const { return current.empty() and candidate.empty(); }
     int compute_improvement(const std::vector<primitives::space_t> &x, const std::vector<primitives::space_t> &y);
+
+    size_t edge_count() const {
+        if (current.edge_count() != candidate.edge_count()) {
+            std::cout << current.edge_count() << ", " << candidate.edge_count() << std::endl;
+            throw std::logic_error("inconsistent edge count in exchange pair.");
+        }
+        return current.edge_count();
+    }
+
  private:
     template <typename EdgePair>
     int cost(const EdgePair &edge_pair, const LengthCalculator &calc) const;

@@ -30,6 +30,8 @@ struct EdgeMap {
     bool empty() const { return map_.empty(); }
     const auto &map() const { return map_; }
 
+    size_t edge_count() const { return edge_count_; }
+
  private:
     std::optional<Edges> pop_edges(const Point &i);
 
@@ -42,6 +44,8 @@ struct EdgeMap {
 
     // Maps each point to the edges that said point is a part of. Each edge is stored twice, once for each point.
     std::unordered_map<Point, IncidentEdges> map_;
+
+    size_t edge_count_{0};
 
 };
 

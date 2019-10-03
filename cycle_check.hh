@@ -26,26 +26,15 @@ inline bool feasible(const Tour& tour, const KMove& kmove)
     return feasible(tour, kmove.starts, kmove.ends, kmove.removes);
 }
 
+bool breaks_cycle(const Tour&, const KMove&);
 size_t count_cycles(const Tour&, const KMove&);
 size_t count_cycles(const std::vector<BrokenEdge>& deleted_edges
     , const std::unordered_map<primitives::point_id_t, std::vector<primitives::point_id_t>>& new_edges);
 
 void visit_cycle(const std::unordered_map<primitives::point_id_t, size_t>& sequence
     , const std::vector<BrokenEdge>& deleted_edges
+    , const std::unordered_map<primitives::point_id_t, std::vector<primitives::point_id_t>>& new_edges
     , std::unordered_set<primitives::point_id_t>& visited);
-
-// sort deleted edges by sequence number.
-std::vector<BrokenEdge> sorted_removes(const Tour&
-    , const std::vector<primitives::point_id_t>& removes);
-
-// map constituent points of deleted edges to sequence.
-std::unordered_map<primitives::point_id_t, size_t>
-compute_sequence(const std::vector<BrokenEdge>& deleted_edges);
-
-// map points to up to 2 points making up new edges.
-std::unordered_map<primitives::point_id_t, std::vector<primitives::point_id_t>>
-compute_new_edge_connectivity(const std::vector<primitives::point_id_t>& starts
-    , const std::vector<primitives::point_id_t>& ends);
 
 } // namespace cycle_check
 

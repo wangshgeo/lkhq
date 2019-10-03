@@ -35,6 +35,7 @@ auto EdgeMap::insert(const Edges &edges) -> std::optional<Points> {
 bool EdgeMap::insert(primitives::point_id_t i, const Edge &edge) {
     if (map_.find(i) == std::cend(map_)) {
         map_[i].first = edge;
+        ++edge_count_;
         return true;
     }
     // accept insertion of duplicates.
@@ -48,6 +49,7 @@ bool EdgeMap::insert(primitives::point_id_t i, const Edge &edge) {
         throw std::logic_error("attempted to overfill an entry.");
     }
     map_[i].second = edge;
+    ++edge_count_;
     return false;
 }
 
@@ -59,6 +61,7 @@ auto EdgeMap::pop_edge() -> Edge {
 }
 
 void EdgeMap::remove_edges(const Edge &edge) {
+    --edge_count_;
     remove_edge(edge.first, edge);
     remove_edge(edge.second, edge);
 }
@@ -89,9 +92,11 @@ auto EdgeMap::pop_edges(const Point &i) -> std::optional<Edges> {
     map_.erase(it);
     EdgeMap::Edges edges;
     if (edge_pair.first) {
+        --edge_count_;
         edges.push_back(*edge_pair.first);
     }
     if (edge_pair.second) {
+        --edge_count_;
         edges.push_back(*edge_pair.second);
     }
     return edges;

@@ -2,7 +2,11 @@
 
 #include "edge_map.hh"
 #include "exchange_pair.hh"
+#include "combinator.hh"
+#include "cycle_util.hh"
+#include <kmove.hh>
 #include <length_calculator.hh>
+#include <cycle_check.hh>
 
 #include <fstream>
 
@@ -16,6 +20,32 @@ std::pair<primitives::point_id_t, primitives::point_id_t> sorted_pair(
     primitives::point_id_t i) {
     const auto &a = adjacents[i];
     return {std::min(a[0], a[1]), std::max(a[0], a[1])};
+}
+
+// checks if input set is an incrementing sequence duplicates are accepted.
+bool is_sequence(std::vector<primitives::point_id_t> &point_container, primitives::point_id_t end) {
+    // first check wrap-around.
+    auto prev = *std::cbegin(point_container);
+    constexpr primitives::point_id_t LOWEST_VALUE{0};
+    if (prev == LOWEST_VALUE) {
+        for (auto &point : point_container) {
+            const auto diff = point - prev;
+            if (diff != 1 and diff != 0) {
+                break;
+            }
+            point += end;
+            prev = point;
+        }
+    }
+    // now check for simple incrementing sequence.
+    for (const auto &point : point_container) {
+        const auto diff = point - prev;
+        if (diff != 1 and diff != 0) {
+            return false;
+        }
+        prev = point;
+    }
+    return true;
 }
 
 }  // namespace
@@ -83,7 +113,13 @@ std::vector<ExchangePair> disjoin(const EdgeSet &current_edges, const EdgeSet &c
 
 void merge(const Tour &current_tour, const Tour &candidate_tour) {
     const auto [old_edges, new_edges] = merge::edge_differences(current_tour, candidate_tour);
+    if (old_edges.size() != new_edges.size()) {
+        throw std::logic_error("edge diff set does not comprise of the same number of edges from both tours.");
+    }
     std::cout << "edge diff count: " << old_edges.size() << std::endl;
+    if (old_edges.empty()) {
+        return;
+    }
 
     std::ofstream old_edge_file("output/old_edges.txt", std::ofstream::out);
     for (const auto &e : old_edges) {
@@ -95,10 +131,44 @@ void merge(const Tour &current_tour, const Tour &candidate_tour) {
     }
 
     auto exchanges = disjoin(old_edges, new_edges);
+    const auto original_exchange_size = exchanges.size();
+
+    // compute improvements for each exchange.
+    std::sort(std::begin(exchanges), std::end(exchanges), [&current_tour](auto &lhs, auto &rhs) {
+        return lhs.compute_improvement(current_tour.x(), current_tour.y()) > rhs.compute_improvement(current_tour.x(), current_tour.y());
+    });
+    // check to see if exchange pair is useless, meaning zero-cost and non-cycle-breaking.
+    // returns true if useless, e.g. should be excluded.
+    const auto useless = [&current_tour, &candidate_tour](const ExchangePair &ex) {
+        if (*ex.improvement > 0) {
+            return false;
+        }
+        std::vector<primitives::point_id_t> sequence;
+        for (const auto &pair : ex.candidate.map()) {
+            constexpr primitives::point_id_t START_POINT{0};
+            sequence.push_back(current_tour.sequence(pair.first, START_POINT));
+        }
+        std::sort(std::begin(sequence), std::end(sequence));
+        return is_sequence(sequence, current_tour.size()) or !cycle_util::breaks_cycle(current_tour, candidate_tour, ex);
+    };
+    exchanges.erase(std::remove_if(std::begin(exchanges), std::end(exchanges), useless), std::end(exchanges));
+    // max gain, exclude too-low edges.
+    const int max_total_improvement = std::accumulate(std::cbegin(exchanges), std::cend(exchanges), int(0), [](int sum, const auto &ex) { return sum + std::max(*ex.improvement, 0); });
+    std::cout << "max total improvement: " << max_total_improvement << std::endl;
+    exchanges.erase(std::remove_if(std::begin(exchanges), std::end(exchanges), [max_total_improvement](const auto &ex) { return *ex.improvement + max_total_improvement <= 0; }), std::end(exchanges));
+    std::cout << "removed " << original_exchange_size - exchanges.size() << " useless exchange(s).\n";
     std::cout << exchanges.size() << " distinct exchange(s)." << std::endl;
+    size_t i{0};
     for (auto &ex : exchanges) {
-        std::cout << "improvement: " << ex.compute_improvement(current_tour.x(), current_tour.y()) << std::endl;
+        std::cout << i << ": improvement: " << ex.compute_improvement(current_tour.x(), current_tour.y()) << " ("
+            << ex.edge_count() << " edges, breaks cycle: "
+            << cycle_util::breaks_cycle(current_tour, candidate_tour, ex) << ")" << std::endl;
+        ++i;
     }
+
+    Combinator combinator(exchanges, current_tour, candidate_tour);
+    combinator.find();
+    std::cout << "combo count: " << combinator.combo_count() << std::endl;
 }
 
 }  // namespace merge
