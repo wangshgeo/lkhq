@@ -3,16 +3,15 @@
 #include "primitives.hh"
 
 #include <iostream>
+#include <algorithm>
 
-struct Box
-{
+struct Box {
     primitives::space_t xmin {0};
     primitives::space_t xmax {0};
     primitives::space_t ymin {0};
     primitives::space_t ymax {0};
 
-    bool touches(const Box& other) const
-    {
+    bool touches(const Box& other) const {
         // TODO: tolerance?
         bool too_high   {ymin > other.ymax};
         bool too_low    {ymax < other.ymin};
@@ -21,10 +20,17 @@ struct Box
         bool outside {too_high or too_low or left or right};
         return not outside;
     }
+
+    // if x, y is not in this box, the box is enlarged to contain it.
+    void include(double x, double y) {
+        xmin = std::min(x, xmin);
+        xmax = std::max(x, xmax);
+        ymin = std::min(y, ymin);
+        ymax = std::max(y, ymax);
+    }
 };
 
-inline auto& operator<<(std::ostream& o, const Box& b)
-{
+inline auto& operator<<(std::ostream& o, const Box& b) {
     o << "(" << b.xmin << ", " << b.ymin << ") "
         << "(" << b.xmax << ", " << b.ymax << ")" << std::endl;
     return o;
