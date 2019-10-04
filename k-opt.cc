@@ -27,18 +27,16 @@ int main(int argc, const char** argv)
     }
 
     // Config file (currently fixed).
-    constexpr char config_path[] = "config.txt";
-    std::cout << "Reading config file: " << config_path << std::endl;
-    Config config(config_path);
-    if (config.has("output_filename"))
-    {
-        const std::filesystem::path output_path(config.get("output_filename"));
-        const auto parent_path = output_path.parent_path();
-        if (not std::filesystem::exists(parent_path))
-        {
-            std::filesystem::create_directory(parent_path);
-        }
+    constexpr char CONFIG_PATH[] = "config.txt";
+    std::cout << "Reading config file: " << CONFIG_PATH << std::endl;
+    Config config(CONFIG_PATH);
+
+    const std::filesystem::path SAVE_DIR("./saves");
+    if (not std::filesystem::exists(SAVE_DIR)) {
+        std::filesystem::create_directory(SAVE_DIR);
     }
+    const std::filesystem::path tsp_file_path(argv[1]);
+    const auto &save_prefix = tsp_file_path.stem().string();
 
     // Read input files.
     const auto [x, y] = fileio::read_coordinates(argv[1]);
@@ -68,13 +66,14 @@ int main(int argc, const char** argv)
     std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds.\n\n";
 
     auto best_length = initial_tour_length;
-    auto write_if_better = [&config, &tour, &best_length](primitives::length_t new_length)
+    auto write_if_better = [&config, &tour, &best_length, &SAVE_DIR, &save_prefix](primitives::length_t new_length)
     {
         if (new_length < best_length)
         {
             if (config.get("write_best", false))
             {
-                fileio::write_ordered_points(tour.order(), config.get("output_filename"));
+                const auto &save_path = SAVE_DIR / (save_prefix + '_' + std::to_string(new_length) + ".tour");
+                fileio::write_ordered_points(tour.order(), save_path);
             }
             best_length = new_length;
         }
