@@ -79,6 +79,7 @@ int main(int argc, const char** argv)
             {
                 fileio::write_ordered_points(tour.order(), config.get("output_filename"));
             }
+            best_length = new_length;
         }
     };
 
@@ -93,13 +94,13 @@ int main(int argc, const char** argv)
         }
         write_if_better(new_length);
 
-        //auto new_tour = perturb::perturb(point_set, tour, kmax);
         while (true) {
-            //new_tour = perturb::perturb(point_set, new_tour, kmax);
             const auto new_tour = perturb::perturb(point_set, tour, kmax);
             check::check_tour(new_tour);
             write_if_better(new_tour.length());
             merge::merge(tour, new_tour);
+            write_if_better(tour.length());
+            std::cout << "best length: " << best_length << std::endl;
         }
     }
 

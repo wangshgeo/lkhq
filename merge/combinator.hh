@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 
 #include "cycle_util.hh"
 #include "exchange_pair.hh"
@@ -23,35 +24,43 @@ class Combinator {
         }
         combo_.push_back(i);
         margin_ += improvement;
-        print_combo();
+        check_combo();
         find(i + 1); // try with this.
         combo_.pop_back();
         margin_ -= improvement;
         find(i + 1); // try without this.
     }
 
-    size_t combo_count() const { return combo_count_; }
+    size_t viable_count() const { return viable_count_; }
+    const auto &best_combo() const { return best_combo_; }
+    const auto &best_improvement() const { return best_improvement_; }
 
  private:
     const std::vector<ExchangePair> &exchange_pairs_;
     const Tour &best_tour_;
     const Tour &candidate_tour_;
 
-    std::vector<size_t> combo_;
+    using Combo = std::vector<size_t>;
+    Combo combo_;
+    std::optional<int> best_improvement_;
+    std::optional<Combo> best_combo_;
     int margin_{0};
-    size_t combo_count_{0};
+    size_t viable_count_{0};
 
-    void print_combo() {
+    void check_combo() {
         const auto breaks_cycle = cycle_util::breaks_cycle(best_tour_, candidate_tour_, exchange_pairs_, combo_);
         if (breaks_cycle) {
             return;
         }
-        throw std::logic_error("found!");
-        ++combo_count_;
-        for (const auto &i : combo_) {
-            std::cout << i << " ";
+        ++viable_count_;
+        if (not best_improvement_ or margin_ > *best_improvement_) {
+            best_combo_ = std::make_optional<Combo>(combo_);
+            best_improvement_ = std::make_optional(margin_);
+            for (const auto &i : *best_combo_) {
+                std::cout << i << " ";
+            }
+            std::cout << std::endl;
         }
-        std::cout << std::endl;
     }
 };
 

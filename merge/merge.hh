@@ -20,6 +20,6 @@ std::pair<EdgeSet, EdgeSet> edge_differences(const Tour &tour1, const Tour &tour
 ExchangePair disjoin(ExchangePair &base);
 std::vector<ExchangePair> disjoin(const EdgeSet &current, const EdgeSet &candidate);
 
-void merge(const Tour &current_tour, const Tour &candidate_tour);
+void merge(Tour &current_tour, const Tour &candidate_tour);
 
 }  // namespace merge

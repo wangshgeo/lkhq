@@ -111,7 +111,7 @@ std::vector<ExchangePair> disjoin(const EdgeSet &current_edges, const EdgeSet &c
     return exchange_pairs;
 }
 
-void merge(const Tour &current_tour, const Tour &candidate_tour) {
+void merge(Tour &current_tour, const Tour &candidate_tour) {
     const auto [old_edges, new_edges] = merge::edge_differences(current_tour, candidate_tour);
     if (old_edges.size() != new_edges.size()) {
         throw std::logic_error("edge diff set does not comprise of the same number of edges from both tours.");
@@ -131,19 +131,28 @@ void merge(const Tour &current_tour, const Tour &candidate_tour) {
     }
 
     auto exchanges = disjoin(old_edges, new_edges);
+    if (exchanges.empty()) {
+        return;
+    }
+
     const auto original_exchange_size = exchanges.size();
 
     // compute improvements for each exchange.
     std::sort(std::begin(exchanges), std::end(exchanges), [&current_tour](auto &lhs, auto &rhs) {
         return lhs.compute_improvement(current_tour.x(), current_tour.y()) > rhs.compute_improvement(current_tour.x(), current_tour.y());
     });
+
+    if (exchanges.front().compute_improvement(current_tour.x(), current_tour.y()) < 0) {
+        return;
+    }
+
     // check to see if exchange pair is useless, meaning zero-cost and non-cycle-breaking.
     // returns true if useless, e.g. should be excluded.
     const auto useless = [&current_tour, &candidate_tour](const ExchangePair &ex) {
         if (*ex.improvement > 0) {
             return false;
         }
-        std::vector<primitives::point_id_t> sequence;
+        std::vector<primitives::sequence_t> sequence;
         for (const auto &pair : ex.candidate.map()) {
             constexpr primitives::point_id_t START_POINT{0};
             sequence.push_back(current_tour.sequence(pair.first, START_POINT));
@@ -168,7 +177,16 @@ void merge(const Tour &current_tour, const Tour &candidate_tour) {
 
     Combinator combinator(exchanges, current_tour, candidate_tour);
     combinator.find();
-    std::cout << "combo count: " << combinator.combo_count() << std::endl;
+    std::cout << "viable combos: " << combinator.viable_count() << std::endl;
+    if (combinator.best_combo()) {
+        const auto old_length = current_tour.length();
+        const auto &kmove = cycle_util::to_kmove(current_tour, candidate_tour, exchanges, *combinator.best_combo());
+        current_tour.swap(kmove);
+        const auto new_length = current_tour.length();
+        if (static_cast<int>(old_length) - static_cast<int>(new_length) != *combinator.best_improvement()) {
+            throw std::logic_error("Tour length after swap is inconsistent with expected improvement.");
+        }
+    }
 }
 
 }  // namespace merge

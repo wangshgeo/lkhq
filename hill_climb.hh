@@ -12,12 +12,14 @@ namespace hill_climb {
 inline primitives::length_t hill_climb(const PointSet &point_set, Tour &tour, size_t kmax) {
     HillClimber hill_climber(point_set);
     auto kmove = hill_climber.find_best(tour, kmax);
+    int iterations{0};
     while (kmove) {
         tour.swap(*kmove);
         kmove = hill_climber.find_best(tour, kmax);
+        ++iterations;
     }
     const auto length = tour.length();
-    std::cout << "tour length: " << length << std::endl;
+    std::cout << "tour length after " << iterations << " iterations: " << length << std::endl;
     return length;
 }
 
