@@ -4,12 +4,13 @@
 
 #include <iostream>
 #include <algorithm>
+#include <limits>
 
 struct Box {
-    primitives::space_t xmin {0};
-    primitives::space_t xmax {0};
-    primitives::space_t ymin {0};
-    primitives::space_t ymax {0};
+    primitives::space_t xmin {std::numeric_limits<primitives::space_t>::max()};
+    primitives::space_t xmax {std::numeric_limits<primitives::space_t>::min()};
+    primitives::space_t ymin {std::numeric_limits<primitives::space_t>::max()};
+    primitives::space_t ymax {std::numeric_limits<primitives::space_t>::min()};
 
     bool touches(const Box& other) const {
         // TODO: tolerance?

@@ -52,5 +52,7 @@ private:
     primitives::point_id_t prev(primitives::point_id_t i) const {
         return m_tour->prev(i);
     }
+
+    std::vector<Box> m_extents;
 };
 
