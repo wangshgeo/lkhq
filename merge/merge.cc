@@ -177,7 +177,9 @@ void merge(Tour &current_tour, const Tour &candidate_tour) {
 
     Combinator combinator(exchanges, current_tour, candidate_tour);
     combinator.find();
-    std::cout << "viable combos: " << combinator.viable_count() << std::endl;
+    if (combinator.viable_count() > 0) {
+        std::cout << "viable combos: " << combinator.viable_count() << std::endl;
+    }
     if (combinator.best_combo()) {
         const auto old_length = current_tour.length();
         const auto &kmove = cycle_util::to_kmove(current_tour, candidate_tour, exchanges, *combinator.best_combo());

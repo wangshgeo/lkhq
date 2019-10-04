@@ -47,13 +47,10 @@ int main(int argc, const char** argv)
     // Initial tour length calculation.
     point_quadtree::Domain domain(x, y);
     std::cout << "domain aspect ratio: " << domain.xdim(0) / domain.ydim(0) << std::endl;
-    const auto print_domain_stats = config.get("domain_stats", false);
-    if (print_domain_stats)
-    {
-        std::cout << "bounding x, y dim: "
-            << domain.xdim(0) << ", " << domain.ydim(0)
-            << std::endl;
-    }
+    std::cout << "bounding x, y dim: "
+        << domain.xdim(0) << ", " << domain.ydim(0)
+        << std::endl;
+
     Tour tour(&domain, initial_tour);
     const auto initial_tour_length = tour.length();
     std::cout << "Initial tour length: " << initial_tour_length << std::endl;
@@ -84,24 +81,24 @@ int main(int argc, const char** argv)
     };
 
     PointSet point_set(root, x, y);
-    if (config.get("basic_hill_climb", false))
-    {
-        const auto kmax = config.get<size_t>("kmax", 3);
-        auto new_length = hill_climb::hill_climb(point_set, tour, kmax);
-        if (new_length < best_length) {
-            best_length = new_length;
-            std::cout << "improvement: " << new_length << std::endl;
-        }
-        write_if_better(new_length);
 
-        while (true) {
-            const auto new_tour = perturb::perturb(point_set, tour, kmax);
-            check::check_tour(new_tour);
-            write_if_better(new_tour.length());
-            merge::merge(tour, new_tour);
-            write_if_better(tour.length());
-            std::cout << "best length: " << best_length << std::endl;
-        }
+    // hill climb from initial tour.
+    const auto kmax = config.get<size_t>("kmax", 3);
+    auto new_length = hill_climb::hill_climb(point_set, tour, kmax);
+    if (new_length < best_length) {
+        best_length = new_length;
+        std::cout << "improvement: " << new_length << std::endl;
+    }
+    write_if_better(new_length);
+
+    // perturbation loop.
+    while (true) {
+        const auto new_tour = perturb::perturb(point_set, tour, kmax);
+        check::check_tour(new_tour);
+        write_if_better(new_tour.length());
+        merge::merge(tour, new_tour);
+        write_if_better(tour.length());
+        std::cout << "best length: " << best_length << std::endl;
     }
 
     return EXIT_SUCCESS;
