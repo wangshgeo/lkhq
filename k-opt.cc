@@ -1,46 +1,43 @@
-#include "Config.h"
 #include "NanoTimer.h"
-#include "hill_climb/NonsequentialFinder.h"
-#include "hill_climber.hh"
-#include "hill_climb.hh"
-#include "hill_climb/RandomFinder.h"
-#include "tour.hh"
-#include "perturb.hh"
 #include "check.hh"
-#include "merge/merge.hh"
-#include "randomize/double_bridge.h"
-#include "fileio.h"
+#include "config.hh"
+#include "fileio.hh"
+#include "hill_climb.hh"
+#include "hill_climb/NonsequentialFinder.h"
+#include "hill_climb/RandomFinder.h"
+#include "hill_climber.hh"
 #include "length_stats.h"
+#include "merge/merge.hh"
+#include "perturb.hh"
 #include "point_quadtree/Domain.h"
 #include "point_quadtree/point_quadtree.h"
+#include "randomize/double_bridge.h"
+#include "tour.hh"
 
 #include <filesystem>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <string>
 
 int main(int argc, const char** argv)
 {
-    if (argc < 2)
-    {
-        std::cout << "Arguments: point_set_file_path optional_tour_file_path" << std::endl;
-        return 0;
+    if (argc == 1) {
+        std::cout << "Arguments: config_file_path" << std::endl;
     }
-
-    // Config file (currently fixed).
-    constexpr char CONFIG_PATH[] = "config.txt";
-    std::cout << "Reading config file: " << CONFIG_PATH << std::endl;
-    Config config(CONFIG_PATH);
-
-    const std::filesystem::path SAVE_DIR("./saves");
-    if (not std::filesystem::exists(SAVE_DIR)) {
-        std::filesystem::create_directory(SAVE_DIR);
-    }
-    const std::filesystem::path tsp_file_path(argv[1]);
-    const auto &save_prefix = tsp_file_path.stem().string();
+    // Read config file.
+    const std::string config_path = (argc == 1) ? "config.txt" : argv[1];
+    std::cout << "Reading config file: " << config_path << std::endl;
+    Config config(config_path);
 
     // Read input files.
-    const auto [x, y] = fileio::read_coordinates(argv[1]);
-    const auto initial_tour = fileio::initial_tour(argc, argv, x.size());
+    const std::optional<std::string> tsp_file_path_string = config.get("tsp_file_path");
+    if (not tsp_file_path_string) {
+        std::cout << "tsp_file_path not specified.\n";
+        return EXIT_FAILURE;
+    }
+    const std::optional<std::filesystem::path> tsp_file_path(*tsp_file_path_string);
+    const auto [x, y] = fileio::read_coordinates(*tsp_file_path_string);
+    const auto initial_tour = fileio::initial_tour(x.size(), config.get("tour_file_path"));
 
     // Initial tour length calculation.
     point_quadtree::Domain domain(x, y);
@@ -66,13 +63,22 @@ int main(int argc, const char** argv)
     std::cout << "Finished quadtree in " << timer.stop() / 1e9 << " seconds.\n\n";
 
     auto best_length = initial_tour_length;
-    auto write_if_better = [&config, &tour, &best_length, &SAVE_DIR, &save_prefix](primitives::length_t new_length)
+
+    const auto &save_prefix = tsp_file_path->stem().string();
+    const auto &save_dir_string = config.get("save_dir");
+    std::optional<std::filesystem::path> save_dir;
+    if (save_dir_string) {
+        save_dir = std::filesystem::path(*save_dir_string);
+        if (not std::filesystem::exists(*save_dir)) {
+            std::filesystem::create_directory(*save_dir);
+        }
+    }
+    auto write_if_better = [&](primitives::length_t new_length)
     {
         if (new_length < best_length)
         {
-            if (config.get("write_best", false))
-            {
-                const auto &save_path = SAVE_DIR / (save_prefix + '_' + std::to_string(new_length) + ".tour");
+            if (save_dir) {
+                const auto &save_path = *save_dir / (save_prefix + '_' + std::to_string(new_length) + ".tour");
                 fileio::write_ordered_points(tour.order(), save_path);
             }
             best_length = new_length;
@@ -82,7 +88,8 @@ int main(int argc, const char** argv)
     PointSet point_set(root, x, y);
 
     // hill climb from initial tour.
-    const auto kmax = config.get<size_t>("kmax", 3);
+    const auto &kmax = config.get<size_t>("kmax", 3);
+    std::cout << "kmax: " << kmax << std::endl;
     auto new_length = hill_climb::hill_climb(point_set, tour, kmax);
     if (new_length < best_length) {
         best_length = new_length;
@@ -94,7 +101,6 @@ int main(int argc, const char** argv)
     while (true) {
         const auto new_tour = perturb::perturb(point_set, tour, kmax);
         check::check_tour(new_tour);
-        write_if_better(new_tour.length());
         merge::merge(tour, new_tour);
         write_if_better(tour.length());
         std::cout << "best length: " << best_length << std::endl;

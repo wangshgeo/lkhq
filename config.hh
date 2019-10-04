@@ -6,12 +6,13 @@
 // If '#' is anywhere in line, the line is ignored as a comment.
 // In the case of repeated keys, the last value is used.
 
-#include <algorithm> // transform, all_of
-#include <cctype> // tolower, isdigit
-#include <cstdlib> // strto*
+#include <algorithm>
+#include <cctype>
+#include <cstdlib>
 #include <fstream>
-#include <sstream> // stringstream
-#include <string> // getline, stoul
+#include <optional>
+#include <sstream>
+#include <string>
 #include <unordered_map>
 #include <variant>
 
@@ -21,7 +22,7 @@ public:
     Config(const std::string& file_path);
 
     template <typename ValueType = std::string>
-    ValueType get(const std::string& key) const;
+    std::optional<ValueType> get(const std::string& key) const;
 
     template <typename ValueType>
     ValueType get(const std::string& key, const ValueType& default_value) const;
@@ -39,45 +40,37 @@ inline Config::Config(const std::string& file_path)
     std::ifstream input_stream(file_path);
     std::string line;
 
-    while (std::getline(input_stream, line))
-    {
-        if (line.find('#') != std::string::npos) // line is comment.
-        {
+    while (std::getline(input_stream, line)) {
+        if (line.find('#') != std::string::npos) {  // entire line is comment.
             continue;
         }
         std::stringstream line_stream(line);
 
         std::string key;
         line_stream >> key;
-        if (key.empty())
-        {
+        if (key.empty()) {
             continue;
         }
 
         std::string value;
         line_stream >> value;
-        if (value.empty())
-        {
+        if (value.empty()) {
             continue;
         }
 
         // check boolean.
         auto lower {value};
         std::transform(std::begin(value), std::end(value), std::begin(lower), ::tolower);
-        if (lower == "true")
-        {
+        if (lower == "true") {
             m_dictionary[key] = true;
             continue;
-        }
-        else if (lower == "false")
-        {
+        } else if (lower == "false") {
             m_dictionary[key] = false;
             continue;
         }
 
         // check positive integer.
-        if (std::all_of(std::cbegin(value), std::cend(value), ::isdigit))
-        {
+        if (std::all_of(std::cbegin(value), std::cend(value), ::isdigit)) {
             m_dictionary[key] = std::stoul(value);
             continue;
         }
@@ -88,16 +81,14 @@ inline Config::Config(const std::string& file_path)
         constexpr int base {10};
         const auto parsed_long = std::strtol(parse_start, &observed_parse_end, base);
         const char* const full_parse_end = parse_start + value.length();
-        if (observed_parse_end == full_parse_end)
-        {
+        if (observed_parse_end == full_parse_end) {
             m_dictionary[key] = parsed_long;
             continue;
         }
 
         // check double.
         const auto parsed_double = std::strtod(parse_start, &observed_parse_end);
-        if (observed_parse_end == full_parse_end)
-        {
+        if (observed_parse_end == full_parse_end) {
             m_dictionary[key] = parsed_double;
             continue;
         }
@@ -107,23 +98,22 @@ inline Config::Config(const std::string& file_path)
 }
 
 template <typename ValueType>
-ValueType Config::get(const std::string& key) const
-{
-    return std::get<ValueType>(m_dictionary.at(key));
+std::optional<ValueType> Config::get(const std::string& key) const {
+    if (has(key)) {
+        return std::get<ValueType>(m_dictionary.at(key));
+    }
+    return std::nullopt;
 }
 
 template <typename ValueType>
-ValueType Config::get(const std::string& key, const ValueType& default_value) const
-{
-    if (has(key))
-    {
-        return get<ValueType>(key);
+ValueType Config::get(const std::string& key, const ValueType& default_value) const {
+    if (has(key)) {
+        return *get<ValueType>(key);
     }
     return default_value;
 }
 
-inline bool Config::has(const std::string& key) const
-{
+inline bool Config::has(const std::string& key) const {
     return m_dictionary.find(key) != std::cend(m_dictionary);
 }
 

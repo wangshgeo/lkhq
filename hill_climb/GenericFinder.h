@@ -1,7 +1,7 @@
 #pragma once
 
 #include "box_maker.hh"
-#include "Config.h"
+#include "config.hh"
 #include "kmargin.hh"
 #include "kmove.hh"
 #include "tour.hh"

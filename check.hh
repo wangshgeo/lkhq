@@ -1,5 +1,6 @@
 #pragma once
 
+#include "tour.hh"
 #include "primitives.hh"
 
 #include <exception>

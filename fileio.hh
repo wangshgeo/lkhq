@@ -10,23 +10,6 @@
 
 namespace fileio {
 
-// Removes directories and extension from a file path.
-inline std::string extract_filename(const char* file_path)
-{
-    std::string filename(file_path);
-    auto last_slash = filename.rfind("/");
-    if (last_slash != std::string::npos)
-    {
-        filename = filename.substr(last_slash + 1);
-    }
-    auto first_period = filename.rfind(".");
-    if (first_period != std::string::npos)
-    {
-        filename = filename.substr(0, first_period);
-    }
-    return filename;
-}
-
 inline void write_ordered_points(const std::vector<primitives::point_id_t>& ordered_points
     , const std::string output_filename)
 {
@@ -40,7 +23,7 @@ inline void write_ordered_points(const std::vector<primitives::point_id_t>& orde
     }
 }
 
-inline std::vector<primitives::point_id_t> read_ordered_points(const char* file_path)
+inline std::vector<primitives::point_id_t> read_ordered_points(const std::string &file_path)
 {
     std::cout << "\nReading tour file: " << file_path << std::endl;
     std::ifstream file_stream(file_path);
@@ -98,21 +81,12 @@ inline std::vector<primitives::point_id_t> default_tour(primitives::point_id_t p
     return tour;
 }
 
-inline std::vector<primitives::point_id_t> initial_tour(int argc, const char** argv, primitives::point_id_t point_count)
+inline std::vector<primitives::point_id_t> initial_tour(primitives::point_id_t point_count, const std::optional<std::string> &tour_file_path = std::nullopt)
 {
-    std::vector<primitives::point_id_t> tour;
-    if (argc > 2)
-    {
-        tour = read_ordered_points(argv[2]);
-    }
-    else
-    {
-        tour = default_tour(point_count);
-    }
-    return tour;
+    return tour_file_path ? read_ordered_points(*tour_file_path) : default_tour(point_count);
 }
 
-inline std::array<std::vector<primitives::space_t>, 2> read_coordinates(const char* file_path)
+inline std::array<std::vector<primitives::space_t>, 2> read_coordinates(const std::string &file_path)
 {
     std::cout << "\nReading point set file: " << file_path << std::endl;
     std::ifstream file_stream(file_path);
