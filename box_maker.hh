@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Box.h"
+#include "box.hh"
 #include "primitives.hh"
 
 #include <vector>

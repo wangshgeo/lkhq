@@ -5,7 +5,7 @@
 #include "node.hh"
 #include "PointInserter.h"
 #include "morton_keys.h"
-#include <Box.h>
+#include <box.hh>
 #include <primitives.hh>
 
 namespace point_quadtree {

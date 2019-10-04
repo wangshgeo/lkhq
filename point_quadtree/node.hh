@@ -2,7 +2,7 @@
 
 // Only leaf nodes have points.
 
-#include <Box.h>
+#include <box.hh>
 #include <primitives.hh>
 
 #include <algorithm> // all_of

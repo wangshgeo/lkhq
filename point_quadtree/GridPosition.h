@@ -2,7 +2,7 @@
 
 #include "Domain.h"
 #include "primitives.hh"
-#include <Box.h>
+#include <box.hh>
 
 namespace point_quadtree {
 

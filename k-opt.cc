@@ -3,10 +3,7 @@
 #include "config.hh"
 #include "fileio.hh"
 #include "hill_climb.hh"
-#include "hill_climb/NonsequentialFinder.h"
-#include "hill_climb/RandomFinder.h"
 #include "hill_climber.hh"
-#include "length_stats.h"
 #include "merge/merge.hh"
 #include "perturb.hh"
 #include "point_quadtree/Domain.h"
@@ -15,8 +12,8 @@
 #include "tour.hh"
 
 #include <filesystem>
-#include <fstream>
 #include <iostream>
+#include <optional>
 #include <string>
 
 int main(int argc, const char** argv)

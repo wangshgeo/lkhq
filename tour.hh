@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Box.h"
+#include "box.hh"
 #include "box_maker.hh"
 #include "kmove.hh"
 #include "length_calculator.hh"
