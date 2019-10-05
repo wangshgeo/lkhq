@@ -1,5 +1,6 @@
 #pragma once
 
+#include "randomize.hh"
 #include "primitives.hh"
 #include "tour.hh"
 
@@ -23,14 +24,6 @@ void print_array(const std::string &label, const ArrayType &a) {
 }
 
 }  // namespace
-
-// random integer in [a, b].
-inline primitives::point_id_t random_point(primitives::sequence_t a, primitives::sequence_t b) {
-    static std::random_device device; // will be used to obtain a seed for the random number engine
-    static std::mt19937 generator(device()); // standard mersenne_twister_engine seeded with random_device.
-    std::uniform_int_distribution<primitives::point_id_t> distribution(a, b);
-    return distribution(generator);
-}
 
 // selects at random 4 compatible points (sequence index) at which to perform the double bridge.
 // {edge_1_start, edge_2_start, edge_1_end, edge_2_end}

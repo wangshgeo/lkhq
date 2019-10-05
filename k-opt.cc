@@ -96,6 +96,7 @@ int main(int argc, const char** argv)
     write_if_better(new_length);
 
     // perturbation loop.
+    size_t local_optima{1};
     while (true) {
         const auto new_tour = perturb::perturb(hill_climber, tour, kmax);
         check::check_tour(new_tour);
@@ -105,6 +106,8 @@ int main(int argc, const char** argv)
         }
         write_if_better(tour.length());
         std::cout << "best length: " << best_length << std::endl;
+        ++local_optima;
+        std::cout << "local optima: " << local_optima << std::endl;
     }
 
     return EXIT_SUCCESS;
