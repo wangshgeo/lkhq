@@ -85,9 +85,10 @@ int main(int argc, const char** argv)
     PointSet point_set(root, x, y);
 
     // hill climb from initial tour.
+    HillClimber hill_climber(point_set);
     const auto &kmax = config.get<size_t>("kmax", 3);
     std::cout << "kmax: " << kmax << std::endl;
-    auto new_length = hill_climb::hill_climb(point_set, tour, kmax);
+    auto new_length = hill_climb::hill_climb(hill_climber, tour, kmax);
     if (new_length < best_length) {
         best_length = new_length;
         std::cout << "improvement: " << new_length << std::endl;
@@ -96,9 +97,12 @@ int main(int argc, const char** argv)
 
     // perturbation loop.
     while (true) {
-        const auto new_tour = perturb::perturb(point_set, tour, kmax);
+        const auto new_tour = perturb::perturb(hill_climber, tour, kmax);
         check::check_tour(new_tour);
-        merge::merge(tour, new_tour);
+        const auto kmove = merge::merge(tour, new_tour);
+        if (kmove) {
+            hill_climber.changed(*kmove);
+        }
         write_if_better(tour.length());
         std::cout << "best length: " << best_length << std::endl;
     }

@@ -25,6 +25,14 @@ class PointSet {
         primitives::length_t radius) const {
         return m_root.get_points(i, m_box_maker(i, radius));
     }
+    // Returns points within square (of size 2 * radius) centered at point i.
+    inline std::vector<primitives::point_id_t> get_points(primitives::point_id_t i, const Box &box) const {
+        return m_root.get_points(i, box);
+    }
+
+    inline Box get_box(primitives::point_id_t i, primitives::length_t radius) const {
+        return m_box_maker(i, radius);
+    }
 
  private:
     const point_quadtree::Node& m_root;

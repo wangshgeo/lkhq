@@ -111,14 +111,14 @@ std::vector<ExchangePair> disjoin(const EdgeSet &current_edges, const EdgeSet &c
     return exchange_pairs;
 }
 
-void merge(Tour &current_tour, const Tour &candidate_tour) {
+std::optional<KMove> merge(Tour &current_tour, const Tour &candidate_tour) {
     const auto [old_edges, new_edges] = merge::edge_differences(current_tour, candidate_tour);
     if (old_edges.size() != new_edges.size()) {
         throw std::logic_error("edge diff set does not comprise of the same number of edges from both tours.");
     }
     std::cout << "edge diff count: " << old_edges.size() << std::endl;
     if (old_edges.empty()) {
-        return;
+        return std::nullopt;
     }
 
     std::ofstream old_edge_file("output/old_edges.txt", std::ofstream::out);
@@ -132,7 +132,7 @@ void merge(Tour &current_tour, const Tour &candidate_tour) {
 
     auto exchanges = disjoin(old_edges, new_edges);
     if (exchanges.empty()) {
-        return;
+        return std::nullopt;
     }
 
     const auto original_exchange_size = exchanges.size();
@@ -143,7 +143,7 @@ void merge(Tour &current_tour, const Tour &candidate_tour) {
     });
 
     if (exchanges.front().compute_improvement(current_tour.x(), current_tour.y()) < 0) {
-        return;
+        return std::nullopt;
     }
 
     // check to see if exchange pair is useless, meaning zero-cost and non-cycle-breaking.
@@ -188,7 +188,9 @@ void merge(Tour &current_tour, const Tour &candidate_tour) {
         if (static_cast<int>(old_length) - static_cast<int>(new_length) != *combinator.best_improvement()) {
             throw std::logic_error("Tour length after swap is inconsistent with expected improvement.");
         }
+        return kmove;
     }
+    return std::nullopt;
 }
 
 }  // namespace merge

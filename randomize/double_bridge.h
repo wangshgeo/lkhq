@@ -34,26 +34,26 @@ inline primitives::point_id_t random_point(primitives::sequence_t a, primitives:
 
 // selects at random 4 compatible points (sequence index) at which to perform the double bridge.
 // {edge_1_start, edge_2_start, edge_1_end, edge_2_end}
-std::array<primitives::sequence_t, 4> select_edges_to_remove(primitives::point_id_t n) {
+std::vector<primitives::sequence_t> select_edges_to_remove(primitives::point_id_t n) {
     const auto start = random_point(0, n - 1);
     const auto first_end = random_point(4, n - 4);
     const auto second_start = random_point(2, first_end - 2);
     const auto second_end = random_point(first_end + 2, n - 2);
-    std::array<primitives::sequence_t, 4> starts{0, second_start, first_end, second_end};
+    std::vector<primitives::sequence_t> starts{{0, second_start, first_end, second_end}};
     std::transform(std::begin(starts), std::end(starts), std::begin(starts), [start, n](const auto &i){ return (start + i) % n; });
     return starts;
 }
 
-void swap(Tour& tour) {
+KMove swap(Tour& tour) {
     const auto removal = select_edges_to_remove(tour.size());
     const decltype(removal[0]) n = tour.size();
-    std::array<primitives::sequence_t, 4> ends{
+    std::vector<primitives::sequence_t> ends{{
         (removal[2] + 1) % n,
         (removal[3] + 1) % n,
         (removal[0] + 1) % n,
         (removal[1] + 1) % n
-    };
-    tour.swap_sequence(removal, ends, removal);
+    }};
+    return tour.swap_sequence(removal, ends, removal);
 }
 
 }  // namespace double_bridge

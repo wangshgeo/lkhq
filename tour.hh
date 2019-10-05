@@ -29,7 +29,7 @@ public:
     void swap(const PointContainer& starts, const PointContainer& ends, const PointContainer& removed_edges);
     void swap(const KMove&);
     template <typename SequenceContainer = std::vector<primitives::sequence_t>>
-    void swap_sequence(SequenceContainer starts, SequenceContainer ends, SequenceContainer edges_to_remove);
+    KMove swap_sequence(SequenceContainer starts, SequenceContainer ends, SequenceContainer edges_to_remove);
 
     const auto &next() const { return m_next; }
     const auto &order() const { return m_order; }
@@ -99,8 +99,7 @@ public:
     std::vector<primitives::point_id_t> get_points(
         const point_quadtree::Node& root
         , primitives::point_id_t i
-        , primitives::length_t radius) const
-    {
+        , primitives::length_t radius) const {
         return root.get_points(i, m_box_maker(i, radius));
     }
 
@@ -140,10 +139,15 @@ void Tour::swap(const PointContainer& starts, const PointContainer& ends, const 
 }
 
 template <typename SequenceContainer>
-void Tour::swap_sequence(SequenceContainer starts, SequenceContainer ends, SequenceContainer edges_to_remove) {
+KMove Tour::swap_sequence(SequenceContainer starts, SequenceContainer ends, SequenceContainer edges_to_remove) {
     std::transform(std::begin(starts), std::end(starts), std::begin(starts), [this](const auto& sequence) { return m_order[sequence]; });
     std::transform(std::begin(ends), std::end(ends), std::begin(ends), [this](const auto& sequence) { return m_order[sequence]; });
     std::transform(std::begin(edges_to_remove), std::end(edges_to_remove), std::begin(edges_to_remove), [this](const auto& sequence) { return m_order[sequence]; });
-    swap(starts, ends, edges_to_remove);
+    KMove kmove;
+    kmove.starts = starts;
+    kmove.ends = ends;
+    kmove.removes = edges_to_remove;
+    swap(kmove);
+    return kmove;
 }
 

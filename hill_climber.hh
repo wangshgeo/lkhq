@@ -17,6 +17,8 @@ class HillClimber
 
     std::optional<KMove> find_best(const Tour &tour, size_t kmax);
 
+    void changed(const KMove &kmove);
+
 private:
     size_t m_kmax {3};
 
@@ -38,7 +40,7 @@ private:
     void final_move_check();
     bool final_new_edge() const;
 
-    std::vector<primitives::point_id_t> search_neighborhood(primitives::point_id_t p) const;
+    std::vector<primitives::point_id_t> search_neighborhood(primitives::point_id_t p);
 
     const Tour *m_tour{nullptr};
     const PointSet &m_point_set;
@@ -52,7 +54,8 @@ private:
     primitives::point_id_t prev(primitives::point_id_t i) const {
         return m_tour->prev(i);
     }
+    Box make_box(primitives::point_id_t i, primitives::point_id_t j) const;
 
-    std::vector<Box> m_extents;
+    std::vector<std::optional<Box>> search_extents_;
 };
 

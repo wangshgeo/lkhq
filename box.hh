@@ -29,6 +29,14 @@ struct Box {
         ymin = std::min(y, ymin);
         ymax = std::max(y, ymax);
     }
+
+    // this is enlarged to contain box.
+    void include(const Box &box) {
+        include(box.xmin, box.ymin);
+        include(box.xmin, box.ymax);
+        include(box.xmax, box.ymin);
+        include(box.xmax, box.ymax);
+    }
 };
 
 inline auto& operator<<(std::ostream& o, const Box& b) {

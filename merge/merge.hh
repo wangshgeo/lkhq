@@ -9,6 +9,7 @@
 #include <vector>
 #include <set>
 #include <utility>
+#include <optional>
 
 namespace merge {
 
@@ -20,6 +21,6 @@ std::pair<EdgeSet, EdgeSet> edge_differences(const Tour &tour1, const Tour &tour
 ExchangePair disjoin(ExchangePair &base);
 std::vector<ExchangePair> disjoin(const EdgeSet &current, const EdgeSet &candidate);
 
-void merge(Tour &current_tour, const Tour &candidate_tour);
+std::optional<KMove> merge(Tour &current_tour, const Tour &candidate_tour);
 
 }  // namespace merge
