@@ -97,8 +97,13 @@ int main(int argc, const char** argv)
 
     // perturbation loop.
     size_t local_optima{1};
+    const auto &kmax_kswap = config.get<size_t>("kmax_kswap", 10);
+    std::cout << "kmax_kswap: " << kmax_kswap << std::endl;
     while (true) {
-        const auto new_tour = perturb::perturb(hill_climber, tour, kmax);
+        //const auto new_tour = perturb::perturb(hill_climber, tour, kmax);
+        //const auto new_tour = perturb::random_restart(point_set, &domain, kmax);
+        //const auto new_tour = perturb::random_section(hill_climber, tour, kmax, 0.05);
+        const auto new_tour = perturb::kswap(hill_climber, tour, kmax, kmax_kswap);
         check::check_tour(new_tour);
         const auto kmove = merge::merge(tour, new_tour);
         if (kmove) {

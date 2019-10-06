@@ -1,35 +1,21 @@
 #include "hill_climber.hh"
-
-Box HillClimber::make_box(primitives::point_id_t i, primitives::point_id_t j) const {
-    Box box;
-    box.include(m_tour->x(i), m_tour->y(i));
-    box.include(m_tour->x(j), m_tour->y(j));
-    return box;
-}
+#include "multi_box.hh"
 
 void HillClimber::changed(const KMove &kmove) {
-    std::vector<Box> changed;
-    Box coarse_changed;
-    for (size_t i{0}; i < kmove.starts.size(); ++i) {
-        changed.push_back(make_box(kmove.starts[i], kmove.ends[i]));
-        coarse_changed.include(changed.back());
-        const auto j = kmove.removes[i];
-        changed.push_back(make_box(j, next(j)));
-        coarse_changed.include(changed.back());
+    MultiBox changed;
+    for (size_t k{0}; k < kmove.starts.size(); ++k) {
+        const auto &new_start = kmove.starts[k];
+        changed.include(m_tour->x(new_start), m_tour->y(new_start));
+        const auto &new_end = kmove.ends[k];
+        changed.include(m_tour->x(new_end), m_tour->y(new_end));
     }
     for (primitives::point_id_t i{0}; i < m_tour->size(); ++i) {
         if (not search_extents_[i]) {
             continue;
         }
-        if (search_extents_[i]->touches(coarse_changed)) {
+        if (changed.touches(*search_extents_[i])) {
             search_extents_[i] = std::nullopt;
             continue;
-        }
-        for (const auto &b : changed) {
-            if (search_extents_[i]->touches(b)) {
-                search_extents_[i] = std::nullopt;
-                break;
-            }
         }
     }
 }

@@ -54,7 +54,6 @@ private:
     primitives::point_id_t prev(primitives::point_id_t i) const {
         return m_tour->prev(i);
     }
-    Box make_box(primitives::point_id_t i, primitives::point_id_t j) const;
 
     std::vector<std::optional<Box>> search_extents_;
 };

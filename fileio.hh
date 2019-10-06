@@ -74,8 +74,7 @@ inline std::vector<primitives::point_id_t> read_ordered_points(const std::string
 inline std::vector<primitives::point_id_t> default_tour(primitives::point_id_t point_count)
 {
     std::vector<primitives::point_id_t> tour;
-    for (primitives::point_id_t i{0}; i < point_count; ++i)
-    {
+    for (primitives::point_id_t i{0}; i < point_count; ++i) {
         tour.push_back(i);
     }
     return tour;
