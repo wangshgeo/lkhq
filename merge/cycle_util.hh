@@ -26,6 +26,8 @@ bool breaks_cycle(const Tour &best_tour, const Tour &candidate_tour, const std::
 
 bool breaks_cycle(const Tour &best_tour, const Tour &candidate_tour, const ExchangePair &exchange_pair);
 
+size_t count_cycles(const Tour &best_tour, const Tour &candidate_tour, const std::vector<ExchangePair> &exchange_pairs, const std::vector<size_t> &indices);
+
 }  // namespace cycle_util
 }  // namespace merge
 

@@ -177,6 +177,7 @@ std::optional<KMove> merge(Tour &current_tour, const Tour &candidate_tour) {
 
     Combinator combinator(exchanges, current_tour, candidate_tour);
     combinator.find();
+    std::cout << "move combos checked: " << combinator.checks() << std::endl;
     if (combinator.viable_count() > 0) {
         std::cout << "viable combos: " << combinator.viable_count() << std::endl;
     }

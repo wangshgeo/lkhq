@@ -4,6 +4,8 @@ from matplotlib import pyplot as plt
 import plot_util
 
 instance_file = "../data/xrb14233.tsp"
+instance_file = "../data/pbn423.tsp"
+optimal_tour_file = "../data/pbn423.tour"
 coordinates = plot_util.read_point_file_path(instance_file)
 old_edges = plot_util.read_edge_list("output/old_edges.txt")
 new_edges = plot_util.read_edge_list("output/new_edges.txt")
@@ -23,7 +25,7 @@ def plot_edges(coordinates, edges, markers):
 
 plot_edges(coordinates, old_edges, "r-x")
 plot_edges(coordinates, new_edges, "r:x")
-plot_util.read_and_plot_tour(coordinates, "../data/xrb14233.tour", ":k")
+plot_util.read_and_plot_tour(coordinates, optimal_tour_file, ":k")
 
 plt.gca().set_aspect("equal")
 plt.show()

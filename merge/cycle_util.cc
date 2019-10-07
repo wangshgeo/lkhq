@@ -2,6 +2,8 @@
 
 #include <cycle_check.hh>
 
+#include <algorithm>
+
 namespace merge {
 namespace cycle_util {
 
@@ -60,6 +62,11 @@ bool breaks_cycle(const Tour &best_tour, const Tour &candidate_tour, const Excha
     KMove kmove;
     to_kmove(best_tour, candidate_tour, exchange_pair, kmove);
     return cycle_check::breaks_cycle(best_tour, kmove);
+}
+
+size_t count_cycles(const Tour &best_tour, const Tour &candidate_tour, const std::vector<ExchangePair> &exchange_pairs, const std::vector<size_t> &indices) {
+    const auto kmove = to_kmove(best_tour, candidate_tour, exchange_pairs, indices);
+    return cycle_check::count_cycles(best_tour, kmove);
 }
 
 }  // namespace cycle_util
