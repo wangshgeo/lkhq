@@ -1,4 +1,4 @@
-#include "MulticycleTour.h"
+#include "multicycle_tour.hh"
 
 void MulticycleTour::multicycle_swap(
     const std::vector<primitives::point_id_t>& starts

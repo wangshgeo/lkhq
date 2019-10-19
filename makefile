@@ -16,7 +16,7 @@ SRCS = k-opt.cc tour.cc \
     point_quadtree/point_quadtree.cc \
     point_quadtree/point_inserter.cc \
     cycle_check.cc \
-	MulticycleTour.cc
+	multicycle_tour.cc
 
 %.o: %.cc; $(CXX) $(CXX_FLAGS) -o $@ -c $<
 

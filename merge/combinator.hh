@@ -2,10 +2,12 @@
 
 #include <vector>
 #include <optional>
+#include <fstream>
 
 #include "cycle_util.hh"
 #include "exchange_pair.hh"
 #include <debug_util.hh>
+#include <multicycle_tour.hh>
 
 namespace merge {
 
@@ -56,6 +58,27 @@ class Combinator {
         if (breaks_cycle) {
             if (cycle_util::count_cycles(best_tour_, candidate_tour_, exchange_pairs_, combo_) == 2) {
                 std::cout << "found double cycle tour with margin " << margin_ << std::endl;
+                // perform swap, output cycles for plotting.
+                const auto &kmove = cycle_util::to_kmove(best_tour_, candidate_tour_, exchange_pairs_, combo_);
+                MulticycleTour test_tour = best_tour_;
+                test_tour.multicycle_swap(kmove);
+                const auto &cycles = cycle_util::compute_cycles(test_tour.next());
+                if (cycles.size() != 2) {
+                    throw std::logic_error("unexpected cycle count.");
+                }
+                if (0.05 < std::min(cycles[0].size(), cycles[1].size()) / static_cast<double>(test_tour.size())) {
+                    std::cout << "writing out cycles for plotting.\n";
+                    primitives::cycle_id_t cycle_id{0};
+                    for (const auto &cycle : cycles) {
+                        std::ofstream cycle_file("output/cycle" + std::to_string(cycle_id) + "_margin_" + std::to_string(margin_) + ".txt", std::ofstream::out);
+                        primitives::point_id_t prev{cycle.back()};
+                        for (const auto &i : cycle) {
+                            cycle_file << prev << ' ' << i << std::endl;
+                            prev = i;
+                        }
+                        ++cycle_id;
+                    }
+                }
             }
             return;
         }

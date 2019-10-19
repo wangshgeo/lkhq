@@ -69,5 +69,40 @@ size_t count_cycles(const Tour &best_tour, const Tour &candidate_tour, const std
     return cycle_check::count_cycles(best_tour, kmove);
 }
 
+std::vector<std::vector<primitives::point_id_t>> compute_cycles(const std::vector<primitives::point_id_t> &next) {
+    std::unordered_set<primitives::point_id_t> remaining;
+    for (primitives::point_id_t i{0}; i < next.size(); ++i) {
+        remaining.insert(i);
+    }
+    primitives::point_id_t current{0};
+    std::vector<std::vector<primitives::point_id_t>> cycles;
+    cycles.emplace_back();
+    do {
+        cycles.back().push_back(current);
+        remaining.erase(current);
+        current = next[current];
+        if (current == cycles.back().front()) {
+            if (remaining.empty()) {
+                break;
+            }
+            cycles.emplace_back();
+            current = *std::begin(remaining);
+        }
+    } while (not remaining.empty());
+    std::unordered_set<primitives::point_id_t> seen; 
+    for (const auto &cycle : cycles) {
+        for (const auto &i : cycle) {
+            if (seen.find(i) != std::cend(seen)) {
+                throw std::logic_error("invalid cycles; repeated point.");
+            }
+            seen.insert(i);
+        }
+    }
+    if (seen.size() != next.size()) {
+        throw std::logic_error("missing points in cycles.");
+    }
+    return cycles;
+}
+
 }  // namespace cycle_util
 }  // namespace merge
