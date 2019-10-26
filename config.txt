@@ -8,9 +8,11 @@ kmax_kswap      29
 tsp_file_path   ../data/xqf131.tsp
 tsp_file_path   ../data/pbn423.tsp
 tsp_file_path   ../data/xrb14233.tsp
+tsp_file_path   ../data/lrb744710.tsp
 # optional.
 #tour_file_path  saves/xqf131_564.tour
 tour_file_path  ../data/xrb14233.tour
+tour_file_path  ../data/lrb744710.tour
 
 # if not specified, better tours are not saved.
 save_dir        ./saves/
