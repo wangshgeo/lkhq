@@ -5,3 +5,4 @@ k-opt.out
 *.dSYM
 output/*
 saves/*
+input/*
