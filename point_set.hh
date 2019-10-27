@@ -14,7 +14,7 @@ class PointSet {
     PointSet(const point_quadtree::Node& root,
         const std::vector<primitives::space_t> &x,
         const std::vector<primitives::space_t> &y)
-        : m_root(root), m_box_maker(x, y), m_length_calculator(x, y) {}
+        : m_root(root), m_box_maker(x, y), size_(x.size()), m_length_calculator(x, y) {}
 
     primitives::length_t length(primitives::point_id_t a, primitives::point_id_t b) const {
         return m_length_calculator(a, b);
@@ -34,9 +34,14 @@ class PointSet {
         return m_box_maker(i, radius);
     }
 
+    inline primitives::point_id_t size() const {
+        return size_;
+    }
+
  private:
     const point_quadtree::Node& m_root;
     const BoxMaker m_box_maker;
+    const primitives::point_id_t size_{0};
     LengthCalculator m_length_calculator;
 
 };
