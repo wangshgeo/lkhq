@@ -12,6 +12,8 @@ namespace research {
 inline std::vector<primitives::point_id_t> shorter_edge_opportunities(const PointSet &point_set, const Tour &tour) {
     std::vector<size_t> shorter_edge_count;
     std::vector<primitives::point_id_t> points_with_shorter_edges;
+    using Edge = std::pair<primitives::point_id_t, primitives::point_id_t>;
+    std::set<Edge> shorter_edges;
     for (primitives::point_id_t i{0}; i < point_set.size(); ++i) {
         const auto &next_length = tour.length(i);
         const auto &prev_length = tour.prev_length(i);
@@ -32,6 +34,10 @@ inline std::vector<primitives::point_id_t> shorter_edge_opportunities(const Poin
             continue;
         }
         shorter_edge_count.push_back(filtered_points.size());
+        for (const auto &point : filtered_points) {
+            Edge edge{std::min(i, point), std::max(i, point)};
+            shorter_edges.insert(edge);
+        }
         points_with_shorter_edges.push_back(i);
     }
     std::cout << "ratio of points with shorter edge opportunities: "
@@ -42,6 +48,7 @@ inline std::vector<primitives::point_id_t> shorter_edge_opportunities(const Poin
         << sum / shorter_edge_count.size() << std::endl;
     const auto &max_ops = *std::max_element(std::cbegin(shorter_edge_count), std::cend(shorter_edge_count));
     std::cout << "maximum shorter edge opportunities given any single point: " << max_ops << std::endl;
+    std::cout << "ratio of shorter edges to instance size: " << static_cast<double>(shorter_edges.size()) / point_set.size() << std::endl;
     return points_with_shorter_edges;
 }
 
