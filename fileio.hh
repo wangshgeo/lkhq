@@ -4,6 +4,8 @@
 
 #include <array>
 #include <fstream>
+#include <iostream>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -149,6 +151,14 @@ inline std::array<std::vector<primitives::space_t>, 2> read_coordinates(const st
     }
     std::cout << "Finished reading point set file.\n" << std::endl;
     return {x, y};
+}
+
+template <typename PairContainer>
+void write_pairs(const PairContainer &pairs, const std::string &output_file_path) {
+    std::ofstream output_file(output_file_path, std::ofstream::out);
+    for (const auto &p : pairs) {
+        output_file << p.first << ' ' << p.second << std::endl;
+    }
 }
 
 } // namespace fileio

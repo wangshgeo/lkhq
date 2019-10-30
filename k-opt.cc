@@ -10,6 +10,8 @@
 #include "point_quadtree/point_quadtree.h"
 #include "randomize/double_bridge.h"
 #include "tour.hh"
+#include "multicycle_tour.hh"
+#include "two_short.hh"
 
 #include <filesystem>
 #include <iostream>
@@ -94,6 +96,22 @@ int main(int argc, const char** argv)
         std::cout << "improvement: " << new_length << std::endl;
     }
     write_if_better(new_length);
+
+    // temporary experimental output.
+    const auto &short_edge_set = two_short::get_short_edges(point_set, tour);
+    std::vector<edge::Edge> short_edges(std::cbegin(short_edge_set), std::cend(short_edge_set));
+    fileio::write_pairs(short_edges, "output/short_edges.txt");
+    std::cout << "ratio of short edges to instance size: "
+        << static_cast<double>(short_edges.size()) / point_set.size()
+        << std::endl;
+    const auto &perturbation_kmove = two_short::make_perturbation(tour, short_edges);
+    std::cout << "replacement ratio: " << static_cast<double>(perturbation_kmove.current_k()) / point_set.size() << std::endl;
+
+    // temporary experimental output.
+    MulticycleTour mt(tour);
+    mt.multicycle_swap(perturbation_kmove);
+    std::cout << "post-swap cycle count: " << mt.cycles() << std::endl;
+    std::cout << "min cycle size: " << mt.min_cycle_size() << std::endl;
 
     // perturbation loop.
     size_t local_optima{1};

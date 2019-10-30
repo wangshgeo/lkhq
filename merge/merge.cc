@@ -1,3 +1,4 @@
+#include "fileio.hh"
 #include "merge.hh"
 
 #include "edge_map.hh"

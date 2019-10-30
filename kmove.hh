@@ -20,8 +20,10 @@ struct KMove
     void clear();
     void validate() const;
     KMove operator+(const KMove& other) const;
+    KMove& operator+=(const KMove& other);
 
     KMove make_reverse() const;
+    bool valid() const;
 
 private:
     static bool contains(const std::vector<primitives::point_id_t>& points

@@ -6,10 +6,23 @@ KMove KMove::make_reverse() const {
     return reverse;
 }
 
-void KMove::validate() const {
+bool KMove::valid() const {
     if (starts.size() != ends.size() or starts.size() != removes.size()) {
-        throw std::logic_error("invalid kmove.");
+        return false;
     }
+    for (size_t k{0}; k < ends.size(); ++k) {
+        if (starts[k] == ends[k]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void KMove::validate() const {
+    if (valid()) {
+        return;
+    }
+    throw std::logic_error("invalid kmove.");
 }
 
 KMove KMove::operator+(const KMove& other) const {
@@ -24,6 +37,19 @@ KMove KMove::operator+(const KMove& other) const {
         , std::cbegin(other.removes)
         , std::cend(other.removes));
     return new_kmove;
+}
+
+KMove& KMove::operator+=(const KMove& other) {
+    starts.insert(std::end(starts)
+        , std::cbegin(other.starts)
+        , std::cend(other.starts));
+    ends.insert(std::end(ends)
+        , std::cbegin(other.ends)
+        , std::cend(other.ends));
+    removes.insert(std::end(removes)
+        , std::cbegin(other.removes)
+        , std::cend(other.removes));
+    return *this;
 }
 
 size_t KMove::current_k() const { return starts.size(); }

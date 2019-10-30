@@ -19,7 +19,7 @@ inline primitives::sequence_t sequence(primitives::sequence_t max) {
 
 // selects at random k unique points in the range [start, end).
 // TODO: try to do better than O(end - start).
-std::vector<primitives::sequence_t> random_set(primitives::sequence_t start, primitives::sequence_t end, size_t k) {
+inline std::vector<primitives::sequence_t> random_set(primitives::sequence_t start, primitives::sequence_t end, size_t k) {
     const auto &n = end - start;
     std::vector<primitives::sequence_t> candidates(n);
     for (primitives::sequence_t s{0}; s < n; ++s) {
@@ -30,6 +30,10 @@ std::vector<primitives::sequence_t> random_set(primitives::sequence_t start, pri
     std::vector<primitives::sequence_t> selection(begin, begin + k);
     std::sort(std::begin(selection), std::end(selection));
     return selection;
+}
+
+inline bool random_bool() {
+    return (sequence(1) & 1) == 0;
 }
 
 }  // namespace randomize
