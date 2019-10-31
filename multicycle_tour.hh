@@ -17,6 +17,12 @@ public:
     bool split() const { return cycle_end_ > 1; }
     auto cycles() const { return cycle_end_; }
 
+    // only call this if you expect the tour is now single-cycle.
+    const std::vector<primitives::point_id_t> &update_order() {
+        Tour::update_next();
+        return order_;
+    }
+
 private:
     std::vector<primitives::cycle_id_t> cycle_id_;
     primitives::cycle_id_t cycle_end_ {1}; // one-past-the-last cycle id.

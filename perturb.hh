@@ -8,7 +8,8 @@
 #include "randomize/double_bridge.h"
 #include "randomize/randomize.hh"
 #include "tour.hh"
-#include <point_quadtree/Domain.h>
+#include "multicycle_tour.hh"
+#include "point_quadtree/Domain.h"
 
 #include <optional>
 #include <vector>
@@ -134,6 +135,44 @@ inline Tour random_section(const HillClimber &hill_climber, const Tour &tour, si
     new_hill_climber.changed(kmove);
     hill_climb::hill_climb(new_hill_climber, new_tour, kmax);
     return new_tour;
+}
+
+inline std::vector<primitives::point_id_t> one_edge_per_cycle(const MulticycleTour &tour) {
+    std::vector<primitives::point_id_t> points(tour.size());
+    primitives::point_id_t i{0};
+    for (auto &p : points) {
+        p = i++;
+    }
+    std::random_shuffle(std::begin(points), std::end(points));
+    std::vector<primitives::point_id_t> selections(tour.cycles(), constants::INVALID_POINT);
+    size_t selected{0};
+    for (const auto &p : points) {
+        const auto &c = tour.cycle_id(p);
+        if (selections[c] == constants::INVALID_POINT) {
+            selections[c] = p;
+            ++selected;
+            if (selected == selections.size()) {
+                break;
+            }
+        }
+    }
+    return selections;
+}
+
+inline std::optional<KMove> random_cycle_merge_move(const MulticycleTour &tour) {
+    const auto &removal_edges = one_edge_per_cycle(tour);
+    if (removal_edges.empty()) {
+        return std::nullopt;
+    }
+    KMove kmove;
+    auto prev_start = removal_edges.back();
+    for (const auto &start : removal_edges) {
+        kmove.starts.push_back(prev_start);
+        kmove.ends.push_back(tour.next(start));
+        kmove.removes.push_back(start);
+        prev_start = start;
+    }
+    return kmove;
 }
 
 }  // namespace perturb

@@ -112,6 +112,12 @@ int main(int argc, const char** argv)
     mt.multicycle_swap(perturbation_kmove);
     std::cout << "post-swap cycle count: " << mt.cycles() << std::endl;
     std::cout << "min cycle size: " << mt.min_cycle_size() << std::endl;
+    const auto &merging_kmove = perturb::random_cycle_merge_move(mt);
+    if (merging_kmove) {
+        mt.multicycle_swap(*merging_kmove);
+        std::cout << "cycles after merging move: " << mt.cycles() << std::endl;
+        fileio::write_ordered_points(mt.update_order(), "output/merged_tour.txt");
+    }
 
     // perturbation loop.
     size_t local_optima{1};

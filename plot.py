@@ -51,7 +51,7 @@ def read_and_plot_tour(coordinates, tour_file_path, markers):
 print("plotting tours.")
 colors = ["b", "r:"]
 for i in range(2, len(sys.argv)):
-    read_and_plot_tour(sys.argv[i], colors[i % len(colors)])
+    read_and_plot_tour(sys.argv[1], sys.argv[i], colors[i % len(colors)])
 
 print("showing plot.")
 plt.show()
