@@ -87,6 +87,13 @@ KMove make_perturbation(const Tour &tour, std::vector<edge::Edge> &short_edges) 
     std::unordered_set<primitives::point_id_t> removed;
     std::set<edge::Edge> added;
     for (const auto &edge : short_edges) {
+        // max_replacement_ratio is in [0, 1].
+        // it is essentially k / n, where k is the k-value for the perturbing k-opt move,
+        // and n is the instance size.
+        constexpr double MAX_REPLACEMENT_RATIO{0.01};
+        if (large_kmove.current_k() >= MAX_REPLACEMENT_RATIO * tour.size()) {
+            break;
+        }
         if (randomize::random_bool()) {
             // try PREV first, then NEXT if PREV is not viable.
             auto kmove = kmove_remove_prev(tour, edge);

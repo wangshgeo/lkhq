@@ -113,10 +113,14 @@ int main(int argc, const char** argv)
     std::cout << "post-swap cycle count: " << mt.cycles() << std::endl;
     std::cout << "min cycle size: " << mt.min_cycle_size() << std::endl;
     const auto &merging_kmove = perturb::random_cycle_merge_move(mt);
-    if (merging_kmove) {
+    constexpr bool RUN_EXPERIMENTAL{false};
+    if (merging_kmove and RUN_EXPERIMENTAL) {
         mt.multicycle_swap(*merging_kmove);
         std::cout << "cycles after merging move: " << mt.cycles() << std::endl;
         fileio::write_ordered_points(mt.update_order(), "output/merged_tour.txt");
+        hill_climber.changed(*merging_kmove);
+        auto new_length = hill_climb::hill_climb(hill_climber, mt, kmax);
+        std::cout << "post-merge post-climb length: " << new_length << std::endl;
     }
 
     // perturbation loop.
@@ -132,6 +136,7 @@ int main(int argc, const char** argv)
         const auto kmove = merge::merge(tour, new_tour);
         if (kmove) {
             hill_climber.changed(*kmove);
+            hill_climb::hill_climb(hill_climber, tour, kmax);
         }
         write_if_better(tour.length());
         std::cout << "best length: " << best_length << std::endl;
