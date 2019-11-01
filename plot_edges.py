@@ -3,9 +3,10 @@
 from matplotlib import pyplot as plt
 import plot_util
 
-instance_file = "../data/xrb14233.tsp"
 instance_file = "../data/pbn423.tsp"
+instance_file = "../data/xrb14233.tsp"
 optimal_tour_file = "../data/pbn423.tour"
+optimal_tour_file = "../data/xrb14233.tour"
 coordinates = plot_util.read_point_file_path(instance_file)
 old_edges = plot_util.read_edge_list("output/old_edges.txt")
 new_edges = plot_util.read_edge_list("output/new_edges.txt")

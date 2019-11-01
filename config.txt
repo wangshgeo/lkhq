@@ -2,7 +2,7 @@
 kmax            15 # latest mona lisa
 kmax            3
 
-kmax_kswap      29
+kmax_kswap      5
 
 # required.
 tsp_file_path   ../data/xqf131.tsp

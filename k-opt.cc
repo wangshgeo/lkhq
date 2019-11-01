@@ -97,30 +97,32 @@ int main(int argc, const char** argv)
     }
     write_if_better(new_length);
 
-    // temporary experimental output.
-    const auto &short_edge_set = two_short::get_short_edges(point_set, tour);
-    std::vector<edge::Edge> short_edges(std::cbegin(short_edge_set), std::cend(short_edge_set));
-    fileio::write_pairs(short_edges, "output/short_edges.txt");
-    std::cout << "ratio of short edges to instance size: "
-        << static_cast<double>(short_edges.size()) / point_set.size()
-        << std::endl;
-    const auto &perturbation_kmove = two_short::make_perturbation(tour, short_edges);
-    std::cout << "replacement ratio: " << static_cast<double>(perturbation_kmove.current_k()) / point_set.size() << std::endl;
-
-    // temporary experimental output.
-    MulticycleTour mt(tour);
-    mt.multicycle_swap(perturbation_kmove);
-    std::cout << "post-swap cycle count: " << mt.cycles() << std::endl;
-    std::cout << "min cycle size: " << mt.min_cycle_size() << std::endl;
-    const auto &merging_kmove = perturb::random_cycle_merge_move(mt);
     constexpr bool RUN_EXPERIMENTAL{false};
-    if (merging_kmove and RUN_EXPERIMENTAL) {
-        mt.multicycle_swap(*merging_kmove);
-        std::cout << "cycles after merging move: " << mt.cycles() << std::endl;
-        fileio::write_ordered_points(mt.update_order(), "output/merged_tour.txt");
-        hill_climber.changed(*merging_kmove);
-        auto new_length = hill_climb::hill_climb(hill_climber, mt, kmax);
-        std::cout << "post-merge post-climb length: " << new_length << std::endl;
+    if (RUN_EXPERIMENTAL) {
+        // temporary experimental output.
+        const auto &short_edge_set = two_short::get_short_edges(point_set, tour);
+        std::vector<edge::Edge> short_edges(std::cbegin(short_edge_set), std::cend(short_edge_set));
+        fileio::write_pairs(short_edges, "output/short_edges.txt");
+        std::cout << "ratio of short edges to instance size: "
+            << static_cast<double>(short_edges.size()) / point_set.size()
+            << std::endl;
+        const auto &perturbation_kmove = two_short::make_perturbation(tour, short_edges);
+        std::cout << "replacement ratio: " << static_cast<double>(perturbation_kmove.current_k()) / point_set.size() << std::endl;
+
+        // temporary experimental output.
+        MulticycleTour mt(tour);
+        mt.multicycle_swap(perturbation_kmove);
+        std::cout << "post-swap cycle count: " << mt.cycles() << std::endl;
+        std::cout << "min cycle size: " << mt.min_cycle_size() << std::endl;
+        const auto &merging_kmove = perturb::random_cycle_merge_move(mt);
+        if (merging_kmove) {
+            mt.multicycle_swap(*merging_kmove);
+            std::cout << "cycles after merging move: " << mt.cycles() << std::endl;
+            fileio::write_ordered_points(mt.update_order(), "output/merged_tour.txt");
+            hill_climber.changed(*merging_kmove);
+            auto new_length = hill_climb::hill_climb(hill_climber, mt, kmax);
+            std::cout << "post-merge post-climb length: " << new_length << std::endl;
+        }
     }
 
     // perturbation loop.
